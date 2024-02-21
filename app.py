@@ -6,11 +6,8 @@ from flask_marshmallow import Marshmallow
 import pymysql
 pymysql.install_as_MySQLdb()
 
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:pass123@localhost/labct'
-# Replace 'username' and 'password' with your MySQL username and password
-# Replace 'flask_app_db' with the name of your MySQL database
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
@@ -30,9 +27,9 @@ class Fornecedores(db.Model):
     email_vendedor = db.Column(db.String(100))
 
 
-# Define Schema
+
     
-# Define Schema for serialization
+# Schema for serialization
 class FornecedorSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Fornecedores
@@ -48,21 +45,24 @@ class FornecedorSchema(ma.SQLAlchemySchema):
 
     
 
+@app.route('/')
+def index():
+    return "Hello World"
 
 with app.app_context():
         db.create_all()
 
 
-@app.route('/cleanup', methods=['GET'])
-def cleanup():
+@app.route('/cleanup-fornecedores', methods=['GET'])
+def cleanupFornecedor():
     with app.app_context():
         db.session.query(Fornecedores).delete()  # Delete all entries from the Entry table
         db.session.commit()
-    return redirect(url_for('index'))
+    return redirect(url_for('fornecedores'))
 
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
+@app.route('/fornecedores', methods=['GET', 'POST'])
+def fornecedores():
     if request.method == 'POST':
         nome_fornecedor = request.form.get('nome_fornecedor')
         tempo_entrega = request.form.get('tempo_entrega')
@@ -83,22 +83,22 @@ def index():
             )
         db.session.add(entry)
         db.session.commit()
-        return redirect(url_for('index'))  # Redirect to GET request after form submission
+        return redirect(url_for('fornecedores'))  # Redirect to GET request after form submission
 
     fornecedores = Fornecedores.query.all()
     fornecedor_schema = FornecedorSchema(many=True)
     serialized_data = fornecedor_schema.dump(fornecedores)
-    return render_template('index.html', fornecedores=serialized_data)
+    return render_template('fornecedores.html', fornecedores=serialized_data)
 
-@app.route('/delete/<int:id>', methods=['POST'])
-def delete(id):
+@app.route('/delete-fornecedor/<int:id>', methods=['POST'])
+def deleteFornecedor(id):
     fornecedores = Fornecedores.query.get_or_404(id)
     db.session.delete(fornecedores)
     db.session.commit()
-    return redirect(url_for('index'))
+    return redirect(url_for('fornecedores', id=id) )
 
-@app.route('/edit/<int:id>', methods=['POST'])
-def edit(id):
+@app.route('/edit-fornecedor/<int:id>', methods=['POST'])
+def editFornecedor(id):
     if request.method == 'POST':
         fornecedores = Fornecedores.query.get_or_404(id)
         fornecedores.nome_fornecedor = request.form.get('nome_fornecedor')
@@ -110,7 +110,7 @@ def edit(id):
         fornecedores.email_vendedor = request.form.get('email_vendedor')
         
         db.session.commit()
-        return redirect(url_for('index'))
+        return redirect(url_for('fornecedores', id=id))
 
 
 if __name__ == '__main__':
