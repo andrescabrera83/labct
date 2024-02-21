@@ -45,12 +45,15 @@ class FornecedorSchema(ma.SQLAlchemySchema):
 
     
 
-@app.route('/')
-def index():
-    return "Hello World"
 
 with app.app_context():
         db.create_all()
+
+
+
+@app.route('/')
+def index():
+    return "Hello World"
 
 
 @app.route('/cleanup-fornecedores', methods=['GET'])
@@ -89,6 +92,8 @@ def fornecedores():
     fornecedor_schema = FornecedorSchema(many=True)
     serialized_data = fornecedor_schema.dump(fornecedores)
     return render_template('fornecedores.html', fornecedores=serialized_data)
+
+
 
 @app.route('/delete-fornecedor/<int:id>', methods=['POST'])
 def deleteFornecedor(id):
