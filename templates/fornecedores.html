@@ -11,7 +11,7 @@
 
 <style>
     body {
-        background-color: rgb(218, 218, 218);
+        background-color: rgb(225, 225, 225);
         margin: 0;
     }
 
@@ -27,8 +27,33 @@
         margin-top: 50px;
         display: grid;
         grid-template-columns: 25% 75%;
+        grid-template-areas:
+            "heading heading"
+            "div1 div2";
         grid-column-gap: 26px;
     }
+
+    .links {
+        grid-area: heading;
+        width: 100%;
+        margin-bottom: 16px;
+        /* Span all columns */
+    }
+
+    .forma {
+        grid-area: div1;
+        /* Span 1 column */
+    }
+
+    .tabela {
+        grid-area: div2;
+        /* Span 3 columns */
+    }
+
+    .active {
+            font-weight: bold; /*active link */
+            color: darkblue;
+        }
 
     @media only screen and (max-width: 1600px) {
         .container {
@@ -63,21 +88,25 @@
 
     <div class="container">
 
+        <span class="links">
+            <a href="{{ url_for('fornecedores')}}"  {% if request.path == url_for('fornecedores') %}class="active"{% endif %}>Fornecedores</a> / 
+            <a href="{{ url_for('materiasPrimas')}}" {% if request.path == url_for('materiasPrimas') %}class="active"{% endif %}>Materias Primas</a> / 
+            <a href="#">Receitas</a> 
+        </span>
+
         <div class="forma" style="background-color: white;
-        padding: 30px 40px 30px 40px;
+        padding: 20px 25px 20px 25px;
         -webkit-border-radius: 14px;
         -moz-border-radius: 14px;
         border-radius: 14px;">
 
             <!-- <p id="screenWidthDisplay">Current screen width will be displayed here.</p> -->
 
-
-
-            <h2 style="margin-bottom: 32px;">Cadastrar Fornecedor</h2>
+            <h4 style="margin-bottom: 18px;">Cadastrar Fornecedor</h4>
             <form style="width: 100%;" action="/fornecedores" method="post">
 
                 <div class="form-group">
-                    <label for="nome_fornecedor">Nome Do Fornecedor</label>
+                    <label style="margin-bottom: 1px;" for="nome_fornecedor">Nome Do Fornecedor</label>
                     <input type="text" class="form-control" id="nome_fornecedor" name="nome_fornecedor" required>
                 </div>
 
@@ -87,23 +116,19 @@
 
                     <div class="form-group" style="width: 90%;">
 
-                        <label for="tempo_entrega">Tempo De Entrega (Dias)</label>
+                        <label style="margin-bottom: 1px;" for="tempo_entrega">Tempo De Entrega (Dias)</label>
                         <input type="number" class="form-control" id="tempo_entrega" name="tempo_entrega" min="0"
                             required>
                     </div>
                     <div class="form-group">
-                        <label for="prazo_pagamento">Prazo Para Pagar (Dias)</label>
+                        <label style="margin-bottom: 1px;" for="prazo_pagamento">Prazo Para Pagar (Dias)</label>
                         <input type="number" class="form-control" id="prazo_pagamento" name="prazo_pagamento" min="0"
                             required>
                     </div>
 
-
                 </div>
-
-
-
                 <div class="form-group">
-                    <label for="dia_pedido">Dia fixo para realizar o pedido</label>
+                    <label style="margin-bottom: 1px;" for="dia_pedido">Dia fixo para realizar o pedido</label>
                     <select class="form-control" id="dia_pedido" name="dia_pedido" required>
                         <option value="Segunda-Feira">Segunda-Feira</option>
                         <option value="Terça-Feira">Terça-Feira</option>
@@ -115,16 +140,16 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="nome_vendedor">Nome Do Venededor Responsavel:</label>
+                    <label style="margin-bottom: 1px;" for="nome_vendedor">Nome Do Venededor Responsavel:</label>
                     <input type="text" class="form-control" id="nome_vendedor" name="nome_vendedor" required>
                 </div>
                 <div class="form-group">
-                    <label for="contato_tel">Contato Telefonico:</label>
+                    <label style="margin-bottom: 1px;" for="contato_tel">Contato Telefonico:</label>
                     <input type="text" class="form-control" id="contato_tel" name="contato_tel"
                         onkeypress='validate(event)' required>
                 </div>
                 <div class="form-group">
-                    <label for="email_vendedor">E-Mail:</label>
+                    <label style="margin-bottom: 1px;" for="email_vendedor">E-Mail:</label>
                     <input type="email" class="form-control" id="email_vendedor" name="email_vendedor">
                 </div>
 
@@ -137,11 +162,11 @@
         </div>
 
         <div class="tabla" style="background-color: white;
-        padding: 30px 40px 30px 40px;
+        padding: 20px 25px 20px 25px;
         -webkit-border-radius: 14px;
         -moz-border-radius: 14px;
         border-radius: 14px;">
-            <h2 style="margin-bottom: 42px;">Fornecedores</h2>
+            <h4 style="margin-bottom: 18px;">Fornecedores</h4>
 
 
             <div style="display: flex; width: 100%; justify-content: end; margin-bottom: 31px; ">
