@@ -1,4 +1,4 @@
-
+from app import ma
 from ..models import receita_model
 from marshmallow import fields
 

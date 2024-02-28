@@ -1,32 +1,105 @@
 {% extends "base.html" %}
 {% block conteudo %}
 
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item" style="font-size: 11px">
-            <a href="#">
-            Admin
-            </a>
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">
-            Receitas
-        </li>
-    </ol>
-</nav>
-<div class="card border-0 shadow-sm">
-    <div class="card-header">
-        <h3 class="card-title">{% if receita %}Atualizar Receita{% else %}Cadastrando Nova Receita{% endif %}</h3>
-    </div>
-    <div class="card-body">
-        <form id="form-cadastro-receita" method="POST" action="#" enctype="multipart/form-data">
-            {% if receita %}
-            
-            aqui prepara formulario
+<style>
+    body {
+        background-color: rgb(225, 225, 225);
+        margin: 0;
+    }
 
-            {% endif %}
 
-        <hr>
+
+    .container {
+        /*background-color: white;
+        padding: 30px 60px 30px 60px;
+        -webkit-border-radius: 14px;
+        -moz-border-radius: 14px;
+        border-radius: 14px;*/
+        min-width: 92%;
+        margin-top: 50px;
+        display: grid;
+        grid-template-columns: 25% 75%;
+        grid-template-areas:
+            "heading heading"
+            "div1 div2";
+        grid-column-gap: 26px;
+    }
+
+    .links {
+        grid-area: heading;
+        width: 100%;
+        margin-bottom: 16px;
+        /* Span all columns */
+    }
+
+    .forma {
+        grid-area: div1;
+        /* Span 1 column */
+    }
+
+    .tabela {
+        grid-area: div2;
+        /* Span 3 columns */
+    }
+
+    .active {
+            font-weight: bold; /*active link */
+            color: darkblue;
+        }
+
+    @media only screen and (max-width: 1600px) {
+        .container {
+            /*background-color: white;
+        padding: 30px 60px 30px 60px;
+        -webkit-border-radius: 14px;
+        -moz-border-radius: 14px;
+        border-radius: 14px;*/
+            min-width: 100%;
+            margin-top: 35px;
+            display: flex;
+            flex-direction: column;
+            padding-inline: 35px;
+        }
+
+        .forma {
+            margin-top: 33px;
+            margin-bottom: 53px;
+            order: 2;
+        }
+
+        .table-id {
+            display: none;
+        }
+
+        
+    }
+</style>
+
+<body>
+
+
+    <div class="container">
+
+        <span class="links">
+            <a href="#">Clientes</a> / 
+            <a href="#">Usuários</a> / 
+            <a href="{{ url_for('receitas')}}">Receitas</a> / 
+            <a href="#" >Filiais_PDV´s</a>  
+        </span>
+
+        <div class="forma" style="background-color: white;
+        padding: 20px 25px 20px 25px;
+        -webkit-border-radius: 14px;
+        -moz-border-radius: 14px;
+        border-radius: 14px;">
+
+            <!-- <p id="screenWidthDisplay">Current screen width will be displayed here.</p> -->
+
+         
+        </div>
+        <h4 style="margin-bottom: 18px;">Cadastrar e Listar Receitas</h4>
     </div>
-</div>
+</body>
+
 
 {% endblock conteudo %}

@@ -1,13 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fornecedores</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
+{% extends "base.html" %}
+{% block conteudo %}
 
 <style>
     body {
@@ -91,8 +83,8 @@
         <span class="links">
             <a href="{{ url_for('fornecedores')}}"  {% if request.path == url_for('fornecedores') %}class="active"{% endif %}>Fornecedores</a> / 
             <a href="{{ url_for('materiasPrimas')}}" {% if request.path == url_for('materiasPrimas') %}class="active"{% endif %}>Materias Primas</a> / 
-            <a href="{{ url_for('receitas')}}" {% if request.path == url_for('receitas') %}class="active"{% endif %}>Receitas</a> / 
-            <a href="#" >Inventário</a> / 
+            <a href="#" >Pedidos de Compra</a> / 
+            <a href="#" >Histórico Pedidos</a>  
         </span>
 
         <div class="forma" style="background-color: white;
@@ -231,6 +223,15 @@
                                         data-toggle="modal" data-target="#deleteModal{{ fornecedor.id_fornecedor }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
                                             fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                            <path
+                                                d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
+                                        </svg>
+                                    </button>
+
+                                    <button type="button" style="margin: 3px; " class="btn btn-success btn-sm"
+                                        data-toggle="modal" data-target="#">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                            fill="currentColor" class="btn btn-info" viewBox="0 0 16 16">
                                             <path
                                                 d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
                                         </svg>
@@ -442,3 +443,5 @@
 </body>
 
 </html>
+
+{% endblock conteudo %}

@@ -133,7 +133,7 @@ with app.app_context():
 
 
 
-@app.route('/Home')
+@app.route('/')
 def index():
     return render_template('index.html')
 
