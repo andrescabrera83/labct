@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block conteudo %}
+
+<style>
+    body {
+        background-color: rgb(225, 225, 225);
+        margin: 0;
+    }
+
+    .container {
+        /*background-color: white;
+        padding: 30px 60px 30px 60px;
+        -webkit-border-radius: 14px;
+        -moz-border-radius: 14px;
+        border-radius: 14px;*/
+        min-width: 92%;
+        margin-top: 50px;
+        display: grid;
+        grid-template-columns: 25% 75%;
+        grid-template-areas:
+            "heading heading"
+            "div1 div2";
+        grid-column-gap: 26px;
+    }
+
+    .forma,
+    .tabela {
+        background-color: white;
+        padding: 20px 25px 20px 25px;
+        -webkit-border-radius: 14px;
+        -moz-border-radius: 14px;
+        border-radius: 14px;
+    }
+
+
+
+    .links {
+        grid-area: heading;
+        width: 100%;
+        margin-bottom: 16px;
+        /* Span all columns */
+    }
+
+    .forma {
+        grid-area: div1;
+        /* Span 1 column */
+    }
+
+    .tabela {
+        grid-area: div2;
+        /* Span 3 columns */
+    }
+
+    .active {
+            font-weight: bold; /*active link */
+            color: darkblue;
+        }
+
+    @media only screen and (max-width: 1600px) {
+        .container {
+            /*background-color: white;
+        padding: 30px 60px 30px 60px;
+        -webkit-border-radius: 14px;
+        -moz-border-radius: 14px;
+        border-radius: 14px;*/
+            min-width: 100%;
+            margin-top: 35px;
+            display: flex;
+            flex-direction: column;
+            padding-inline: 35px;
+        }
+
+        .forma {
+            margin-top: 33px;
+            margin-bottom: 53px;
+            order: 2;
+        }
+    }
+</style>
+
+<body>
+
+
+
+    <div class="container">
+        <span class="links">
+            <a href="{{ url_for('fornecedores')}}"  {% if request.path == url_for('fornecedores') %}class="active"{% endif %}>Fornecedores</a> / 
+            <a href="{{ url_for('materiasPrimas')}}" {% if request.path == url_for('materiasPrimas') %}class="active"{% endif %}>Materias Primas</a> / 
+            <a href="#" >Inventário</a> / 
+        </span>
+        <div class="forma">
+            <h4 style="margin-bottom: 18px;">Cadastrar Materias Primas</h4>
+            <form action="/materiasprimas" method="post">
+                <div class="form-group">
+                    <label style="margin-bottom: 1px;" for="nome_mp">Materia Prima</label>
+                    <input type="text" class="form-control" id="nome_mp" name="nome_mp" required>
+                </div>
+                <div class="form-group">
+                    <label style="margin-bottom: 1px;" for="unidade_mp">Unidade De Compra</label>
+                    <select class="form-control" id="unidade_mp" name="unidade_mp" required>
+                        <option value="KG">KG</option>
+                        <option value="UN">UN</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="margin-bottom: 1px;" for="peso_mp">Peso(KG)</label>
+                    <input type="number" class="form-control" step="0.1" id="peso_mp" name="peso_mp" required>
+                </div>
+                <div class="form-group">
+                    <label style="margin-bottom: 1px;" for="quantidade_mp">Quantidade</label>
+                    <input type="number" class="form-control" id="quantidade_mp" name="quantidade_mp" required>
+                </div>
+                <div class="form-group">
+                    <label style="margin-bottom: 1px;" for="id_fornecedor">Fornecedor:</label>
+                    <select class="form-control" id="id_fornecedor" name="id_fornecedor" required>
+                        {% for fornecedor in fornecedores %}
+                        <option value="{{ fornecedor.id_fornecedor }}">{{ fornecedor.nome_fornecedor }}</option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="tabela">
+            <h4 style="margin-bottom: 18px;">Materias Primas</h4>
+        </div>
+    </div>
+
+</body>
+
+{% endblock conteudo %}

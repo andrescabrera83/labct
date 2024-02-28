@@ -1,16 +1,20 @@
-# app.py
+
+import datetime
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
+from flask_marshmallow import Marshmallow, fields
+
 
 import pymysql
+from sqlalchemy import func
 pymysql.install_as_MySQLdb()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:pass123@localhost/labct'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost/labct24'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
+
 
 
 class Fornecedores(db.Model):
@@ -41,6 +45,32 @@ class MateriasPrimas(db.Model):
     pedidomin_mp = db.Column(db.Integer)
     gastomedio_mp = db.Column(db.Numeric(10, 3))
     id_fornecedor = db.Column(db.Integer)
+
+
+class Receita(db.Model):
+    __tablename__ = "receitas"
+    __table_args__ = {"extend_existing": True}
+   # include_relationships = True
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
+    descricao_mix = db.Column(db.Text, nullable=False)
+    modo_preparo = db.Column(db.Text, nullable=False)
+    departamento = db.Column(db.String(50), nullable=False)
+    rend_kg = db.Column(db.Float, nullable=False)
+    rend_unid = db.Column(db.Float, nullable=False)
+    validade = db.Column(db.Integer, nullable=False)
+    status = db.Column(db.Integer, default=1, nullable=True)
+    cadastrado_em = db.Column(db.DateTime, nullable=False, default=func.now)
+    #atualizado_em = db.Column(db.DateTime, default=datetime.now(), onupdate=datetime.now())
+    # TODO relacionando Receita c/ usuario 1/1
+   # usuario = db.Column(db.Integer, db.ForeignKey("usuario.id"), nullable=True)
+    # TODO relacionando RECEITA c/ cliente N/1
+   # cliente_id = db.Column(db.Integer, db.ForeignKey("cliente.id"), nullable=False)
+   # cliente = db.relationship("Cliente", back_populates="receitas", foreign_keys=[cliente_id])
+    # TODO relacionando RECEITA c/ mixprodutos 1/1
+   # mixprodutos = db.relationship("MixProduto", back_populates="receita", uselist=False, cascade="all, delete-orphan", lazy="joined", foreign_keys=MixProduto.receita_id)
+    # TODO Relacionamento 1/N com a tabela PedidoProducao
+   # pedidosprod = db.relationship("PedidoProducao", back_populates="receitas")
 
 
     
@@ -74,7 +104,28 @@ class MateriasPrimasSchema(ma.SQLAlchemySchema):
     gastomedio_mp = ma.auto_field()
     id_fornecedor = ma.auto_field()
 
-    
+
+
+
+#TODO ** Classe ReceitaSchema_Modelo ** este esquema define como os objetos da classe Receita devem ser convertidos em um formato serializado (como JSON) e vice-versa. Ele fornece uma estrutura clara para lidar com a validação e formatação de dados ao interagir com os modelos.
+class ReceitasSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Receita
+
+    id = ma.auto_field()
+    descricao_mix = ma.auto_field()
+    modo_preparo = ma.auto_field()
+    departamento = ma.auto_field()
+    rend_kg = ma.auto_field()
+    rend_unid = ma.auto_field()
+    validade = ma.auto_field()
+    status = ma.auto_field()
+    cadastrado_em = ma.auto_field()
+    #atualizado_em = ma.auto_field()
+    #usuario = ma.auto_field()
+    #cliente = ma.auto_field()
+    #mixprodutos = ma.auto_field()
+    #pedidosprod = ma.auto_field()
 
 
 with app.app_context():
@@ -82,9 +133,27 @@ with app.app_context():
 
 
 
-@app.route('/')
+@app.route('/Home')
 def index():
-    return "Hello World"
+    return render_template('index.html')
+
+@app.route('/contatos')
+def contatos():
+    return render_template('contatos.html')
+
+
+
+
+#TODO função Receitas 
+@app.route('/receitas')
+def receitas():
+
+    #receitas = receitas.query.all() #get values from receitas table
+    #receita_schema = ReceitasSchema(many=True)
+   # serialized_data = receita_schema.dump(receitas)
+    return render_template('receitas/receitas.html')
+
+##
 
 
 @app.route('/materiasprimas')
@@ -93,7 +162,7 @@ def materiasPrimas():
     fornecedores = Fornecedores.query.all() #get values from fornecedores table
     fornecedor_schema = FornecedorSchema(many=True)
     serialized_data = fornecedor_schema.dump(fornecedores)
-    return render_template('materiasprimas.html', fornecedores=serialized_data)
+    return render_template('materiasprimas/materiasprimas.html', fornecedores=serialized_data)
 
 
 @app.route('/cleanup-fornecedores', methods=['GET'])
@@ -131,7 +200,7 @@ def fornecedores():
     fornecedores = Fornecedores.query.all()
     fornecedor_schema = FornecedorSchema(many=True)
     serialized_data = fornecedor_schema.dump(fornecedores)
-    return render_template('fornecedores.html', fornecedores=serialized_data)
+    return render_template('fornecedor/fornecedores.html', fornecedores=serialized_data)
 
 
 
@@ -158,6 +227,6 @@ def editFornecedor(id):
         return redirect(url_for('fornecedores', id=id))
 
 
-if __name__ == '__main__':
-    
+if __name__ == '__main__':    
     app.run(debug=True)
+

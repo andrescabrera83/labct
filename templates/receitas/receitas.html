@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block conteudo %}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item" style="font-size: 11px">
+            <a href="#">
+            Admin
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            Receitas
+        </li>
+    </ol>
+</nav>
+<div class="card border-0 shadow-sm">
+    <div class="card-header">
+        <h3 class="card-title">{% if receita %}Atualizar Receita{% else %}Cadastrando Nova Receita{% endif %}</h3>
+    </div>
+    <div class="card-body">
+        <form id="form-cadastro-receita" method="POST" action="#" enctype="multipart/form-data">
+            {% if receita %}
+            
+            aqui prepara formulario
+
+            {% endif %}
+
+        <hr>
+    </div>
+</div>
+
+{% endblock conteudo %}
