@@ -1,10 +1,9 @@
 ## IMPORTS AND CONFIGURATION ###############################
 
-
-
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+
 
 import pymysql
 pymysql.install_as_MySQLdb()
@@ -15,9 +14,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
-
-# MODELS ###################################################
-
+#FORNECEDORES##################################################################################################################################
 
 class Fornecedores(db.Model):
     __tablename__ = "fornecedores"
@@ -32,25 +29,6 @@ class Fornecedores(db.Model):
     contato_tel = db.Column(db.String(45))
     email_vendedor = db.Column(db.String(100))
 
-
-class MateriasPrimas(db.Model):
-    __tablename__ = "materiasprimas"
-    __table_args__ = {"extend_existing": True}
-
-    id_mp = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    nome_mp = db.Column(db.String(45))
-    unidade_mp = db.Column(db.Enum('KG', 'UN'))
-    peso_mp = db.Column(db.Numeric(10, 3))
-    quantidade_mp = db.Column(db.Integer)
-    custo_mp = db.Column(db.Numeric(10, 3))
-    departamento_mp = db.Column(db.Enum('Carnes', 'Farinhas', 'Hortifruti', 'Mercearia', 'Misturas', 'Ovos', 'Queijos'))
-    pedidomin_mp = db.Column(db.Integer)
-    gastomedio_mp = db.Column(db.Numeric(10, 3))
-    id_fornecedor = db.Column(db.Integer)
-
-   
-# SCHEMA #######################################
-    
 class FornecedorSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Fornecedores
@@ -64,6 +42,23 @@ class FornecedorSchema(ma.SQLAlchemySchema):
     contato_tel = ma.auto_field()
     email_vendedor = ma.auto_field()
 
+#MATERIAS PRIMAS##################################################################################################################################
+
+class MateriasPrimas(db.Model):
+    __tablename__ = "materiasprimas"
+    __table_args__ = {"extend_existing": True}
+
+    id_mp = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nome_mp = db.Column(db.String(75))
+    unidade_mp = db.Column(db.Enum('KG', 'UN'))
+    peso_mp = db.Column(db.Numeric(10, 3))
+    quantidade_mp = db.Column(db.Integer)
+    custo_mp = db.Column(db.Numeric(10, 3))
+    departamento_mp = db.Column(db.Enum('Carnes', 'Farinhas', 'Hortifruti', 'Mercearia', 'Misturas', 'Ovos', 'Queijos'))
+    pedidomin_mp = db.Column(db.Integer)
+    gastomedio_mp = db.Column(db.Numeric(10, 3))
+    id_fornecedor = db.Column(db.Integer)
+    nome_fornecedor = db.Column(db.String(45))
 
 class MateriasPrimasSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -79,13 +74,71 @@ class MateriasPrimasSchema(ma.SQLAlchemySchema):
     pedidomin_mp = ma.auto_field()
     gastomedio_mp = ma.auto_field()
     id_fornecedor = ma.auto_field()
+    nome_fornecedor = ma.auto_field()
 
+
+#CLIENTES##################################################################################################################################
+
+
+class Clientes(db.Model):
+    __tablename__ = "clientes"
+    __table_args__ = {"extend_existing": True}
+
+    id_clt = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nome_clt = db.Column(db.String(45))
+    cnpj_clt = db.Column(db.String(14))
+    endereco_clt = db.Column(db.String(100))
+    numeroende_clt = db.Column(db.String(5))
+    bairro_clt = db.Column(db.String(45))
+    cidade_clt = db.Column(db.String(45))
+    estado_clt = db.Column(db.String(45))
+    contatotel_clt = db.Column(db.String(45))
+    email_clt = db.Column(db.String(75))
+    responsavel_clt = db.Column(db.String(45))
+
+class ClientesSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Clientes
+
+    id_clt = ma.auto_field()
+    nome_clt = ma.auto_field()
+    cnpj_clt = ma.auto_field()
+    endereco_clt = ma.auto_field()
+    numeroende_clt = ma.auto_field()    
+    bairro_clt = ma.auto_field()
+    cidade_clt = ma.auto_field()
+    estado_clt = ma.auto_field()
+    contatotel_clt = ma.auto_field()
+    email_clt = ma.auto_field()
+    responsavel_clt = ma.auto_field()
+
+
+#RECEITAS##################################################################################################################################
+
+class Receitas(db.Model):
+    __tablename__ = "receitas"
+    __table_args__ = {"extend_existing": True}
+
+    id_rct = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nome_rct = db.Column(db.String(75))
+    descricao_rct = db.Column(db.String)
+    preparo_rct = db.Column(db.String)
+    id_clt = db.Column(db.Integer)
+
+class ReceitasSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Receitas
+
+    id_rct = ma.auto_field()
+    nome_rct = ma.auto_field()
+    descricao_rct = ma.auto_field()
+    preparo_rct = ma.auto_field()
+    id_clt = ma.auto_field()
 
 with app.app_context():
-        db.create_all()
+    db.create_all()
 
-
-# ROUTES #########################################
+# ROUTES ########################################################################################################################
 
 @app.route('/')
 def index():
@@ -97,76 +150,6 @@ def cleanupFornecedor():
         db.session.query(Fornecedores).delete()  # Delete all entries from the Entry table
         db.session.commit()
     return redirect(url_for('fornecedores'))
-
-# MATERIAS PRIMAS ###################################
-
-@app.route('/materiasprimas', methods=['GET', 'POST'])
-def materiasPrimas():
-
-    fornecedores = Fornecedores.query.all() #get values from fornecedores table
-    fornecedor_schema = FornecedorSchema(many=True)
-    serialized_data_f = fornecedor_schema.dump(fornecedores)
-
-    if request.method == 'POST':
-        id_mp = request.form.get('id_mp')
-        nome_mp = request.form.get('nome_mp')
-        unidade_mp = request.form.get('unidade_mp')
-        peso_mp = request.form.get('peso_mp')
-        quantidade_mp = request.form.get('quantidade_mp')
-        custo_mp = request.form.get('custo_mp')
-        departamento_mp = request.form.get('departamento_mp')
-        pedidomin_mp = request.form.get('pedidomin_mp')
-        gastomedio_mp = request.form.get('gastomedio_mp')
-        id_fornecedor = request.form.get('id_fornecedor')
-
-        materiasprimas = MateriasPrimas(
-            id_mp=id_mp, 
-            nome_mp=nome_mp, 
-            unidade_mp=unidade_mp,
-            peso_mp=peso_mp,
-            quantidade_mp=quantidade_mp,
-            custo_mp=custo_mp,
-            departamento_mp=departamento_mp,
-            pedidomin_mp=pedidomin_mp,
-            gastomedio_mp=gastomedio_mp,
-            id_fornecedor=id_fornecedor
-            )
-        db.session.add(materiasprimas)
-        db.session.commit()
-        return redirect(url_for('materiasPrimas'))
-
-    materiasprimas = MateriasPrimas.query.all()
-    materiaprima_schema = MateriasPrimasSchema(many=True)
-    serialized_data_mp = materiaprima_schema.dump(materiasprimas)
-    return render_template('materiasprimas.html', fornecedores=serialized_data_f, materiasprimas = serialized_data_mp)
-
-#DELETE
-@app.route('/delete-materiaprima/<int:id>', methods=['POST'])
-def deleteMateriaPrima(id):
-    materiasprimas = MateriasPrimas.query.get_or_404(id)
-    db.session.delete(materiasprimas)
-    db.session.commit()
-    return redirect(url_for('materiasPrimas', id=id) )
-
-#EDIT
-@app.route('/edit-materiaprima/<int:id>', methods=['POST'])
-def editMateriaPrima(id):
-    if request.method == 'POST':
-        materiasprimas = MateriasPrimas.query.get_or_404(id)
-        materiasprimas.nome_mp = request.form.get('nome_mp')
-        materiasprimas.unidade_mp = request.form.get('unidade_mp')
-        materiasprimas.peso_mp = request.form.get('peso_mp')
-        materiasprimas.quantidade_mp = request.form.get('quantidade_mp')
-        materiasprimas.custo_mp = request.form.get('custo_mp')
-        materiasprimas.departamento_mp = request.form.get('departamento_mp')
-        materiasprimas.pedidomin_mp = request.form.get('pedidomin_mp')
-        materiasprimas.gastomedio_mp = request.form.get('gastomedio_mp')
-        materiasprimas.id_fornecedor = request.form.get('id_fornecedor')
-        
-        
-        db.session.commit()
-        return redirect(url_for('materiasPrimas', id=id))
-    
 
 
 ## FORNECEDORES ##########################################
@@ -223,6 +206,141 @@ def editFornecedor(id):
         
         db.session.commit()
         return redirect(url_for('fornecedores', id=id))
+    
+
+
+# MATERIAS PRIMAS ###################################
+
+@app.route('/materiasprimas', methods=['GET', 'POST'])
+def materiasPrimas():
+
+    fornecedores = Fornecedores.query.all() #get values from fornecedores table
+    fornecedor_schema = FornecedorSchema(many=True)
+    serialized_data_f = fornecedor_schema.dump(fornecedores)
+
+    if request.method == 'POST':
+        id_mp = request.form.get('id_mp')
+        nome_mp = request.form.get('nome_mp')
+        unidade_mp = request.form.get('unidade_mp')
+        peso_mp = request.form.get('peso_mp')
+        quantidade_mp = request.form.get('quantidade_mp')
+        custo_mp = request.form.get('custo_mp')
+        departamento_mp = request.form.get('departamento_mp')
+        pedidomin_mp = request.form.get('pedidomin_mp')
+        gastomedio_mp = request.form.get('gastomedio_mp')
+        id_fornecedor = request.form.get('id_fornecedor')
+
+        # Fetch the nome_fornecedor corresponding to the id_fornecedor from the Fornecedor table
+        fornecedor = Fornecedores.query.filter_by(id_fornecedor=id_fornecedor).first()
+        nome_fornecedor = fornecedor.nome_fornecedor if fornecedor else None
+
+        materiasprimas = MateriasPrimas(
+            id_mp=id_mp, 
+            nome_mp=nome_mp, 
+            unidade_mp=unidade_mp,
+            peso_mp=peso_mp,
+            quantidade_mp=quantidade_mp,
+            custo_mp=custo_mp,
+            departamento_mp=departamento_mp,
+            pedidomin_mp=pedidomin_mp,
+            gastomedio_mp=gastomedio_mp,
+            id_fornecedor=id_fornecedor,
+            nome_fornecedor=nome_fornecedor
+            )
+        db.session.add(materiasprimas)
+        db.session.commit()
+        return redirect(url_for('materiasPrimas'))
+
+    materiasprimas = MateriasPrimas.query.all()
+    materiaprima_schema = MateriasPrimasSchema(many=True)
+    serialized_data_mp = materiaprima_schema.dump(materiasprimas)
+    return render_template('materiasprimas.html', fornecedores=serialized_data_f, materiasprimas = serialized_data_mp)
+
+#DELETE
+@app.route('/delete-materiaprima/<int:id>', methods=['POST'])
+def deleteMateriaPrima(id):
+    materiasprimas = MateriasPrimas.query.get_or_404(id)
+    db.session.delete(materiasprimas)
+    db.session.commit()
+    return redirect(url_for('materiasPrimas', id=id) )
+
+#EDIT
+@app.route('/edit-materiaprima/<int:id>', methods=['POST'])
+def editMateriaPrima(id):
+    if request.method == 'POST':
+        materiasprimas = MateriasPrimas.query.get_or_404(id)
+        materiasprimas.nome_mp = request.form.get('nome_mp')
+        materiasprimas.unidade_mp = request.form.get('unidade_mp')
+        materiasprimas.peso_mp = request.form.get('peso_mp')
+        materiasprimas.quantidade_mp = request.form.get('quantidade_mp')
+        materiasprimas.custo_mp = request.form.get('custo_mp')
+        materiasprimas.departamento_mp = request.form.get('departamento_mp')
+        materiasprimas.pedidomin_mp = request.form.get('pedidomin_mp')
+        materiasprimas.gastomedio_mp = request.form.get('gastomedio_mp')
+        materiasprimas.id_fornecedor = request.form.get('id_fornecedor')
+        
+        
+        db.session.commit()
+        return redirect(url_for('materiasPrimas', id=id))
+
+
+# CLIENTES #####################################################
+    
+
+@app.route('/clientes', methods=['GET', 'POST'])
+def clientes():
+
+    if request.method == 'POST':
+        nome_clt = request.form.get('nome_clt')
+        cnpj_clt = request.form.get('cnpj_clt')
+        endereco_clt = request.form.get('endereco_clt')
+        numeroende_clt = request.form.get('numeroende_clt')   
+        bairro_clt = request.form.get('bairro_clt')
+        cidade_clt = request.form.get('cidade_clt')
+        estado_clt = request.form.get('estado_clt')
+        contatotel_clt = request.form.get('contatotel_clt')
+        email_clt = request.form.get('email_clt')
+        responsavel_clt = request.form.get('responsavel_clt')
+
+        clientes = Clientes(
+            nome_clt=nome_clt,
+            cnpj_clt=cnpj_clt,
+            endereco_clt=endereco_clt,
+            numeroende_clt=numeroende_clt,
+            bairro_clt=bairro_clt,
+            cidade_clt=cidade_clt,
+            estado_clt=estado_clt,
+            contatotel_clt=contatotel_clt,
+            email_clt=email_clt,
+            responsavel_clt=responsavel_clt
+        )
+        db.session.add(clientes)
+        db.session.commit()
+        return redirect(url_for('clientes')) 
+
+   
+
+    
+    return render_template('clientes.html')
+
+
+
+# RECEITAS #####################################################
+    
+
+@app.route('/receitas', methods=['GET', 'POST'])
+def receitas():
+
+    materiasprimas = MateriasPrimas.query.all()
+    materiasprimas_schema = MateriasPrimasSchema(many=True)
+    serialized_data_mp = materiasprimas_schema.dump(materiasprimas)
+
+    clientes = Clientes.query.all()
+    clientes_schema = ClientesSchema(many=True)
+    serialized_data_clt = clientes_schema.dump(clientes)
+
+    return render_template('receitas.html', materiasprimas=serialized_data_mp, clientes=serialized_data_clt)
+    
 
 
 # RUN APP ################################################

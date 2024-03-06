@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<style>
+
+body {
+        background-color: rgb(225, 225, 225);
+        margin: 0;
+    }
+
+    .container {
+        /*background-color: white;
+        padding: 30px 60px 30px 60px;
+        -webkit-border-radius: 14px;
+        -moz-border-radius: 14px;
+        border-radius: 14px;*/
+        min-width: 92%;
+        margin-top: 50px;
+        display: grid;
+        grid-template-columns: 25% 75%;
+        grid-template-areas:
+            "heading heading"
+            "div1 div2";
+        grid-column-gap: 26px;
+        margin-bottom: 75px;
+    }
+
+    .forma,
+    .tabela {
+        background-color: white;
+        padding: 20px 25px 20px 25px;
+        -webkit-border-radius: 14px;
+        -moz-border-radius: 14px;
+        border-radius: 14px;
+    }
+
+
+
+    .links {
+        grid-area: heading;
+        width: 100%;
+        margin-bottom: 16px;
+        /* Span all columns */
+    }
+
+    .forma {
+        grid-area: div1;
+        /* Span 1 column */
+    }
+
+    .tabela {
+        grid-area: div2;
+        /* Span 3 columns */
+    }
+
+    .active {
+        font-weight: bold;
+        /*active link */
+        color: darkblue;
+    }
+
+    @media only screen and (max-width: 1600px) {
+        .container {
+            /*background-color: white;
+        padding: 30px 60px 30px 60px;
+        -webkit-border-radius: 14px;
+        -moz-border-radius: 14px;
+        border-radius: 14px;*/
+            min-width: 100%;
+            margin-top: 35px;
+            display: flex;
+            flex-direction: column;
+            padding-inline: 35px;
+        }
+
+        .forma {
+            margin-top: 33px;
+            margin-bottom: 53px;
+            order: 2;
+        }
+    }
+
+</style>
+<body>
+
+    <div class="container">
+
+        {% include 'navigationlink.html' %}
+
+        <div class="forma">
+            <h4 style="margin-bottom: 18px;">Cadastrar Clientes</h4>
+
+            <form method="POST">
+
+                <div class="form-group">
+                    <label for="nome_clt">Nome Do Cliente/Fabrica:</label><br>
+                    <input type="text" class="form-control" id="nome_clt" name="nome_clt" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="cnpj_clt">CNPJ Do Cliente/Fabrica:</label><br>
+                    <input type="text" class="form-control" id="cnpj_clt" name="cnpj_clt" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="endereco_clt">Endereco:</label><br>
+                    <input type="text" class="form-control" id="endereco_clt" name="endereco_clt" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="numeroende_clt">Numero:</label><br>
+                    <input type="text" class="form-control" id="numeroende_clt" name="numeroende_clt" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="bairro_clt">Bairro:</label><br>
+                    <input type="text" class="form-control" id="bairro_clt" name="bairro_clt" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="cidade_clt">Cidade:</label><br>
+                    <input type="text" class="form-control" id="cidade_clt" name="cidade_clt" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="estado_clt">UF:</label><br>
+                    <input type="text" class="form-control" id="estado_clt" name="estado_clt" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="contatotel_clt">Contato:</label><br>
+                    <input type="text" class="form-control" id="contatotel_clt" name="contatotel_clt" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email_clt">Email:</label><br>
+                    <input type="text" class="form-control" id="email_clt" name="email_clt" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="responsavel_clt">Responsavel:</label><br>
+                    <input type="text" class="form-control" id="responsavel_clt" name="responsavel_clt" required>
+                </div>
+
+                <div style="display: flex; width: 100%; margin-top: 43px;">
+                    <button style="width: 100%;" type="submit" class="btn btn-dark">Cadastrar</button>
+                </div>
+
+            </form>
+            
+            
+        </div>
+
+        <div class="tabela">
+            <h4 style="margin-bottom: 18px;">Clientes</h4>
+        </div>
+
+    </div>
+    
+</body>
+</html>

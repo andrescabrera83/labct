@@ -23,6 +23,7 @@
         border-radius: 14px;*/
         min-width: 92%;
         margin-top: 50px;
+        
         display: grid;
         grid-template-columns: 25% 75%;
         grid-template-areas:
@@ -38,6 +39,7 @@
         -webkit-border-radius: 14px;
         -moz-border-radius: 14px;
         border-radius: 14px;
+        
     }
 
 
@@ -77,6 +79,7 @@
             display: flex;
             flex-direction: column;
             padding-inline: 35px;
+            
         }
 
         .forma {
@@ -93,14 +96,7 @@
 
     <div class="container">
 
-        <!-- Navigation Links -->
-        <span class="links">
-            <a href="{{ url_for('fornecedores')}}" {% if request.path==url_for('fornecedores') %}class="active" {% endif
-                %}>Fornecedores</a> /
-            <a href="{{ url_for('materiasPrimas')}}" {% if request.path==url_for('materiasPrimas') %}class="active" {%
-                endif %}>Materias Primas</a> /
-            <a href="#">Receitas</a>
-        </span>
+        {% include 'navigationlink.html' %}
 
         <!-- FORM -->
         <div class="forma">
@@ -137,7 +133,7 @@
 
                 <div class="form-group">
                     <label style="margin-bottom: 1px;" for="custo_mp">Ultimo Custo($R)</label>
-                    <input type="number" class="form-control" id="custo_mp" name="custo_mp" required>
+                    <input type="number" step=".01" class="form-control" id="custo_mp" name="custo_mp" required>
                 </div>
 
                 <div class="form-group">
@@ -223,7 +219,7 @@
                             </td>
                             <td style="text-align: center; vertical-align: middle;">{{ materiaprima.pedidomin_mp}}</td>
                             <td style="text-align: center; vertical-align: middle;">{{ materiaprima.gastomedio_mp}}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ materiaprima.id_fornecedor}}</td>
+                            <td style="text-align: center; vertical-align: middle;">{{ materiaprima.nome_fornecedor}}</td>
                             <td style="text-align: center; vertical-align: middle;">
                                 <div
                                     style="display: flex; flex-direction: row; justify-content: center; align-items: center;">

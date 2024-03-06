@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receitas</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<style>
+    body {
+        background-color: rgb(225, 225, 225);
+        margin: 0;
+    }
+
+    .container {
+        /*background-color: white;
+        padding: 30px 60px 30px 60px;
+        -webkit-border-radius: 14px;
+        -moz-border-radius: 14px;
+        border-radius: 14px;*/
+        min-width: 92%;
+        margin-top: 50px;
+        display: grid;
+        grid-template-columns: 25% 75%;
+        grid-template-areas:
+            "heading heading"
+            "div1 div2";
+        grid-column-gap: 26px;
+        margin-bottom: 75px;
+    }
+
+    #add_ingredient{
+        background: none;
+    color: #3885cc;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    }
+
+    #add_ingredient:hover{
+        color: #132a4c;
+        text-decoration: underline;
+    }
+
+    .forma,
+    .tabela {
+        background-color: white;
+        padding: 20px 25px 20px 25px;
+        -webkit-border-radius: 14px;
+        -moz-border-radius: 14px;
+        border-radius: 14px;
+    }
+
+
+
+    .links {
+        grid-area: heading;
+        width: 100%;
+        margin-bottom: 16px;
+        /* Span all columns */
+    }
+
+    .forma {
+        grid-area: div1;
+        /* Span 1 column */
+    }
+
+    .tabela {
+        grid-area: div2;
+        /* Span 3 columns */
+    }
+
+    .active {
+        font-weight: bold;
+        /*active link */
+        color: darkblue;
+    }
+
+    @media only screen and (max-width: 1600px) {
+        .container {
+            /*background-color: white;
+        padding: 30px 60px 30px 60px;
+        -webkit-border-radius: 14px;
+        -moz-border-radius: 14px;
+        border-radius: 14px;*/
+            min-width: 100%;
+            margin-top: 35px;
+            display: flex;
+            flex-direction: column;
+            padding-inline: 35px;
+        }
+
+        .forma {
+            margin-top: 33px;
+            margin-bottom: 53px;
+            order: 2;
+        }
+    }
+</style>
+
+<body>
+
+    <div class="container">
+
+        {% include 'navigationlink.html' %}
+
+        <div class="forma">
+            <h4 style="margin-bottom: 18px;">Cadastrar Receitas</h4>
+            <form method="POST">
+                <div class="form-group">
+                    <label for="nome_rct">Nome Da receita:</label><br>
+                    <input type="text" class="form-control" id="nome_rct" name="nome_rct" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_cliente">Cliente:</label><br>
+                    <select class="form-control" id="id_cliente" name="id_cliente" required>
+                        
+                        {% for clt in clientes %}
+                        <option value="{{ clt.id_clt }}">{{ clt.nome_clt }}</option>
+                        {% endfor %}
+                        
+                    </select>
+                    
+                </div>
+
+                <div class="form-group" style="margin-bottom: 32px;">
+                    <label for="descricao_rct">Descrição:</label><br>
+                    <textarea id="descricao_rct" class="form-control" name="descricao_rct" rows="2"></textarea>
+                </div>
+
+                <hr>
+
+                <h5 style="margin-bottom: 19px;">Lista De Ingredientes:</h5>
+                <div id="ingredients">
+                    <!-- Ingredient table will be added here dynamically -->
+                </div>
+
+                <button type="button" id="add_ingredient">+    Agregar Ingrediente</button>
+
+                <hr>
+
+                <div class="form-group">
+                    <label for="preparo_rct">Modo De Preparo:</label><br>
+                    <textarea id="preparo_rct" class="form-control" name="preparo_rct" rows="4"></textarea>
+                </div>
+                
+                
+
+
+                <div style="display: flex; width: 100%; margin-top: 43px;">
+                    <button style="width: 100%;" type="submit" class="btn btn-dark">Cadastrar</button>
+                </div>
+            </form>
+
+            <script>
+                document.getElementById('add_ingredient').onclick = function () {
+                    var ingredientsDiv = document.getElementById('ingredients');
+                    var newIngredientDiv = document.createElement('div');
+
+                    newIngredientDiv.innerHTML = `
+                        <div class="ingredient">
+                            <div style="display: grid;
+                            grid-template-columns: 25% 25% 50%;
+                            align-items: end;">
+
+                            <div class="form-group" style="width: 95%;">
+                            <label for="quantity">Quantitade:</label>
+                            <input type="number" class="form-control" id="quantity" name="quantity" required>
+                            </div>
+
+                            <div class="form-group" style="width: 95%;">
+                            <label for="unit">Unidade:</label>
+                            <select class="form-control" id="unit" name="unit" required>
+                                <option value="Unidade(s)">Unidade(s)</option>
+                                <option value="Grama(s)">Grama(s)</option>
+                                <option value="Kilogramo(s)">Kilogramo(s)</option>
+                                <option value="Colher(es)">Colher(es)</option>
+                                <option value="Xícara(s)">Xícara(s)</option>
+                            </select>
+                            </div>
+
+                            <div class="form-group">
+                            <label for="ingredient">Materia Prima:</label>
+                            <select class="form-control" id="id_mp" name="id_mp" required>
+                            {% for mp in materiasprimas %}
+                            <option value="{{ mp.id_mp }}">{{ mp.nome_mp }}</option>
+                            {% endfor %}
+                            </select>
+                            </div>
+
+                            </div>
+ 
+                        </div>
+                    `;
+
+                    ingredientsDiv.appendChild(newIngredientDiv);
+                };
+            </script>
+        </div>
+
+        <div class="tabela">
+            <h4 style="margin-bottom: 18px;">Receitas</h4>
+        </div>
+
+    </div>
+
+</body>
+
+</html>
