@@ -298,11 +298,13 @@ def clientes():
         bairro_clt = request.form.get('bairro_clt')
         cidade_clt = request.form.get('cidade_clt')
         estado_clt = request.form.get('estado_clt')
+        responsavel_clt = request.form.get('responsavel_clt')
         contatotel_clt = request.form.get('contatotel_clt')
         email_clt = request.form.get('email_clt')
-        responsavel_clt = request.form.get('responsavel_clt')
+       
 
         clientes = Clientes(
+            
             nome_clt=nome_clt,
             cnpj_clt=cnpj_clt,
             endereco_clt=endereco_clt,
@@ -319,10 +321,40 @@ def clientes():
         return redirect(url_for('clientes')) 
 
    
-
+    clientes = Clientes.query.all()
+    clientes_schema = ClientesSchema(many=True)
+    serialized_data_clt = clientes_schema.dump(clientes)
     
-    return render_template('clientes.html')
+    return render_template('clientes.html', clientes=serialized_data_clt)
 
+
+#DELETE
+@app.route('/delete-cliente/<int:id>', methods=['POST'])
+def deleteCliente(id):
+    clientes = Clientes.query.get_or_404(id)
+    db.session.delete(clientes)
+    db.session.commit()
+    return redirect(url_for('clientes', id=id) )
+
+#EDIT
+@app.route('/edit-cliente/<int:id>', methods=['POST'])
+def editCliente(id):
+    if request.method == 'POST':
+        clientes = Clientes.query.get_or_404(id)
+        clientes.nome_clt = request.form.get('nome_clt')
+        clientes.cnpj_clt = request.form.get('nome_clt')
+        clientes.endereco_clt = request.form.get('endereco_clt')
+        clientes.numeroende_clt = request.form.get('numeroende_clt')   
+        clientes.bairro_clt = request.form.get('bairro_clt')
+        clientes.cidade_clt = request.form.get('cidade_clt')
+        clientes.estado_clt = request.form.get('estado_clt')
+        clientes.responsavel_clt = request.form.get('responsavel_clt')
+        clientes.contatotel_clt = request.form.get('contatotel_clt')
+        clientes.email_clt = request.form.get('email_clt')
+        
+        
+        db.session.commit()
+        return redirect(url_for('clientes', id=id))
 
 
 # RECEITAS #####################################################
