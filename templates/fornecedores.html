@@ -1,22 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}Fornecedores{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fornecedores</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
+{% block content %}
 
 <style>
     body {
         background-color: rgb(225, 225, 225);
         margin: 0;
     }
-
-
-
     .container {
         /*background-color: white;
         padding: 30px 60px 30px 60px;
@@ -28,32 +19,35 @@
         display: grid;
         grid-template-columns: 25% 75%;
         grid-template-areas:
-            "heading heading"
             "div1 div2";
         grid-column-gap: 26px;
     }
 
-    .links {
-        grid-area: heading;
-        width: 100%;
-        margin-bottom: 16px;
-        /* Span all columns */
-    }
+   
 
     .forma {
         grid-area: div1;
         /* Span 1 column */
+        background-color: white;
+        padding: 40px 45px 40px 45px;
+        -webkit-border-radius: 14px;
+        -moz-border-radius: 14px;
+        border-radius: 14px;
+         
     }
 
     .tabela {
         grid-area: div2;
         /* Span 3 columns */
+        background-color: white;
+        padding: 40px 45px 40px 45px;
+        -webkit-border-radius: 14px;
+        -moz-border-radius: 14px;
+        border-radius: 14px;
+        font-size: 15px;
     }
 
-    .active {
-            font-weight: bold; /*active link */
-            color: darkblue;
-        }
+    
 
     @media only screen and (max-width: 1600px) {
         .container {
@@ -62,16 +56,17 @@
         -webkit-border-radius: 14px;
         -moz-border-radius: 14px;
         border-radius: 14px;*/
-            min-width: 100%;
-            margin-top: 35px;
+            
+            margin-top: 25px;
             display: flex;
             flex-direction: column;
-            padding-inline: 35px;
+
         }
 
         .forma {
-            margin-top: 33px;
+            margin-top: 25px;
             margin-bottom: 53px;
+           
             order: 2;
         }
 
@@ -88,15 +83,7 @@
 
     <div class="container">
 
-        {% include 'navigationlink.html' %}
-
-        <div class="forma" style="background-color: white;
-        padding: 20px 25px 20px 25px;
-        -webkit-border-radius: 14px;
-        -moz-border-radius: 14px;
-        border-radius: 14px;">
-
-            <!-- <p id="screenWidthDisplay">Current screen width will be displayed here.</p> -->
+        <div class="forma">
 
             <h4 style="margin-bottom: 18px;">Cadastrar Fornecedor</h4>
             <form style="width: 100%;" action="/fornecedores" method="post">
@@ -157,16 +144,12 @@
 
         </div>
 
-        <div class="tabla" style="background-color: white;
-        padding: 20px 25px 20px 25px;
-        -webkit-border-radius: 14px;
-        -moz-border-radius: 14px;
-        border-radius: 14px;">
+        <div class="tabela">
+
             <h4 style="margin-bottom: 18px;">Fornecedores</h4>
 
-
             <div style="display: flex; width: 100%; justify-content: end; margin-bottom: 31px; ">
-                <input style="width: 25%; box-sizing: border-box;
+                <input style="width: 40%; box-sizing: border-box;
               border: none;
               border-bottom: 1px solid rgb(148, 148, 148); margin-right: 14px;" type="text" id="searchInput" onkeyup="searchTable()"
                     placeholder="Procurar Fornecedor...">
@@ -397,24 +380,11 @@
             }
         }
     </script>
-
-
-
     <!-- Bootstrap JS -->
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-
-        /*
-        // Get the current screen width
-        var screenWidth = window.innerWidth || document.documentElement.clientWidth;
-
-        // Find the <p> tag by its ID
-        var screenWidthDisplay = document.getElementById("screenWidthDisplay");
-
-        // Update the inner text of the <p> tag with the screen width value
-        screenWidthDisplay.innerText = "Current screen width: " + screenWidth + "px";*/
 
         function validate(evt) {
             var theEvent = evt || window.event;
@@ -436,4 +406,4 @@
     </script>
 </body>
 
-</html>
+{% endblock %}

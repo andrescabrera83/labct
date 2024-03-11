@@ -178,7 +178,7 @@ def round_filter(value):
 
 @app.route('/')
 def index():
-    return "Hello World"
+    return render_template('index.html')
 
 @app.route('/cleanup-fornecedores', methods=['GET'])
 def cleanupFornecedor():

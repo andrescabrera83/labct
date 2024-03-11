@@ -1,13 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}Clientes{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clientes</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
+{% block content %}
 <style>
     body {
         background-color: rgb(225, 225, 225);
@@ -25,28 +19,18 @@
         display: grid;
         grid-template-columns: 25% 75%;
         grid-template-areas:
-            "heading heading"
             "div1 div2";
         grid-column-gap: 26px;
-        margin-bottom: 75px;
+        margin-bottom: 35px;
     }
 
     .forma,
     .tabela {
         background-color: white;
-        padding: 20px 25px 20px 25px;
+        padding: 40px 45px 40px 45px;
         -webkit-border-radius: 14px;
         -moz-border-radius: 14px;
         border-radius: 14px;
-    }
-
-
-
-    .links {
-        grid-area: heading;
-        width: 100%;
-        margin-bottom: 16px;
-        /* Span all columns */
     }
 
     .forma {
@@ -59,12 +43,6 @@
         /* Span 3 columns */
     }
 
-    .active {
-        font-weight: bold;
-        /*active link */
-        color: darkblue;
-    }
-
     @media only screen and (max-width: 1600px) {
         .container {
             /*background-color: white;
@@ -72,15 +50,14 @@
         -webkit-border-radius: 14px;
         -moz-border-radius: 14px;
         border-radius: 14px;*/
-            min-width: 100%;
-            margin-top: 35px;
+            
+            margin-top: 25px;
             display: flex;
             flex-direction: column;
-            padding-inline: 35px;
         }
 
         .forma {
-            margin-top: 33px;
+            margin-top: 25px;
             margin-bottom: 53px;
             order: 2;
         }
@@ -90,8 +67,6 @@
 <body>
 
     <div class="container">
-
-        {% include 'navigationlink.html' %}
 
         <div class="forma">
             <h4 style="margin-bottom: 18px;">Cadastrar Clientes</h4>
@@ -175,7 +150,7 @@
             <h4 style="margin-bottom: 18px;">Clientes</h4>
 
             <div style="display: flex; width: 100%; justify-content: end; margin-bottom: 31px; ">
-                <input style="width: 25%; box-sizing: border-box;
+                <input style="width: 40%; box-sizing: border-box;
               border: none;
               border-bottom: 1px solid rgb(148, 148, 148); margin-right: 14px;" type="text" id="searchInput"
                     onkeyup="searchTable()" placeholder="Procurar Cliente...">
@@ -403,4 +378,4 @@
 
 </body>
 
-</html>
+{% endblock %}
