@@ -3,6 +3,8 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from sqlalchemy.exc import IntegrityError
+from flask import abort
 
 
 import pymysql
@@ -124,6 +126,7 @@ class Receitas(db.Model):
     descricao_rct = db.Column(db.String)
     preparo_rct = db.Column(db.String)
     id_clt = db.Column(db.Integer)
+    nome_clt = db.Column(db.String(45))
 
 class ReceitasSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -134,9 +137,42 @@ class ReceitasSchema(ma.SQLAlchemySchema):
     descricao_rct = ma.auto_field()
     preparo_rct = ma.auto_field()
     id_clt = ma.auto_field()
+    nome_clt = ma.auto_field()
+
+
+
+
+####################################################################################
+    
+class ReceitaMateriasPrimas(db.Model):
+    __tablename__ = "receitamateriasprimas"
+    __table_args__ = {"extend_existing": True}
+
+    id_rct = db.Column(db.Integer, db.ForeignKey('receitas.id_rct'), primary_key=True)
+    id_mp = db.Column(db.Integer, db.ForeignKey('materiasprimas.id_mp'), primary_key=True)
+    nome_mp = db.Column(db.String(75))
+    quantidade = db.Column(db.Numeric(10,2))
+    unidade = db.Column(db.Enum('Unidade(s)', 'Grama(s)', 'Kilogramo(s)', 'Colher(es)', 'Xícara(s)'))
+
+class ReceitasMateriasPrimasSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = ReceitaMateriasPrimas
+
+    id_rct = ma.auto_field()
+    id_mp = ma.auto_field()
+    nome_mp = ma.auto_field()
+    quantidade = ma.auto_field()
+    unidade = ma.auto_field()
+    
 
 with app.app_context():
     db.create_all()
+
+
+# Custom filter to round numbers
+@app.template_filter('round')
+def round_filter(value):
+    return round(value)
 
 # ROUTES ########################################################################################################################
 
@@ -371,12 +407,113 @@ def receitas():
     clientes_schema = ClientesSchema(many=True)
     serialized_data_clt = clientes_schema.dump(clientes)
 
-    return render_template('receitas.html', materiasprimas=serialized_data_mp, clientes=serialized_data_clt)
+    #if request
+    if request.method == 'POST':
+        nome_rct = request.form.get('nome_rct')
+        id_clt = request.form.get('id_clt')
+        descricao_rct = request.form.get('descricao_rct')
+        preparo_rct = request.form.get('preparo_rct')
+
+        # Fetch the nome_mp corresponding to the id_mp from the MP table
+        cliente = Clientes.query.filter_by(id_clt=id_clt).first()
+        nome_clt = cliente.nome_clt if cliente else None
+
+        receitas = Receitas(
+            nome_rct=nome_rct,
+            id_clt=id_clt,
+            nome_clt=nome_clt,
+            descricao_rct=descricao_rct,
+            preparo_rct=preparo_rct
+        )
+
+        db.session.add(receitas)
+        db.session.commit()
+
+        # Handle ingredients insertion
+        ingredient_count = int(request.form.get('ingredient_count'))
+
+        for i in range(ingredient_count):
+            id_mp = request.form.get(f'id_mp_{i}')
+            quantidade = request.form.get(f'quantidade_{i}')
+            unidade = request.form.get(f'unidade_{i}')
+
+            #print(quantidade)
+
+             # Fetch the nome_mp corresponding to the id_mp from the MP table
+            materiaprima = MateriasPrimas.query.filter_by(id_mp=id_mp).first()
+            nome_mp = materiaprima.nome_mp if materiaprima else None
+
+            receita_mp = ReceitaMateriasPrimas(
+                id_rct=receitas.id_rct,
+                id_mp=id_mp,
+                nome_mp=nome_mp,
+                quantidade=quantidade,
+                unidade=unidade
+            )
+        
+            db.session.add(receita_mp)
+            db.session.commit()
+        
+        return redirect(url_for('receitas')) 
     
+    receitas = Receitas.query.all()
+    receitas_schema = ReceitasSchema(many=True)
+    serialized_data_rct = receitas_schema.dump(receitas)
+
+    receitasmp = ReceitaMateriasPrimas.query.all()
+    receitasmp_schema = ReceitasMateriasPrimasSchema(many=True)
+    serialized_data_rctmp = receitasmp_schema.dump(receitasmp)
+    
+
+
+
+    return render_template('receitas.html', 
+    materiasprimas=serialized_data_mp, 
+    clientes=serialized_data_clt,
+    receitas=serialized_data_rct,
+    receitasmp=serialized_data_rctmp)
+
+
+#EDIT
+@app.route('/edit-receita/<int:id>', methods=['POST'])
+def editReceita(id):
+    if request.method == 'POST':
+        receitas = Receitas.query.get_or_404(id)
+        receitas.nome_rct = request.form.get('nome_rct')
+        receitas.descricao_rct = request.form.get('descricao_rct')
+        receitas.preparo_rct = request.form.get('preparo_rct')
+        #receitas.id_clt = request.form.get('id_clt')
+        
+        
+        
+        db.session.commit()
+        return redirect(url_for('receitas', id=id))
+    
+#DELETE
+@app.route('/delete-receita/<int:id>', methods=['POST'])
+def deleteReceita(id):
+    
+     # Fetch the receitas record
+    receitas = Receitas.query.get_or_404(id)
+    
+    try:
+        # Delete child records from ReceitaMateriasPrimas table
+        ReceitaMateriasPrimas.query.filter_by(id_rct=id).delete()
+        
+        # Delete the parent record from Receitas table
+        db.session.delete(receitas)
+        db.session.commit()
+    except IntegrityError:
+        # If there's an integrity error, rollback changes and abort with error message
+        db.session.rollback()
+        abort(500, "Cannot delete or update a parent row: a foreign key constraint fails")
+    
+    return redirect(url_for('receitas', id=id) )
 
 
 # RUN APP ################################################
 
 if __name__ == '__main__':
+
     
     app.run(debug=True)

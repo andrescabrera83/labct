@@ -178,11 +178,11 @@
                 <input style="width: 25%; box-sizing: border-box;
               border: none;
               border-bottom: 1px solid rgb(148, 148, 148); margin-right: 14px;" type="text" id="searchInput"
-                    onkeyup="searchTable()" placeholder="Procurar Fornecedor...">
+                    onkeyup="searchTable()" placeholder="Procurar Cliente...">
             </div>
 
             <div class="table-responsive">
-                <table class="table table-sm table-bordered  table-hover" id="materiasprimasTable">
+                <table class="table table-sm table-bordered  table-hover" id="clientesTable">
                     <thead>
                         <tr>
                             <th style="text-align: center; vertical-align: middle;">ID</th>
@@ -375,7 +375,7 @@
             var input, filter, table, tr, td, i, txtValue;
             input = document.getElementById("searchInput");
             filter = input.value.toUpperCase();
-            table = document.getElementById("fornecedoresTable");
+            table = document.getElementById("clientesTable");
             tr = table.getElementsByTagName("tr");
             for (i = 0; i < tr.length; i++) {
                 td = tr[i].getElementsByTagName("td");
