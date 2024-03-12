@@ -1,0 +1,274 @@
+body {
+    background-color: rgb(225, 225, 225);
+    margin: 0;
+    font-family: "DM Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.container {
+    min-width: fit-content;
+    margin-top: 9px !important;
+
+}
+
+.forma,
+.tabela {
+    background-color: white;
+    padding: 40px 45px 40px 45px;
+    -webkit-border-radius: 14px;
+    -moz-border-radius: 14px;
+    border-radius: 14px;
+}
+
+.forma {
+    margin-top: 25px;
+    margin-bottom: 43px;
+    margin-inline: 450px;
+    padding-block: 50px;
+    font-size: 13px;
+}
+
+.tabela {
+    font-size: 15px;
+}
+
+
+@media only screen and (max-width: 1600px) {
+    .container {
+        margin-top: 25px;
+        display: flex;
+        flex-direction: column;
+        min-width: 100vw;
+
+    }
+
+    .forma,
+    .tabela {
+        margin-inline: 75px;
+        margin-block: 12px;
+
+    }
+
+    .forma {
+        padding-inline: 320px;
+    }
+}
+
+@media only screen and (max-width: 900px) {
+    .container {
+        margin-top: 25px;
+        display: flex;
+        flex-direction: column;
+        min-width: 100vw;
+
+    }
+
+    .forma,
+    .tabela {
+        margin-inline: 15px;
+        margin-block: 12px;
+
+    }
+
+    .tabela {
+        padding: 25px;
+    }
+
+    .forma {
+        padding: 25px;
+    }
+
+    .hide {
+        display: none;
+    }
+
+    .header {
+        display: flex;
+        flex-direction: column !important;
+        width: 100%;
+        justify-content: space-between;
+        margin-bottom: 9px;
+        align-items: center;
+    }
+
+    .searchContainer{
+        margin-block: 15px;
+        width: 100% !important;
+    }
+
+
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 9px;
+    align-items: center;
+}
+
+.searchContainer {
+    display: flex;
+    width: 45%;
+
+    padding-left: 21px;
+}
+
+.searchInput {
+    box-sizing: border-box;
+    border: none;
+    width: 100%;
+    border-bottom: 1px solid rgb(148, 148, 148);
+    margin-right: 14px;
+
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    -webkit-user-select: none;
+    /* Safari */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* IE 10+/Edge */
+    user-select: none;
+    /* Standard syntax */
+}
+
+table td,
+table th {
+    border: 1px solid rgb(208, 208, 208);
+    border-right: none;
+    border-left: none;
+}
+
+table th {
+    background-color: rgb(39, 39, 39);
+    ;
+    color: white;
+
+    padding-block: 10px;
+    text-align: center;
+    vertical-align: middle;
+    padding-inline: 10px;
+
+
+}
+
+th:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+th:hover::before {
+    content: "▾";
+    /* Add content after the th */
+    font-weight: bold;
+    /* Optional: Adjust font weight */
+}
+
+tr:hover {
+    background-color: #dcdcdc;
+    text-decoration: underline;
+    cursor: pointer;
+    /* Change background color on hover */
+}
+
+tr:active {
+    color: rgb(24, 91, 215);
+    text-decoration: underline;
+}
+
+.selected {
+    color: rgb(24, 91, 215);
+    text-decoration: underline;
+}
+
+table td {
+    padding-block: 6px;
+
+    text-align: center;
+    vertical-align: middle;
+
+}
+
+.titleandbtn {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.btn-cadastrar {
+    margin-left: 21px;
+
+    margin-bottom: 5px;
+    padding-inline: 18px;
+
+    border: 1px solid rgb(28, 87, 197);
+    border-radius: 10px;
+
+    background-color: white;
+    transition: background-color 0.6s ease;
+    transition: color 0.1s ease;
+    color: rgb(28, 87, 197);
+}
+
+.btn-cadastrar:hover {
+    background-color: rgb(57, 114, 219);
+    color: white;
+    outline: none;
+}
+
+.btn-cadastrar:active {
+    background-color: rgb(122, 163, 237);
+    color: white;
+    outline: none;
+}
+
+.btn-cadastrar:focus {
+    background-color: rgb(122, 163, 237);
+    color: white;
+    outline: none;
+
+}
+
+.tdmp {
+    text-align: left;
+    padding-left: 12px;
+}
+
+.actionButtons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding-inline: 6px;
+}
+
+.bi-pencil-fill:hover {
+    fill: #504e4a;
+}
+
+.bi-trash-fill:hover {
+    fill: #d24040;
+}
+
+.modal-dialog{
+    min-width: 45%;
+}
+
+.modal-body {
+    padding: 30px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.checkboxContainer {
+    display: flex;
+    justify-content: center;
+}

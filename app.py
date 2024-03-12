@@ -55,7 +55,7 @@ class MateriasPrimas(db.Model):
     unidade_mp = db.Column(db.Enum('KG', 'UN'))
     peso_mp = db.Column(db.Numeric(10, 3))
     quantidade_mp = db.Column(db.Integer)
-    custo_mp = db.Column(db.Numeric(10, 3))
+    custo_mp = db.Column(db.Numeric(10, 2))
     departamento_mp = db.Column(db.Enum('Carnes', 'Farinhas', 'Hortifruti', 'Mercearia', 'Misturas', 'Ovos', 'Queijos'))
     pedidomin_mp = db.Column(db.Integer)
     gastomedio_mp = db.Column(db.Numeric(10, 3))

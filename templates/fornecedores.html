@@ -4,78 +4,7 @@
 {% block content %}
 
 <style>
-    body {
-        background-color: rgb(225, 225, 225);
-        margin: 0;
-    }
-    .container {
-        /*background-color: white;
-        padding: 30px 60px 30px 60px;
-        -webkit-border-radius: 14px;
-        -moz-border-radius: 14px;
-        border-radius: 14px;*/
-        min-width: 92%;
-        margin-top: 50px;
-        display: grid;
-        grid-template-columns: 25% 75%;
-        grid-template-areas:
-            "div1 div2";
-        grid-column-gap: 26px;
-    }
-
-   
-
-    .forma {
-        grid-area: div1;
-        /* Span 1 column */
-        background-color: white;
-        padding: 40px 45px 40px 45px;
-        -webkit-border-radius: 14px;
-        -moz-border-radius: 14px;
-        border-radius: 14px;
-         
-    }
-
-    .tabela {
-        grid-area: div2;
-        /* Span 3 columns */
-        background-color: white;
-        padding: 40px 45px 40px 45px;
-        -webkit-border-radius: 14px;
-        -moz-border-radius: 14px;
-        border-radius: 14px;
-        font-size: 15px;
-    }
-
     
-
-    @media only screen and (max-width: 1600px) {
-        .container {
-            /*background-color: white;
-        padding: 30px 60px 30px 60px;
-        -webkit-border-radius: 14px;
-        -moz-border-radius: 14px;
-        border-radius: 14px;*/
-            
-            margin-top: 25px;
-            display: flex;
-            flex-direction: column;
-
-        }
-
-        .forma {
-            margin-top: 25px;
-            margin-bottom: 53px;
-           
-            order: 2;
-        }
-
-        .table-id {
-            display: none;
-        }
-
-        
-    }
 </style>
 
 <body>
@@ -83,137 +12,75 @@
 
     <div class="container">
 
-        <div class="forma">
-
-            <h4 style="margin-bottom: 18px;">Cadastrar Fornecedor</h4>
-            <form style="width: 100%;" action="/fornecedores" method="post">
-
-                <div class="form-group">
-                    <label style="margin-bottom: 1px;" for="nome_fornecedor">Nome Do Fornecedor</label>
-                    <input type="text" class="form-control" id="nome_fornecedor" name="nome_fornecedor" required>
-                </div>
-
-                <div style="display: grid;
-                grid-template-columns: 50% 50%;
-                align-items: end;">
-
-                    <div class="form-group" style="width: 90%;">
-
-                        <label style="margin-bottom: 1px;" for="tempo_entrega">Tempo De Entrega (Dias)</label>
-                        <input type="number" class="form-control" id="tempo_entrega" name="tempo_entrega" min="0"
-                            required>
-                    </div>
-                    <div class="form-group">
-                        <label style="margin-bottom: 1px;" for="prazo_pagamento">Prazo Para Pagar (Dias)</label>
-                        <input type="number" class="form-control" id="prazo_pagamento" name="prazo_pagamento" min="0"
-                            required>
-                    </div>
-
-                </div>
-                <div class="form-group">
-                    <label style="margin-bottom: 1px;" for="dia_pedido">Dia fixo para realizar o pedido</label>
-                    <select class="form-control" id="dia_pedido" name="dia_pedido" required>
-                        <option value="Segunda-Feira">Segunda-Feira</option>
-                        <option value="Terça-Feira">Terça-Feira</option>
-                        <option value="Quarta-Feira">Quarta-Feira</option>
-                        <option value="Quinta-Feira">Quinta-Feira</option>
-                        <option value="Sexta-Feira">Sexta-Feira</option>
-                        <option value="Sábado">Sábado</option>
-                        <option value="Domingo">Domingo</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label style="margin-bottom: 1px;" for="nome_vendedor">Nome Do Venededor Responsavel:</label>
-                    <input type="text" class="form-control" id="nome_vendedor" name="nome_vendedor" required>
-                </div>
-                <div class="form-group">
-                    <label style="margin-bottom: 1px;" for="contato_tel">Contato Telefonico:</label>
-                    <input type="text" class="form-control" id="contato_tel" name="contato_tel"
-                        onkeypress='validate(event)' required>
-                </div>
-                <div class="form-group">
-                    <label style="margin-bottom: 1px;" for="email_vendedor">E-Mail:</label>
-                    <input type="email" class="form-control" id="email_vendedor" name="email_vendedor">
-                </div>
-
-                <div style="display: flex; width: 100%; margin-top: 43px;">
-                    <button style="width: 100%;" type="submit" class="btn btn-dark">Cadastrar</button>
-                </div>
-
-            </form>
-
-        </div>
+        
 
         <div class="tabela">
 
-            <h4 style="margin-bottom: 18px;">Fornecedores</h4>
+            <div class="header">
 
-            <div style="display: flex; width: 100%; justify-content: end; margin-bottom: 31px; ">
-                <input style="width: 40%; box-sizing: border-box;
-              border: none;
-              border-bottom: 1px solid rgb(148, 148, 148); margin-right: 14px;" type="text" id="searchInput" onkeyup="searchTable()"
-                    placeholder="Procurar Fornecedor...">
+                <div class="titleandbtn">
+                    <h3>Fornecedores</h3>
+                    <button style="display: none;" type="button" data-toggle="modal" disbled data-target="#cadastrarModal" class="btn-cadastrar"> +
+                        Cadastrar Novo Fornecedor</button>
+                </div>
+
+                <div class="searchContainer" >
+                    <input class="searchInput" type="text" id="searchInput"  onkeyup="searchTable()"
+                        placeholder="🔍 Procurar Em Fornecedores... ">
+                </div>
+
             </div>
 
 
 
             <div class="table-responsive">
-                <table class="table table-sm table-bordered  table-hover" id="fornecedoresTable">
+                <table id="fornecedoresTable">
                     <thead>
                         <tr>
-                            <th style="text-align: center; vertical-align: middle; width: 5%;">ID</th>
-                            <th style="text-align: center; vertical-align: middle; width: 30%;">Fornecedor</th>
-                            <th style="text-align: center; vertical-align: middle; padding: 0px 20px 0px 20px;">Tempo de
-                                entrega do produto
-                                (em dias)</th>
-                            <th style="text-align: center; vertical-align: middle; padding: 0px 20px 0px 20px;">Prazo
-                                para
-                                pagamento
-                                (em dias)</th>
-                            <th style="text-align: center; vertical-align: middle; padding: 0px 20px 0px 20px;">Dia Fixo
-                                Para Realizar O Pedido</th>
-                            <th style="text-align: center; vertical-align: middle;">Nome do(a) Vendedor(a)</th>
-                            <th style="text-align: center; vertical-align: middle;">Contato Telefônico</th>
-                            <th class="table-id" style="text-align: center; vertical-align: middle;">E-mail</th>
-
-                            <th style="text-align: center; vertical-align: middle;">Açao</th>
+                            <th> </th>
+                            <th >ID</th>
+                            <th >Fornecedor</th>
+                            <th>Tempo de entrega do produto (em dias)</th>
+                            <th >Prazo para pagamento (em dias)</th>
+                            <th >Dia Fixo Para Realizar O Pedido</th>
+                            <th >Nome do(a) Vendedor(a)</th>
+                            <th >Contato Telefônico</th>
+                            <th >E-mail</th>
+                            <th >Açao</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for fornecedor in fornecedores %}
                         <tr>
-                            <td style="text-align: center; vertical-align: middle;">{{ fornecedor.id_fornecedor }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ fornecedor.nome_fornecedor }}
+                            <td class="hide">
+                                <span class="checkboxContainer">
+                                    <input type="checkbox" class="checkbox">
+                                </span>
                             </td>
-                            <td style="text-align: center; vertical-align: middle;">{{ fornecedor.tempo_entrega }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ fornecedor.prazo_pagamento}}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ fornecedor.dia_pedido}}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ fornecedor.nome_vendedor}}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ fornecedor.contato_tel}}</td>
-                            <td class="table-id" style="text-align: center; vertical-align: middle;">{{
-                                fornecedor.email_vendedor}}</td>
-                            <td style="text-align: center; vertical-align: middle;">
-                                <div
-                                    style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
-
-                                    <button type="button" style="margin: 3px; " class="btn btn-outline-secondary btn-sm"
+                            <td >{{ fornecedor.id_fornecedor }}</td>
+                            <td >{{ fornecedor.nome_fornecedor }}
+                            </td>
+                            <td >{{ fornecedor.tempo_entrega }}</td>
+                            <td >{{ fornecedor.prazo_pagamento}}</td>
+                            <td >{{ fornecedor.dia_pedido}}</td>
+                            <td >{{ fornecedor.nome_vendedor}}</td>
+                            <td >{{ fornecedor.contato_tel}}</td>
+                            <td >{{ fornecedor.email_vendedor}}</td>
+                            <td >
+                                <div class="actionButtons">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="#85827a"
+                                        class="bi bi-pencil-fill" viewBox="0 0 16 16" type="button" style="margin: 2px;"
                                         data-toggle="modal" data-target="#editModal{{ fornecedor.id_fornecedor }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                                            fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
-                                            <path
-                                                d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
-                                        </svg>
-                                    </button>
-
-                                    <button type="button" style="margin: 3px; " class="btn btn-danger btn-sm"
-                                        data-toggle="modal" data-target="#deleteModal{{ fornecedor.id_fornecedor }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                                            fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                            <path
-                                                d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
-                                        </svg>
-                                    </button>
-
+                                        <path
+                                            d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
+                                    </svg>
+                                    <svg type="button" style="margin: 2px;" data-toggle="modal"
+                                        data-target="#deleteModal{{fornecedor.id_fornecedor }}"
+                                        xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#d97373"
+                                        class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                        <path
+                                            d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
+                                    </svg>
                                 </div>
 
                             </td>
@@ -352,10 +219,142 @@
 
         </div>
 
+        <div class="forma">
 
+            <h4 style="margin-bottom: 18px;">Cadastrar Fornecedor</h4>
+            <form style="width: 100%;" action="/fornecedores" method="post">
+
+                <div class="form-group">
+                    <label style="margin-bottom: 1px;" for="nome_fornecedor">Nome Do Fornecedor</label>
+                    <input type="text" class="form-control" id="nome_fornecedor" name="nome_fornecedor" required>
+                </div>
+
+                <div style="display: grid;
+                grid-template-columns: 50% 50%;
+                align-items: end;">
+
+                    <div class="form-group" style="width: 90%;">
+
+                        <label style="margin-bottom: 1px;" for="tempo_entrega">Tempo De Entrega (Dias)</label>
+                        <input type="number" class="form-control" id="tempo_entrega" name="tempo_entrega" min="0"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label style="margin-bottom: 1px;" for="prazo_pagamento">Prazo Para Pagar (Dias)</label>
+                        <input type="number" class="form-control" id="prazo_pagamento" name="prazo_pagamento" min="0"
+                            required>
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label style="margin-bottom: 1px;" for="dia_pedido">Dia fixo para realizar o pedido</label>
+                    <select class="form-control" id="dia_pedido" name="dia_pedido" required>
+                        <option value="Segunda-Feira">Segunda-Feira</option>
+                        <option value="Terça-Feira">Terça-Feira</option>
+                        <option value="Quarta-Feira">Quarta-Feira</option>
+                        <option value="Quinta-Feira">Quinta-Feira</option>
+                        <option value="Sexta-Feira">Sexta-Feira</option>
+                        <option value="Sábado">Sábado</option>
+                        <option value="Domingo">Domingo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="margin-bottom: 1px;" for="nome_vendedor">Nome Do Venededor Responsavel:</label>
+                    <input type="text" class="form-control" id="nome_vendedor" name="nome_vendedor" required>
+                </div>
+                <div class="form-group">
+                    <label style="margin-bottom: 1px;" for="contato_tel">Contato Telefonico:</label>
+                    <input type="text" class="form-control" id="contato_tel" name="contato_tel"
+                        onkeypress='validate(event)' required>
+                </div>
+                <div class="form-group">
+                    <label style="margin-bottom: 1px;" for="email_vendedor">E-Mail:</label>
+                    <input type="email" class="form-control" id="email_vendedor" name="email_vendedor">
+                </div>
+
+                <div style="display: flex; width: 100%; margin-top: 43px;">
+                    <button style="width: 100%;" type="submit" class="btn btn-dark">Cadastrar</button>
+                </div>
+
+            </form>
+
+        </div>
 
 
     </div>
+
+    <script>
+        // Function to toggle table sorting
+        function toggleSort(columnIndex) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("fornecedoresTable");
+            switching = true;
+            dir = "asc"; // Set the sorting direction to ascending
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[columnIndex];
+                    y = rows[i + 1].getElementsByTagName("TD")[columnIndex];
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                } else {
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc"; // If no switching has been done and the direction is ascending, set direction to descending and run the loop again
+                        switching = true;
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script>
+        // Function to activate checkbox when clicking on the row
+        document.addEventListener('DOMContentLoaded', function () {
+            const checkboxes = document.querySelectorAll('.checkbox');
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    const parentRow = this.closest('tr');
+                    if (parentRow) {
+                        parentRow.classList.toggle('selected', this.checked);
+                    }
+                    checkIfAnySelected();
+                });
+            });
+
+            const rows = document.querySelectorAll('tr');
+            rows.forEach(row => {
+                row.addEventListener('click', function (event) {
+                    if (event.target.type !== 'checkbox') {
+                        const checkbox = this.querySelector('.checkbox');
+                        if (checkbox) {
+                            checkbox.checked = !checkbox.checked;
+                            this.classList.toggle('selected', checkbox.checked);
+                            checkIfAnySelected();
+                        }
+                    }
+                });
+            });
+        });
+
+        
+    </script>
 
     <script>
         function searchTable() {
@@ -404,6 +403,11 @@
             }
         }
     </script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
 </body>
 
 {% endblock %}

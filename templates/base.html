@@ -10,15 +10,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
     <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-srIzH7GEah45/+jQJtWopUVE2wdeYkW2jh0ifU8TOOhlzT4pW+zpy1qzlPvNBTvhHYMDgW+CeS+c8LbgweW5kw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 
 </head>
 <style>
 
     nav{
         width: 100%;
-        height: 55px;
-        background-color: white;
+        height: 75px;
+        background-color: rgb(39, 39, 39);
         display: flex;
         align-items: center;
         overflow: hidden;
@@ -50,14 +56,15 @@
 
     /* Style for the Font Awesome icon */
     .fa-circle-user {
-        color: rgb(125, 125, 125);
-        font-size: 24px; /* Adjust the icon size */
+        margin-bottom: 15px;
+        color: rgb(143, 143, 143);
+        font-size: 29px; /* Adjust the icon size */
         transition: color 0.3s ease; /* Add a smooth transition effect */
     }
 
     /* Hover style for the Font Awesome icon */
     .fa-circle-user:hover {
-        color: rgb(151, 151, 151); /* Change the color on hover */
+        color: rgb(115, 115, 115); /* Change the color on hover */
         cursor: pointer;
     }
 </style>

@@ -4,82 +4,363 @@
 {% block content %}
 
 <style>
-    body {
-        background-color: rgb(225, 225, 225);
-        margin: 0;
+    /*SPECIFIC*/
+
+    .buttons {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin-top: 21px;
     }
 
-    .container {
-        /*background-color: white;
-        padding: 30px 60px 30px 60px;
-        -webkit-border-radius: 14px;
-        -moz-border-radius: 14px;
-        border-radius: 14px;*/
-        min-width: 92%;
-        margin-top: 50px;
-        
-        display: grid;
-        grid-template-columns: 25% 75%;
-        grid-template-areas: 
-            "div1 div2";
-        grid-column-gap: 26px;
+    .btn-dlt {
+        display: flex;
+        margin-left: 15px;
+        border-radius: 10px;
+        background-color: rgb(255, 242, 158);
+        color: rgb(0, 0, 0);
+        border: none;
+        padding: 4px;
+        padding-inline: 16px;
+
     }
 
-    .forma,
-    .tabela {
-        background-color: white;
-        padding: 40px 45px 40px 45px;
-        -webkit-border-radius: 14px;
-        -moz-border-radius: 14px;
-        border-radius: 14px;
-        
-        
-    }
+    .btn-dlt:disabled {
 
+        border-radius: 10px;
+        background-color: rgb(231, 231, 231);
+        color: rgb(183, 183, 183);
+        border: none;
+        padding: 4px;
+        padding-inline: 16px;
+        text-decoration: none;
 
-    .forma {
-        grid-area: div1;
-        /* Span 1 column */
-        
-    }
-
-    .tabela {
-        grid-area: div2;
-        /* Span 3 columns */
-        font-size: 14px;
-        
     }
 
 
-    @media only screen and (max-width: 1600px) {
-        .container {
-            /*background-color: white;
-        padding: 30px 60px 30px 60px;
-        -webkit-border-radius: 14px;
-        -moz-border-radius: 14px;
-        border-radius: 14px;*/
-            
-            margin-top: 25px;
-            display: flex;
-            flex-direction: column;
 
-        }
+    .btn-cadastrar-receita {
 
-        .forma {
-            margin-top: 25px;
-            margin-bottom: 53px;
-            order: 2;
-        }
+        border-radius: 10px;
+        background-color: rgb(255, 242, 158);
+        color: rgb(0, 0, 0);
+        border: none;
+        padding: 4px;
+        padding-inline: 16px;
+
     }
+
+    .btn-cadastrar-receita:hover {
+
+        border-radius: 10px;
+        background-color: rgb(255, 235, 108);
+        color: rgb(0, 0, 0);
+        border: none;
+        padding: 4px;
+        padding-inline: 16px;
+        text-decoration: underline blue;
+
+    }
+
+    .btn-cadastrar-receita:disabled {
+
+        border-radius: 10px;
+        background-color: rgb(231, 231, 231);
+        color: rgb(183, 183, 183);
+        border: none;
+        padding: 4px;
+        padding-inline: 16px;
+        text-decoration: none;
+
+    }
+
 </style>
 
 <body>
 
-
-
     <div class="container">
 
-        
+        <!-- TABELA -->
+        <div class="tabela">
+
+            <div class="header">
+
+                <div class="titleandbtn">
+                    <h3>Materias Primas</h3>
+                    <button type="button" data-toggle="modal" data-target="#cadastrarModal" class="btn-cadastrar"> +
+                        Cadastrar Nova Materia Prima</button>
+                </div>
+
+                <div class="searchContainer">
+                    <input class="searchInput" type="text" id="searchInput" onkeyup="searchTable()"
+                        placeholder="🔍 Procurar Em Materias Primas... ">
+                </div>
+
+            </div>
+
+
+            <div class="table-responsive">
+                <table id="materiasprimasTable">
+                    <thead>
+                        <tr>
+                            <th class="hide"> </th>
+                            <th class="hide" onclick="toggleSort(0)" style="width: 2%;">ID</th>
+                            <th onclick="toggleSort(1)" style="width: 21%;">Materia Prima</th>
+                            <th class="hide" onclick="toggleSort(2)">Uni de compra</th>
+                            <th class="hide" onclick="toggleSort(3)">Peso em KG</th>
+                            <th class="hide" onclick="toggleSort(4)">Quantidade</th>
+                            <th class="hide" onclick="toggleSort(5)">Último Custo</th>
+                            <th onclick="toggleSort(6)">Departamento</th>
+                            <th class="hide" onclick="toggleSort(7)">Compra Mínima</th>
+                            <th class="hide" onclick="toggleSort(8)">GM/D</th>
+                            <th onclick="toggleSort(9)">Fornecedor</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for materiaprima in materiasprimas %}
+                        <tr>
+                            <td class="hide">
+                                <span class="checkboxContainer">
+                                    <input type="checkbox" class="checkbox">
+                                </span>
+                            </td>
+                            <td class="hide">{{ materiaprima.id_mp }}</td>
+                            <td class="tdmp">{{ materiaprima.nome_mp }}</td>
+                            <td class="hide">{{ materiaprima.unidade_mp }}</td>
+                            <td class="hide"> {{ materiaprima.peso_mp }}</td>
+                            <td class="hide">{{ materiaprima.quantidade_mp}}</td>
+                            <td class="hide"> R$ {{ materiaprima.custo_mp}}</td>
+                            <td>{{ materiaprima.departamento_mp}}</td>
+                            <td class="hide">{{ materiaprima.pedidomin_mp}}</td>
+                            <td class="hide">{{ materiaprima.gastomedio_mp}}</td>
+                            <td>{{ materiaprima.nome_fornecedor}}
+                            </td>
+                            <td>
+                                <div class="actionButtons">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="#85827a"
+                                        class="bi bi-pencil-fill" viewBox="0 0 16 16" type="button" style="margin: 2px;"
+                                        data-toggle="modal" data-target="#editModal{{ materiaprima.id_mp }}">
+                                        <path
+                                            d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
+                                    </svg>
+                                    <svg type="button" style="margin: 2px;" data-toggle="modal"
+                                        data-target="#deleteModal{{ materiaprima.id_mp }}"
+                                        xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#d97373"
+                                        class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                        <path
+                                            d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
+                                    </svg>
+                                </div>
+
+                            </td>
+                        </tr>
+
+                        <!-- Edit Modal -->
+                        <div class="modal fade" id="editModal{{ materiaprima.id_mp }}" role="dialog"
+                            aria-labelledby="editModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editModalLabel">Atualizar Materia Prima</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="{{ url_for('editMateriaPrima', id=materiaprima.id_mp) }}"
+                                            method="post">
+
+                                            <div style="display: grid;
+                                            grid-template-columns: 70% 30%;
+                                            align-items: end;">
+
+                                                <div class="form-group" style="width: 95%;">
+                                                    <label for="edit-nome_mp">Materia Prima:</label>
+                                                    <input type="text" class="form-control" id="edit-nome_mp" name="nome_mp"
+                                                        value="{{ materiaprima.nome_mp }}" required>
+                                                </div>
+    
+                                                <div class="form-group">
+                                                    <label style="text-align: right;" for="edit-unidade_mp">Unidade De Compra:</label>
+                                                    <select class="form-control" id="edit-unidade_mp"
+                                                        value="{{ materiaprima.unidade_mp }}" name="unidade_mp" required>
+                                                        <option value="KG">KG</option>
+                                                        <option value="UN">UN</option>
+                                                    </select>
+                                                </div>
+
+                                            </div>
+
+                                            
+
+                                            <div style="display: grid;
+                                                grid-template-columns: 50% 50%;
+                                                align-items: end;">
+
+                                                <div class="form-group" style="width: 93%;">
+                                                    <label for="edit-peso_mp">Peso(KG):</label>
+                                                    <input type="number" class="form-control" id="edit-peso_mp"
+                                                        name="peso_mp" value="{{ materiaprima.peso_mp }}" required>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="edit-quantidade_mp">Quantidade:</label>
+                                                    <input type="number" class="form-control" id="edit-quantidade_mp"
+                                                        name="quantidade_mp" value="{{ materiaprima.quantidade_mp }}"
+                                                        required>
+                                                </div>
+
+                                            </div>
+
+                                            <div style="display: grid;
+                                            grid-template-columns: 50% 50%;
+                                            align-items: end;">
+
+                                                <div class="form-group" style="width: 93%;">
+                                                    <label for="edit-custo_mp">Ultimo Custo($R):</label>
+                                                    <input type="number" class="form-control" id="edit-custo_mp"
+                                                        name="custo_mp" value="{{ materiaprima.custo_mp }}" required>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="edit-departamento_mp">Departamento:</label>
+                                                    <select class="form-control" id="edit-departamento_mp"
+                                                        value="{{ materiaprima.departamento_mp }}"
+                                                        name="departamento_mp" required>
+                                                        <option value="Carnes">Carnes</option>
+                                                        <option value="Farinhas">Farinhas</option>
+                                                        <option value="Hortifruti">Hortifruti</option>
+                                                        <option value="Mercearia">Mercearia</option>
+                                                        <option value="Misturas">Misturas</option>
+                                                        <option value="Ovos">Ovos</option>
+                                                        <option value="Queijos">Queijos</option>
+                                                    </select>
+                                                </div>
+
+                                            </div >
+
+
+                                            <div style="display: grid;
+                                            grid-template-columns: 30% 70%;
+                                            align-items: end;">
+
+                                                
+                                            <div class="form-group" style="width: 90%;">
+                                                <label for="edit-pedidomin_mp">Pedido Minimo:</label>
+                                                <input type="number" class="form-control" id="edit-pedidomin_mp"
+                                                    name="pedidomin_mp" value="{{ materiaprima.pedidomin_mp }}"
+                                                    required>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="edit-gastomedio_mp">Gasto médio por dia de
+                                                    consumo:</label>
+                                                <input type="number" class="form-control" id="edit-gastomedio_mp"
+                                                    name="gastomedio_mp" value="{{ materiaprima.gastomedio_mp }}"
+                                                    required>
+                                            </div>
+
+
+                                            </div>
+
+
+
+                                            <div class="form-group">
+                                                <label for="edit-id_fornecedor">Fornecedor:</label>
+                                                <select class="form-control" id="edit-id_fornecedor"
+                                                    value="{{ materiaprima.id_fornecedor }}" name="id_fornecedor"
+                                                    required>
+                                                    {% for fornecedor in fornecedores %}
+                                                    <option value="{{ fornecedor.id_fornecedor }}">{{
+                                                        fornecedor.nome_fornecedor }}</option>
+                                                    {% endfor %}
+
+                                                </select>
+                                            </div>
+
+                                            <div style="display: flex;
+                                            justify-content: end;
+                                            margin-top: 24px;">
+                                                    <button type="submit" class="btn btn-primary">Salvar Mudancas</button>
+                                            </div>
+                                            
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Delete Modal -->
+                        <div class="modal fade" id="deleteModal{{ materiaprima.id_mp }}" role="dialog"
+                            aria-labelledby="deleteModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <span style="display: flex; 
+                                        flex-direction: row; 
+                                        align-items: center; 
+                                        justify-content: center;
+                                        margin-left: 5px;">
+
+                                            <svg style="margin-right: 8px;" xmlns="http://www.w3.org/2000/svg"
+                                                width="24" height="24" fill="currentColor"
+                                                class="bi bi-exclamation-triangle" viewBox="0 0 16 16">
+                                                <path
+                                                    d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z" />
+                                                <path
+                                                    d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z" />
+                                            </svg>
+                                            <h5 class="modal-title" id="deleteModalLabel">Apagar Fornecedor</h5>
+
+                                        </span>
+
+
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Tem certeza que deseja apagar a materia prima {{ materiaprima.nome_mp }}?
+                                        </p>
+                                        <form action="{{ url_for('deleteMateriaPrima', id=materiaprima.id_mp) }}"
+                                            method="post">
+                                            <div style="display: flex; width: 100%; justify-content: end;">
+                                                <button type="submit" class="btn btn-danger">Apagar</button>
+                                            </div>
+
+                                        </form>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="buttons">
+
+                <div class="getValues">
+                    <button class="btn-cadastrar-receita" id="submitButton" onclick="getSelectedValues()"
+                        disabled>Cadastrar
+                        Receita Com Materias Primas Seleccionadas</button>
+                </div>
+
+                <div class="deleteValues">
+                    <button class="btn-dlt" disabled> Apagar Seleccionados</button>
+                </div>
+
+            </div>
+
+
+
+        </div>
 
         <!-- FORM -->
         <div class="forma">
@@ -158,241 +439,187 @@
             </form>
         </div>
 
-        <!-- TABELA -->
-        <div class="tabela">
-            <h4 style="margin-bottom: 18px;">Materias Primas</h4>
 
-            <div style="display: flex; width: 100%; justify-content: end; margin-bottom: 31px; ">
-                <input style="width: 40%; box-sizing: border-box;
-              border: none;
-              border-bottom: 1px solid rgb(148, 148, 148); margin-right: 14px;" type="text" id="searchInput"
-                    onkeyup="searchTable()" placeholder="Procurar Materia Prima...">
-            </div>
+    </div>
 
-            <div class="table-responsive">
-                <table class="table table-sm table-bordered  table-hover" id="materiasprimasTable">
-                    <thead>
-                        <tr>
-                            <th style="text-align: center; vertical-align: middle; width: 5%;">ID</th>
-                            <th style="text-align: center; vertical-align: middle; width: 30%;">Materia Prima</th>
-                            <th style="text-align: center; vertical-align: middle;">Uni de compra</th>
-                            <th style="text-align: center; vertical-align: middle; padding: 0px 20px 0px 20px;">Peso em
-                                KG</th>
-                            <th style="
-                            text-align: center; 
-                            vertical-align: middle;
-                            writing-mode: vertical-rl; 
-                            white-space: nowrap;
-                            padding: 0px 20px 0px 20px; 
-                            max-width: 25px;">
-                                Quantidade</th>
-                            <th style="text-align: center; vertical-align: middle;">Último Custo</th>
-                            <th style="text-align: center; vertical-align: middle;">Departamento</th>
-                            <th style="text-align: center; vertical-align: middle;">Compra Mínima</th>
-                            <th 
-                            style="text-align: center; vertical-align: middle; max-width: 25px; font-size: 11px;">
-                            Gasto médio em kg/uni por dia de
-                                consumo</th>
-                            <th style="text-align: center; vertical-align: middle;">Fornecedor</th>
-                            <th style="text-align: center; vertical-align: middle;">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for materiaprima in materiasprimas %}
-                        <tr>
-                            <td style="text-align: center; vertical-align: middle;">{{ materiaprima.id_mp }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ materiaprima.nome_mp }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ materiaprima.unidade_mp }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ materiaprima.peso_mp }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ materiaprima.quantidade_mp}}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ materiaprima.custo_mp}}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ materiaprima.departamento_mp}}
-                            </td>
-                            <td style="text-align: center; vertical-align: middle;">{{ materiaprima.pedidomin_mp}}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ materiaprima.gastomedio_mp}}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ materiaprima.nome_fornecedor}}</td>
-                            <td style="text-align: center; vertical-align: middle;">
-                                <div
-                                    style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
+    <!-- Cadastrar Modal -->
+    <div class="modal fade" id="cadastrarModal" role="dialog" aria-labelledby="editModalLabel" tabindex="-1"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Cadastrar Materia Prima</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="/materiasprimas" method="post">
 
-                                    <button type="button" style="margin: 2px; " class="btn btn-outline-secondary btn-sm"
-                                        data-toggle="modal" data-target="#editModal{{ materiaprima.id_mp }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                                            fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
-                                            <path
-                                                d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
-                                        </svg>
-                                    </button>
-
-                                    <button type="button" style="margin: 2px; " class="btn btn-danger btn-sm"
-                                        data-toggle="modal" data-target="#deleteModal{{ materiaprima.id_mp }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                                            fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                            <path
-                                                d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
-                                        </svg>
-                                    </button>
-
-                                </div>
-
-                            </td>
-                        </tr>
-
-                        <!-- Edit Modal -->
-                        <div class="modal fade" id="editModal{{ materiaprima.id_mp }}" role="dialog"
-                            aria-labelledby="editModalLabel" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="editModalLabel">Atualizar Materia Prima</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form action="{{ url_for('editMateriaPrima', id=materiaprima.id_mp) }}"
-                                            method="post">
-
-                                            <div class="form-group">
-                                                <label for="edit-nome_mp">Materia Prima:</label>
-                                                <input type="text" class="form-control" id="edit-nome_mp" name="nome_mp"
-                                                    value="{{ materiaprima.nome_mp }}" required>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="edit-unidade_mp">Unidade De Compra:</label>
-                                                <select class="form-control" id="edit-unidade_mp"
-                                                    value="{{ materiaprima.unidade_mp }}" name="unidade_mp" required>
-                                                    <option value="KG">KG</option>
-                                                    <option value="UN">UN</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="edit-peso_mp">Peso(KG):</label>
-                                                <input type="number" class="form-control" id="edit-peso_mp"
-                                                    name="peso_mp" value="{{ materiaprima.peso_mp }}" required>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="edit-quantidade_mp">Peso(KG):</label>
-                                                <input type="number" class="form-control" id="edit-quantidade_mp"
-                                                    name="quantidade_mp" value="{{ materiaprima.quantidade_mp }}"
-                                                    required>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="edit-custo_mp">Ultimo Custo($R):</label>
-                                                <input type="number" class="form-control" id="edit-custo_mp"
-                                                    name="custo_mp" value="{{ materiaprima.custo_mp }}" required>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="edit-departamento_mp">Departamento:</label>
-                                                <select class="form-control" id="edit-departamento_mp"
-                                                    value="{{ materiaprima.departamento_mp }}" name="departamento_mp"
-                                                    required>
-                                                    <option value="Carnes">Carnes</option>
-                                                    <option value="Farinhas">Farinhas</option>
-                                                    <option value="Hortifruti">Hortifruti</option>
-                                                    <option value="Mercearia">Mercearia</option>
-                                                    <option value="Misturas">Misturas</option>
-                                                    <option value="Ovos">Ovos</option>
-                                                    <option value="Queijos">Queijos</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="edit-pedidomin_mp">Pedido Minimo:</label>
-                                                <input type="number" class="form-control" id="edit-pedidomin_mp"
-                                                    name="pedidomin_mp" value="{{ materiaprima.pedidomin_mp }}"
-                                                    required>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="edit-gastomedio_mp">Gasto médio em kg/uni por dia de
-                                                    consumo:</label>
-                                                <input type="number" class="form-control" id="edit-gastomedio_mp"
-                                                    name="gastomedio_mp" value="{{ materiaprima.gastomedio_mp }}"
-                                                    required>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="edit-id_fornecedor">Fornecedor:</label>
-                                                <select class="form-control" id="edit-id_fornecedor"
-                                                    value="{{ materiaprima.id_fornecedor }}" name="id_fornecedor"
-                                                    required>
-                                                    {% for fornecedor in fornecedores %}
-                                                    <option value="{{ fornecedor.id_fornecedor }}">{{
-                                                        fornecedor.nome_fornecedor }}</option>
-                                                    {% endfor %}
-
-                                                </select>
-                                            </div>
-
-                                            <button type="submit" class="btn btn-primary">Salvar Mudancas</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label style="margin-bottom: 1px;" for="nome_mp">Materia Prima</label>
+                            <input type="text" class="form-control" id="nome_mp" name="nome_mp" required>
                         </div>
 
-
-                        <!-- Delete Modal -->
-                        <div class="modal fade" id="deleteModal{{ materiaprima.id_mp }}" role="dialog"
-                            aria-labelledby="deleteModalLabel" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <span style="display: flex; 
-                                        flex-direction: row; 
-                                        align-items: center; 
-                                        justify-content: center;
-                                        margin-left: 5px;">
-
-                                            <svg style="margin-right: 8px;" xmlns="http://www.w3.org/2000/svg"
-                                                width="24" height="24" fill="currentColor"
-                                                class="bi bi-exclamation-triangle" viewBox="0 0 16 16">
-                                                <path
-                                                    d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z" />
-                                                <path
-                                                    d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z" />
-                                            </svg>
-                                            <h5 class="modal-title" id="deleteModalLabel">Apagar Fornecedor</h5>
-
-                                        </span>
-
-
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>Tem certeza que deseja apagar a materia prima {{ materiaprima.nome_mp }}?
-                                        </p>
-                                        <form action="{{ url_for('deleteMateriaPrima', id=materiaprima.id_mp) }}"
-                                            method="post">
-                                            <div style="display: flex; width: 100%; justify-content: end;">
-                                                <button type="submit" class="btn btn-danger">Apagar</button>
-                                            </div>
-
-                                        </form>
-
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label style="margin-bottom: 1px;" for="unidade_mp">Unidade De Compra</label>
+                            <select class="form-control" id="unidade_mp" name="unidade_mp" required>
+                                <option value="KG">KG</option>
+                                <option value="UN">UN</option>
+                            </select>
                         </div>
 
+                        <div style="display: grid;
+                    grid-template-columns: 50% 50%;
+                    align-items: end;">
 
+                            <div class="form-group" style="width: 90%;">
+                                <label style="margin-bottom: 1px;" for="peso_mp">Peso(KG)</label>
+                                <input type="number" class="form-control" step="0.1" id="peso_mp" name="peso_mp"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label style="margin-bottom: 1px;" for="quantidade_mp">Quantidade</label>
+                                <input type="number" class="form-control" id="quantidade_mp" name="quantidade_mp"
+                                    required>
+                            </div>
 
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="margin-bottom: 1px;" for="custo_mp">Ultimo Custo($R)</label>
+                            <input type="number" step=".01" class="form-control" id="custo_mp" name="custo_mp" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="margin-bottom: 1px;" for="departamento_mp">Departamento</label>
+                            <select class="form-control" id="departamento_mp" name="departamento_mp" required>
+                                <option value="Carnes">Carnes</option>
+                                <option value="Farinhas">Farinhas</option>
+                                <option value="Hortifruti">Hortifruti</option>
+                                <option value="Mercearia">Mercearia</option>
+                                <option value="Misturas">Misturas</option>
+                                <option value="Ovos">Ovos</option>
+                                <option value="Queijos">Queijos</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="margin-bottom: 1px;" for="pedidomin_mp">Pedido Minimo</label>
+                            <input type="number" class="form-control" id="pedidomin_mp" name="pedidomin_mp" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="margin-bottom: 1px;" for="gastomedio_mp">Gasto médio em kg/uni por dia de
+                                consumo</label>
+                            <input type="number" class="form-control" id="gastomedio_mp" name="gastomedio_mp" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="margin-bottom: 1px;" for="id_fornecedor">Fornecedor:</label>
+                            <select class="form-control" id="id_fornecedor" name="id_fornecedor" required>
+                                {% for fornecedor in fornecedores %}
+                                <option value="{{ fornecedor.id_fornecedor }}">{{ fornecedor.nome_fornecedor }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="display: flex; width: 100%; margin-top: 43px;">
+                            <button style="width: 100%;" type="submit" class="btn btn-dark">Cadastrar</button>
+                        </div>
+
+                    </form>
+                </div>
+
             </div>
         </div>
     </div>
 
     <script>
+        // Function to activate checkbox when clicking on the row
+        document.addEventListener('DOMContentLoaded', function () {
+            const checkboxes = document.querySelectorAll('.checkbox');
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    const parentRow = this.closest('tr');
+                    if (parentRow) {
+                        parentRow.classList.toggle('selected', this.checked);
+                    }
+                    checkIfAnySelected();
+                });
+            });
+
+            const rows = document.querySelectorAll('tr');
+            rows.forEach(row => {
+                row.addEventListener('click', function (event) {
+                    if (event.target.type !== 'checkbox') {
+                        const checkbox = this.querySelector('.checkbox');
+                        if (checkbox) {
+                            checkbox.checked = !checkbox.checked;
+                            this.classList.toggle('selected', checkbox.checked);
+                            checkIfAnySelected();
+                        }
+                    }
+                });
+            });
+        });
+
+        // Function to check if any checkboxes are selected and disable the button accordingly
+        function checkIfAnySelected() {
+            const checkboxes = document.querySelectorAll('.checkbox:checked');
+            const submitButton = document.getElementById('submitButton');
+            const selectedRowCount = checkboxes.length;
+            submitButton.textContent = `Cadastrar Receita Com Materias Primas Seleccionadas (${selectedRowCount}) >>`;
+            submitButton.disabled = checkboxes.length === 0;
+        }
+    </script>
+
+    <script>
+
+        // Function to get selected values
+        function getSelectedValues() {
+            const checkboxes = document.querySelectorAll('.checkbox:checked');
+            const selectedValues = Array.from(checkboxes).map(checkbox => {
+                // Get the parent span of the checkbox
+                const checkboxContainer = checkbox.closest('.checkboxContainer');
+                if (checkboxContainer) {
+                    // Get the next sibling td element of the parent span
+                    const nextSibling = checkboxContainer.parentNode.nextElementSibling;
+                    if (nextSibling) {
+                        return nextSibling.textContent.trim();
+                    }
+                }
+                return null; // Return null if unable to find value
+            });
+            console.log(selectedValues); // You can pass this array to your Flask project
+        }
+    </script>
+
+
+    <script>
+
+        //function to drag and drop´modal
+        $('#cadastrarModal').on('shown.bs.modal', function () {
+            $(".modal-dialog").css({ top: 0, left: 0 });
+        });
+        // Enable dragging for the modal dialog
+        $(function () {
+            $(".modal-dialog").draggable({
+                handle: ".modal-header",
+                start: function () {
+                    // Change cursor to grabbing when dragging starts
+                    $("body").css("cursor", "grabbing");
+                },
+                stop: function () {
+                    // Change cursor back to default when dragging stops
+                    $("body").css("cursor", "default");
+                }
+            });
+        });
+    </script>
+
+    <script>
+        //function to look up at the table
         function searchTable() {
             var input, filter, table, tr, td, i, txtValue;
             input = document.getElementById("searchInput");
@@ -416,8 +643,51 @@
         }
     </script>
 
+    <script>
+        // Function to toggle table sorting
+        function toggleSort(columnIndex) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("materiasprimasTable");
+            switching = true;
+            dir = "asc"; // Set the sorting direction to ascending
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[columnIndex];
+                    y = rows[i + 1].getElementsByTagName("TD")[columnIndex];
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                } else {
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc"; // If no switching has been done and the direction is ascending, set direction to descending and run the loop again
+                        switching = true;
+                    }
+                }
+            }
+        }
+    </script>
+
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+
 
 </body>
 
