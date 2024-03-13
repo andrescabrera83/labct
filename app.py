@@ -1,20 +1,31 @@
 ## IMPORTS AND CONFIGURATION ###############################
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-from sqlalchemy.exc import IntegrityError
-from flask import abort
-
-
 import pymysql
+import os
+import datetime
+from flask_login import UserMixin,current_user, login_required, LoginManager, login_user
 pymysql.install_as_MySQLdb()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:pass123@localhost/labct'
+secret_key = os.environ.get('FLASK_SECRET_KEY')
+app.secret_key = secret_key
+app.config.from_object('config.Config')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:pass123@localhost/labct2'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=62)  # Set session expiration to 62 days
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
+
+
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+
 
 #FORNECEDORES##################################################################################################################################
 
@@ -30,6 +41,7 @@ class Fornecedores(db.Model):
     nome_vendedor = db.Column(db.String(45))
     contato_tel = db.Column(db.String(45))
     email_vendedor = db.Column(db.String(100))
+    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
 
 class FornecedorSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -43,6 +55,7 @@ class FornecedorSchema(ma.SQLAlchemySchema):
     nome_vendedor = ma.auto_field()
     contato_tel = ma.auto_field()
     email_vendedor = ma.auto_field()
+    
 
 #MATERIAS PRIMAS##################################################################################################################################
 
@@ -53,14 +66,14 @@ class MateriasPrimas(db.Model):
     id_mp = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nome_mp = db.Column(db.String(75))
     unidade_mp = db.Column(db.Enum('KG', 'UN'))
-    peso_mp = db.Column(db.Numeric(10, 3))
-    quantidade_mp = db.Column(db.Integer)
+    pesounitario_mp = db.Column(db.Numeric(10, 3))
+    pesototal_mp = db.Column(db.Numeric(10, 3))
     custo_mp = db.Column(db.Numeric(10, 2))
     departamento_mp = db.Column(db.Enum('Carnes', 'Farinhas', 'Hortifruti', 'Mercearia', 'Misturas', 'Ovos', 'Queijos'))
     pedidomin_mp = db.Column(db.Integer)
     gastomedio_mp = db.Column(db.Numeric(10, 3))
-    id_fornecedor = db.Column(db.Integer)
-    nome_fornecedor = db.Column(db.String(45))
+    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    
 
 class MateriasPrimasSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -69,19 +82,24 @@ class MateriasPrimasSchema(ma.SQLAlchemySchema):
     id_mp = ma.auto_field()
     nome_mp = ma.auto_field()
     unidade_mp = ma.auto_field()
-    peso_mp = ma.auto_field()
-    quantidade_mp = ma.auto_field()
+    pesounitario_mp = ma.auto_field()
+    pesototal_mp = ma.auto_field()
     custo_mp = ma.auto_field()
     departamento_mp = ma.auto_field()
     pedidomin_mp = ma.auto_field()
     gastomedio_mp = ma.auto_field()
-    id_fornecedor = ma.auto_field()
-    nome_fornecedor = ma.auto_field()
 
 
+# USERS ##################################################
 
-
-    
+class Usuarios(UserMixin,db.Model):
+    __tablename__ = "usuarios"
+    __table_args__ = {"extend_existing": True}
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+    materiasprimas = db.relationship('MateriasPrimas', backref='user', lazy=True)
+    fornecedores = db.relationship('Fornecedores', backref='user', lazy=True)
 
 with app.app_context():
     db.create_all()
@@ -94,9 +112,56 @@ def round_filter(value):
 
 # ROUTES ########################################################################################################################
 
+@login_manager.user_loader
+def user_loader(user_id):
+    return Usuarios.query.get(int(user_id))
+
+
 @app.route('/')
 def index():
-    return render_template('home.html')
+     
+    if 'username' in session:
+        return render_template('home.html', username=session['username'])
+    return redirect(url_for('login'))
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = Usuarios(username=username, password=password)
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for('login'))
+    return render_template('signup.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        next_url = request.form.get("next")
+
+      
+
+        user = Usuarios.query.filter_by(username=username, password=password).first()
+        if user:
+            session['username'] = username
+            session['user_id'] = user.id 
+            login_user(user)
+
+            
+            # Redirect to the originally requested URL if available, or else redirect to the index route
+            next_page = request.args.get('next')  # Get the 'next' parameter from the request URL
+            return redirect(next_page or url_for('index'))
+        else:
+            return render_template('login.html', error="Invalid username or password")
+    return render_template('login.html')
+    
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('login'))
 
 @app.route('/cleanup-fornecedores', methods=['GET'])
 def cleanupFornecedor():
@@ -105,10 +170,18 @@ def cleanupFornecedor():
         db.session.commit()
     return redirect(url_for('fornecedores'))
 
+@app.route('/cleanup-mp', methods=['GET'])
+def cleanupMP():
+    with app.app_context():
+        db.session.query(MateriasPrimas).delete()  # Delete all entries from the Entry table
+        db.session.commit()
+    return redirect(url_for('materiasprimas'))
+
 
 ## FORNECEDORES ##########################################
 
 @app.route('/fornecedores', methods=['GET', 'POST'])
+@login_required
 def fornecedores():
     if request.method == 'POST':
         nome_fornecedor = request.form.get('nome_fornecedor')
@@ -126,13 +199,14 @@ def fornecedores():
             dia_pedido=dia_pedido,
             nome_vendedor=nome_vendedor,
             contato_tel=contato_tel,
-            email_vendedor=email_vendedor
+            email_vendedor=email_vendedor,
+            user_id=current_user.id 
             )
         db.session.add(fornecedores)
         db.session.commit()
         return redirect(url_for('fornecedores'))  # Redirect to GET request after form submission
 
-    fornecedores = Fornecedores.query.all()
+    fornecedores = Fornecedores.query.filter_by(user_id=current_user.id).all()
     fornecedor_schema = FornecedorSchema(many=True)
     serialized_data = fornecedor_schema.dump(fornecedores)
     return render_template('fornecedores.html', fornecedores=serialized_data)
@@ -166,49 +240,41 @@ def editFornecedor(id):
 # MATERIAS PRIMAS ###################################
 
 @app.route('/materiasprimas', methods=['GET', 'POST'])
+@login_required
 def materiasPrimas():
-
-    fornecedores = Fornecedores.query.all() #get values from fornecedores table
-    fornecedor_schema = FornecedorSchema(many=True)
-    serialized_data_f = fornecedor_schema.dump(fornecedores)
-
     if request.method == 'POST':
         id_mp = request.form.get('id_mp')
         nome_mp = request.form.get('nome_mp')
         unidade_mp = request.form.get('unidade_mp')
-        peso_mp = request.form.get('peso_mp')
-        quantidade_mp = request.form.get('quantidade_mp')
+        pesounitario_mp = request.form.get('pesounitario_mp')
+        pesototal_mp = request.form.get('pesototal_mp')
         custo_mp = request.form.get('custo_mp')
         departamento_mp = request.form.get('departamento_mp')
         pedidomin_mp = request.form.get('pedidomin_mp')
         gastomedio_mp = request.form.get('gastomedio_mp')
-        id_fornecedor = request.form.get('id_fornecedor')
-
-        # Fetch the nome_fornecedor corresponding to the id_fornecedor from the Fornecedor table
-        fornecedor = Fornecedores.query.filter_by(id_fornecedor=id_fornecedor).first()
-        nome_fornecedor = fornecedor.nome_fornecedor if fornecedor else None
+        
 
         materiasprimas = MateriasPrimas(
             id_mp=id_mp, 
             nome_mp=nome_mp, 
             unidade_mp=unidade_mp,
-            peso_mp=peso_mp,
-            quantidade_mp=quantidade_mp,
+            pesounitario_mp=pesounitario_mp,
+            pesototal_mp=pesototal_mp,
             custo_mp=custo_mp,
             departamento_mp=departamento_mp,
             pedidomin_mp=pedidomin_mp,
             gastomedio_mp=gastomedio_mp,
-            id_fornecedor=id_fornecedor,
-            nome_fornecedor=nome_fornecedor
+            user_id=current_user.id  
             )
+        
         db.session.add(materiasprimas)
         db.session.commit()
         return redirect(url_for('materiasPrimas'))
 
-    materiasprimas = MateriasPrimas.query.all()
+    materiasprimas = MateriasPrimas.query.filter_by(user_id=current_user.id).all()
     materiaprima_schema = MateriasPrimasSchema(many=True)
     serialized_data_mp = materiaprima_schema.dump(materiasprimas)
-    return render_template('materiasprimas.html', fornecedores=serialized_data_f, materiasprimas = serialized_data_mp)
+    return render_template('materiasprimas.html', materiasprimas = serialized_data_mp)
 
 #DELETE
 @app.route('/delete-materiaprima/<int:id>', methods=['POST'])
@@ -225,14 +291,12 @@ def editMateriaPrima(id):
         materiasprimas = MateriasPrimas.query.get_or_404(id)
         materiasprimas.nome_mp = request.form.get('nome_mp')
         materiasprimas.unidade_mp = request.form.get('unidade_mp')
-        materiasprimas.peso_mp = request.form.get('peso_mp')
-        materiasprimas.quantidade_mp = request.form.get('quantidade_mp')
+        materiasprimas.pesounitario_mp = request.form.get('pesounitario_mp')
+        materiasprimas.pesototal_mp = request.form.get('pesototal_mp')
         materiasprimas.custo_mp = request.form.get('custo_mp')
         materiasprimas.departamento_mp = request.form.get('departamento_mp')
         materiasprimas.pedidomin_mp = request.form.get('pedidomin_mp')
-        materiasprimas.gastomedio_mp = request.form.get('gastomedio_mp')
-        materiasprimas.id_fornecedor = request.form.get('id_fornecedor')
-        
+        materiasprimas.gastomedio_mp = request.form.get('gastomedio_mp')  
         
         db.session.commit()
         return redirect(url_for('materiasPrimas', id=id))

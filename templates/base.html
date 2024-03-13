@@ -1,27 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"
+        type="text/javascript"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
     <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-srIzH7GEah45/+jQJtWopUVE2wdeYkW2jh0ifU8TOOhlzT4pW+zpy1qzlPvNBTvhHYMDgW+CeS+c8LbgweW5kw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        integrity="sha512-srIzH7GEah45/+jQJtWopUVE2wdeYkW2jh0ifU8TOOhlzT4pW+zpy1qzlPvNBTvhHYMDgW+CeS+c8LbgweW5kw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 
 </head>
 <style>
-
-    nav{
+    nav {
         width: 100%;
         height: 75px;
         background-color: rgb(39, 39, 39);
@@ -30,25 +35,27 @@
         overflow: hidden;
         border-bottom: 1px solid lightgray;
         padding-right: 15px;
-        
+
 
     }
 
-    .nav-cont{
+    .nav-cont {
         width: 100%;
         display: flex;
         margin-top: 15px;
         margin-left: 35px;
-        justify-content: space-between; /* Aligns items with space between them */
-        
+        justify-content: space-between;
+        /* Aligns items with space between them */
+
     }
 
-    .content{
-        overflow: auto; 
+    .content {
+        overflow: auto;
     }
-    .user-icon{
+
+    .user-icon {
         margin-left: auto;
-        
+
         height: 100%;
         width: 35px;
         border-radius: 50%;
@@ -58,24 +65,28 @@
     .fa-circle-user {
         margin-bottom: 15px;
         color: rgb(143, 143, 143);
-        font-size: 29px; /* Adjust the icon size */
-        transition: color 0.3s ease; /* Add a smooth transition effect */
+        font-size: 29px;
+        /* Adjust the icon size */
+        transition: color 0.3s ease;
+        /* Add a smooth transition effect */
     }
 
     /* Hover style for the Font Awesome icon */
     .fa-circle-user:hover {
-        color: rgb(115, 115, 115); /* Change the color on hover */
+        color: rgb(115, 115, 115);
+        /* Change the color on hover */
         cursor: pointer;
     }
 </style>
+
 <body>
-   
+
     <nav>
         <div class="nav-cont">
-        {% include 'navigationlink.html' %}
-        <span class="user-icon">
-            <i class="fa-solid fa-circle-user"></i>
-        </span>
+            {% include 'navigationlink.html' %}
+            <span class="user-icon">
+                <i class="fa-solid fa-circle-user"></i>
+            </span>
         </div>
     </nav>
 
@@ -83,6 +94,7 @@
         {% block content %}{% endblock %}
     </div>
 
-   
+
 </body>
+
 </html>
