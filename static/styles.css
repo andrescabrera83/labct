@@ -35,6 +35,35 @@ body {
     font-size: 15px;
 }
 
+.giromedio{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: end;
+    align-items: center;
+    
+}
+
+.giromedio input{
+    max-width: 50px;
+    margin-left: 8px;
+    max-height: 20px;
+    margin-bottom: 8px;
+}
+
+.giromedio h5{
+    font-size: 15px;
+}
+
+.giromedio button {
+    border: none;
+    margin-bottom: 8px;
+    margin-inline: 8px;
+}
+
+.giromedio button:hover {
+    background-color: #979797;
+}
 
 @media only screen and (max-width: 1600px) {
     .container {

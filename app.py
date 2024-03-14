@@ -1,6 +1,6 @@
 ## IMPORTS AND CONFIGURATION ###############################
 
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 import pymysql
@@ -19,6 +19,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=62)  # Set se
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
+app.config['MY_INTEGER'] = 6
 
 # Initialize Flask-Login
 login_manager = LoginManager()
@@ -69,6 +70,7 @@ class MateriasPrimas(db.Model):
     pesounitario_mp = db.Column(db.Numeric(10, 3))
     pesototal_mp = db.Column(db.Numeric(10, 3))
     custo_mp = db.Column(db.Numeric(10, 2))
+    custoemkg_mp = db.Column(db.Numeric(10, 2))
     departamento_mp = db.Column(db.Enum('Carnes', 'Farinhas', 'Hortifruti', 'Mercearia', 'Misturas', 'Ovos', 'Queijos'))
     pedidomin_mp = db.Column(db.Integer)
     gastomedio_mp = db.Column(db.Numeric(10, 3))
@@ -85,6 +87,7 @@ class MateriasPrimasSchema(ma.SQLAlchemySchema):
     pesounitario_mp = ma.auto_field()
     pesototal_mp = ma.auto_field()
     custo_mp = ma.auto_field()
+    custoemkg_mp = ma.auto_field()
     departamento_mp = ma.auto_field()
     pedidomin_mp = ma.auto_field()
     gastomedio_mp = ma.auto_field()
@@ -105,10 +108,23 @@ with app.app_context():
     db.create_all()
 
 
+
+
+@app.route('/update', methods=['POST'])
+def update():
+    new_value = int(request.form['new_value'])
+    app.config['MY_INTEGER'] = new_value
+    return redirect(url_for('materiasPrimas'))
+
 # Custom filter to round numbers
-@app.template_filter('round')
+@app.template_filter('giromedio')
 def round_filter(value):
-    return round(value)
+    return value * app.config['MY_INTEGER']
+
+@app.before_request
+def before_request():
+    if not hasattr(g, 'my_integer'):
+        g.my_integer = 6
 
 # ROUTES ########################################################################################################################
 
@@ -206,6 +222,7 @@ def fornecedores():
         db.session.commit()
         return redirect(url_for('fornecedores'))  # Redirect to GET request after form submission
 
+    
     fornecedores = Fornecedores.query.filter_by(user_id=current_user.id).all()
     fornecedor_schema = FornecedorSchema(many=True)
     serialized_data = fornecedor_schema.dump(fornecedores)
@@ -242,6 +259,7 @@ def editFornecedor(id):
 @app.route('/materiasprimas', methods=['GET', 'POST'])
 @login_required
 def materiasPrimas():
+    cost_per_unit = 2
     if request.method == 'POST':
         id_mp = request.form.get('id_mp')
         nome_mp = request.form.get('nome_mp')
@@ -253,6 +271,13 @@ def materiasPrimas():
         pedidomin_mp = request.form.get('pedidomin_mp')
         gastomedio_mp = request.form.get('gastomedio_mp')
         
+        # Convert cost and total weight to floats
+        custo_mp_float = float(custo_mp)
+        pesototal_mp_float = float(pesototal_mp)
+
+        # Perform the division operation
+        if pesototal_mp_float != 0:  # Avoid division by zero
+            cost_per_unit = custo_mp_float / pesototal_mp_float
 
         materiasprimas = MateriasPrimas(
             id_mp=id_mp, 
@@ -261,20 +286,27 @@ def materiasPrimas():
             pesounitario_mp=pesounitario_mp,
             pesototal_mp=pesototal_mp,
             custo_mp=custo_mp,
+            custoemkg_mp=cost_per_unit,
             departamento_mp=departamento_mp,
             pedidomin_mp=pedidomin_mp,
             gastomedio_mp=gastomedio_mp,
-            user_id=current_user.id  
+            user_id=current_user.id
+            
             )
         
         db.session.add(materiasprimas)
         db.session.commit()
         return redirect(url_for('materiasPrimas'))
 
+
+
     materiasprimas = MateriasPrimas.query.filter_by(user_id=current_user.id).all()
     materiaprima_schema = MateriasPrimasSchema(many=True)
     serialized_data_mp = materiaprima_schema.dump(materiasprimas)
-    return render_template('materiasprimas.html', materiasprimas = serialized_data_mp)
+
+    giromedio = MateriasPrimas.query.filter_by(user_id=current_user.id).all()
+
+    return render_template('materiasprimas.html', materiasprimas = serialized_data_mp, my_integer=app.config['MY_INTEGER'])
 
 #DELETE
 @app.route('/delete-materiaprima/<int:id>', methods=['POST'])
@@ -296,8 +328,15 @@ def editMateriaPrima(id):
         materiasprimas.custo_mp = request.form.get('custo_mp')
         materiasprimas.departamento_mp = request.form.get('departamento_mp')
         materiasprimas.pedidomin_mp = request.form.get('pedidomin_mp')
-        materiasprimas.gastomedio_mp = request.form.get('gastomedio_mp')  
+        materiasprimas.gastomedio_mp = request.form.get('gastomedio_mp')
+
+        # Convert cost and total weight to floats
+        custo_mp_float = float(materiasprimas.custo_mp)
+        pesototal_mp_float = float(materiasprimas.pesototal_mp)  
         
+        if pesototal_mp_float != 0:
+            materiasprimas.custoemkg_mp = custo_mp_float / pesototal_mp_float
+
         db.session.commit()
         return redirect(url_for('materiasPrimas', id=id))
 

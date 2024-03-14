@@ -106,12 +106,14 @@
                             <th class="hide" onclick="toggleSort(0)" style="width: 2%;">ID</th>
                             <th onclick="toggleSort(1)" style="width: 21%;">Materia Prima</th>
                             <th class="hide" onclick="toggleSort(2)">Unidade</th>
-                            <th class="hide" onclick="toggleSort(3)">Peso Unitario</th>
-                            <th class="hide" onclick="toggleSort(4)">Peso Total</th>
+                            <th class="hide" onclick="toggleSort(3)">Peso Unitario/Pacote (KG)</th>
+                            <th class="hide" onclick="toggleSort(4)">Peso Total/Fardo (KG)</th>
                             <th class="hide" onclick="toggleSort(5)">Último Custo</th>
-                            <th onclick="toggleSort(6)">Departamento</th>
-                            <th class="hide" onclick="toggleSort(7)">Compra Mínima</th>
-                            <th class="hide" onclick="toggleSort(8)">GM/D</th>
+                            <th class="hide" onclick="toggleSort(6)">Custo Em KG</th>
+                            <th onclick="toggleSort(7)">Departamento</th>
+                            <th class="hide" onclick="toggleSort(8)">Compra Mínima</th>
+                            <th class="hide" onclick="toggleSort(9)">GM/D</th>
+                            <th class="hide" onclick="toggleSort(10)">Giro Medio</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -129,9 +131,11 @@
                             <td class="hide"> {{ materiaprima.pesounitario_mp }}</td>
                             <td class="hide">{{ materiaprima.pesototal_mp}}</td>
                             <td class="hide"> R$ {{ materiaprima.custo_mp}}</td>
+                            <td class="hide"> R$ {{ materiaprima.custoemkg_mp }}</td>
                             <td>{{ materiaprima.departamento_mp}}</td>
                             <td class="hide">{{ materiaprima.pedidomin_mp}}</td>
                             <td class="hide">{{ materiaprima.gastomedio_mp}}</td>
+                            <td class="hide">{{ materiaprima.gastomedio_mp | giromedio}}</td>
 
                             </td>
                             <td>
@@ -199,15 +203,15 @@
                                                 align-items: end;">
 
                                                 <div class="form-group" style="width: 93%;">
-                                                    <label for="edit-peso_mp">Peso(KG):</label>
-                                                    <input type="number" class="form-control" id="edit-peso_mp"
-                                                        name="peso_mp" value="{{ materiaprima.peso_mp }}" required>
+                                                    <label for="edit-pesounitario_mp">Peso Unitario (KG):</label>
+                                                    <input type="number" class="form-control" id="edit-pesounitario_mp"
+                                                        name="pesounitario_mp" step="0.1" value="{{ materiaprima.pesounitario_mp }}" required>
                                                 </div>
 
                                                 <div class="form-group">
-                                                    <label for="edit-quantidade_mp">Quantidade:</label>
-                                                    <input type="number" class="form-control" id="edit-quantidade_mp"
-                                                        name="quantidade_mp" value="{{ materiaprima.quantidade_mp }}"
+                                                    <label for="edit-pesototal_mp">Peso Total/Fardo (KG):</label>
+                                                    <input type="number" class="form-control" id="edit-pesototal_mp"
+                                                        name="pesototal_mp" step="0.1" value="{{ materiaprima.pesototal_mp }}"
                                                         required>
                                                 </div>
 
@@ -261,23 +265,8 @@
                                                         required>
                                                 </div>
 
-
                                             </div>
 
-
-
-                                            <div class="form-group">
-                                                <label for="edit-id_fornecedor">Fornecedor:</label>
-                                                <select class="form-control" id="edit-id_fornecedor"
-                                                    value="{{ materiaprima.id_fornecedor }}" name="id_fornecedor"
-                                                    required>
-                                                    {% for fornecedor in fornecedores %}
-                                                    <option value="{{ fornecedor.id_fornecedor }}">{{
-                                                        fornecedor.nome_fornecedor }}</option>
-                                                    {% endfor %}
-
-                                                </select>
-                                            </div>
 
                                             <div style="display: flex;
                                             justify-content: end;
@@ -290,6 +279,17 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="giromedio">
+                        <h5>Giro Medio Em Dias:</h5>
+                        <form action="/update" method="POST">
+                            
+                            <input type="number" id="new_value" name="new_value" value="{{ my_integer }}" min="0">
+                            <button type="submit"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+                        </form>
+                        </div>
+
+                        
 
 
                         <!-- Delete Modal -->
@@ -413,7 +413,7 @@
                                     name="pesounitario_mp" required>
                             </div>
                             <div class="form-group">
-                                <label style="margin-bottom: 1px;" for="pesototal_mp">Peso Total(KG)</label>
+                                <label style="margin-bottom: 1px;" for="pesototal_mp">Peso Total/Fardo (KG)</label>
                                 <input type="number" class="form-control" id="pesototal_mp" name="pesototal_mp"
                                     required>
                             </div>
@@ -432,7 +432,7 @@
                                 <option value="Queijos">Queijos</option>
                             </select>
                         </div>
-                
+
                         <div class="cadastroTitle" style="margin-top: 25px;">
                             <h5>Detalhes de Compra</h5>
                         </div>
@@ -442,14 +442,16 @@
                         align-items: end;">
 
                             <div class="form-group" style="width: 92%;">
-                                <label style="margin-bottom: 1px;" for="pedidomin_mp">Quantidade Minima De Compra (KG/UN)</label>
+                                <label style="margin-bottom: 1px;" for="pedidomin_mp">Quantidade Minima De Compra
+                                    (KG/UN)</label>
                                 <input type="number" class="form-control" id="pedidomin_mp" name="pedidomin_mp"
                                     required>
                             </div>
 
                             <div class="form-group">
                                 <label style="margin-bottom: 1px;" for="custo_mp">Ultimo Custo Total($R)</label>
-                                <input type="number" step=".01" class="form-control" id="custo_mp" name="custo_mp" required>
+                                <input type="number" step=".01" class="form-control" id="custo_mp" name="custo_mp"
+                                    required>
                             </div>
 
                         </div>
