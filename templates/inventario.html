@@ -3,4 +3,122 @@
 
 {% block content %}
 
+<style>
+    .historico {
+        margin-top: 15px;
+    }
+
+    .titulo{
+        display: flex;
+        flex-direction: row;
+    }
+
+    .titulo button{
+        margin-left: 21px;
+    }
+
+    .hidden {
+            display: none;
+        }
+</style>
+
+<body>
+
+    <div class="container">
+        <div class="tabela">
+
+            <div class="header">
+
+                <div class="Inventario">
+                    <h3>Inventario</h3>
+
+                </div>
+
+
+
+            </div>
+
+            <div class="titulo">
+                <div>
+                    <h3>{{today_date}}</h3>
+                </div>
+                <div class="ativarManual">
+                    <button id="manualChangeBtn">Ativar Registro Manual</button>
+                </div>
+            </div>
+            
+
+            <form action="/inventario" method="POST">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">
+                                IDMP
+                            </th>
+                            <th>
+                                Materia Prima
+                            </th>
+                            <th>
+                                Unidade
+                            </th>
+                            <th>
+                                Quantidade
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invt in inventario %}
+                        <tr>
+                            <td>
+                                {{invt.id_mp}}
+                            </td>
+                            <td>
+                                {{invt.nome_mp}}
+                            </td>
+                            <td>
+                                {{invt.unidade_mp}}
+                            </td>
+                            <td>
+                                <span class="quantity">{{invt.quantidade_invt}}</span>
+                                <input  min="0" type="number" step="0.1" name="quantidade_invt"
+                                    id="quantidade_invt" value="{{invt.quantidade_invt}}" class="hidden">
+                                
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div style="display: flex;
+                            justify-content: end;
+                            margin-top: 24px;">
+                    <button type="submit" id="submitButton" class="btn btn-dark hidden">Salvar Inventario</button>
+                </div>
+            </form>
+
+            <script>
+                document.getElementById('manualChangeBtn').addEventListener('click', function() {
+                    var spans = document.querySelectorAll('.quantity');
+                    var inputs = document.querySelectorAll('input[type="number"]');
+                    var submitButton = document.getElementById('submitButton');
+                    for (var i = 0; i < spans.length; i++) {
+                        spans[i].classList.toggle('hidden');
+                    }
+                    for (var i = 0; i < inputs.length; i++) {
+                        inputs[i].classList.toggle('hidden');
+                    }
+                    submitButton.classList.toggle('hidden');
+                });
+            </script>
+
+            <div class="historico">
+                <h3>
+                    Historico
+                </h3>
+            </div>
+        </div>
+
+
+    </div>
+</body>
+
 {% endblock %}

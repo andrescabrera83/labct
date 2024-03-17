@@ -3,9 +3,13 @@
 from flask import Flask, render_template, request, redirect, url_for, session, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 import pymysql
 import os
-import datetime
+from datetime import datetime, timedelta
+from babel.dates import format_date
+
 from flask_login import UserMixin,current_user, login_required, LoginManager, login_user
 pymysql.install_as_MySQLdb()
 
@@ -15,7 +19,7 @@ app.secret_key = secret_key
 app.config.from_object('config.Config')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:pass123@localhost/labct2'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=62)  # Set session expiration to 62 days
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=62)  # Set session expiration to 62 days
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
@@ -24,8 +28,6 @@ app.config['MY_INTEGER'] = 6
 # Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
-
-
 
 
 #FORNECEDORES##################################################################################################################################
@@ -92,6 +94,32 @@ class MateriasPrimasSchema(ma.SQLAlchemySchema):
     pedidomin_mp = ma.auto_field()
     gastomedio_mp = ma.auto_field()
 
+# Inventario ###########################################
+
+class Inventario(db.Model):
+    __tablename__ = "inventario"
+    __table_args__ = {"extend_existing": True}
+
+    id_invt = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    id_mp = db.Column(db.Integer, db.ForeignKey('materiasprimas.id_mp'), nullable=False)
+    materiaprima = db.relationship("MateriasPrimas", foreign_keys=[id_mp])
+
+    nome_mp = db.Column(db.String(75))
+    unidade_mp = db.Column(db.Enum('KG','UN'))
+    
+    quantidade_invt = db.Column(db.Numeric(10,3), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+   
+class InventarioSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Inventario
+        
+    id_invt = ma.auto_field()
+    id_mp = ma.auto_field()
+    nome_mp = ma.auto_field()
+    unidade_mp = ma.auto_field()
+    quantidade_invt = ma.auto_field()
 
 # USERS ##################################################
 
@@ -103,12 +131,10 @@ class Usuarios(UserMixin,db.Model):
     password = db.Column(db.String(100), nullable=False)
     materiasprimas = db.relationship('MateriasPrimas', backref='user', lazy=True)
     fornecedores = db.relationship('Fornecedores', backref='user', lazy=True)
+    inventario = db.relationship('Inventario', backref='user', lazy=True)
 
 with app.app_context():
     db.create_all()
-
-
-
 
 @app.route('/update', methods=['POST'])
 def update():
@@ -131,7 +157,6 @@ def before_request():
 @login_manager.user_loader
 def user_loader(user_id):
     return Usuarios.query.get(int(user_id))
-
 
 @app.route('/')
 def index():
@@ -193,7 +218,6 @@ def cleanupMP():
         db.session.commit()
     return redirect(url_for('materiasprimas'))
 
-
 ## FORNECEDORES ##########################################
 
 @app.route('/fornecedores', methods=['GET', 'POST'])
@@ -228,8 +252,6 @@ def fornecedores():
     serialized_data = fornecedor_schema.dump(fornecedores)
     return render_template('fornecedores.html', fornecedores=serialized_data)
 
-
-
 @app.route('/delete-fornecedor/<int:id>', methods=['POST'])
 def deleteFornecedor(id):
     fornecedores = Fornecedores.query.get_or_404(id)
@@ -251,8 +273,6 @@ def editFornecedor(id):
         
         db.session.commit()
         return redirect(url_for('fornecedores', id=id))
-    
-
 
 # MATERIAS PRIMAS ###################################
 
@@ -291,20 +311,30 @@ def materiasPrimas():
             pedidomin_mp=pedidomin_mp,
             gastomedio_mp=gastomedio_mp,
             user_id=current_user.id
-            
             )
         
         db.session.add(materiasprimas)
         db.session.commit()
+
+        id_mp = materiasprimas.id_mp
+
+        inventario = Inventario(
+            id_mp=id_mp,
+            nome_mp=nome_mp,
+            unidade_mp=unidade_mp,
+            quantidade_invt=0,  
+            user_id=current_user.id
+        )
+        
+        
+        db.session.add(inventario)
+        db.session.commit()
+
         return redirect(url_for('materiasPrimas'))
-
-
 
     materiasprimas = MateriasPrimas.query.filter_by(user_id=current_user.id).all()
     materiaprima_schema = MateriasPrimasSchema(many=True)
     serialized_data_mp = materiaprima_schema.dump(materiasprimas)
-
-    giromedio = MateriasPrimas.query.filter_by(user_id=current_user.id).all()
 
     return render_template('materiasprimas.html', materiasprimas = serialized_data_mp, my_integer=app.config['MY_INTEGER'])
 
@@ -339,6 +369,32 @@ def editMateriaPrima(id):
 
         db.session.commit()
         return redirect(url_for('materiasPrimas', id=id))
+    
+# INVENTARIO ############################################################################
+
+
+
+@app.route('/inventario', methods=['GET', 'POST'])
+def inventario():
+
+    today_date = datetime.today()
+    formatted_date = format_date(today_date, format='full', locale='pt')
+
+    inventario = Inventario.query.filter_by(user_id=current_user.id).all()
+    inventario_schema = InventarioSchema(many=True)
+    serialized_data_invt = inventario_schema.dump(inventario)
+
+    if request.method == 'POST':
+        new_quantities = request.form.getlist('quantidade_invt')
+        for index, invt in enumerate(inventario):
+            invt.quantidade_invt = new_quantities[index]
+            # You may want to validate and handle the update to the database here
+        db.session.commit()  # Commit the session after updating quantities
+        return redirect(url_for('inventario')) 
+
+    return render_template('inventario.html', inventario=serialized_data_invt, today_date=formatted_date)
+
+
 
 
 # RUN APP ################################################

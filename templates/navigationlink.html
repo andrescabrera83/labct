@@ -25,5 +25,7 @@
         %}>Fornecedores</a> /
     <a href="{{ url_for('materiasPrimas')}}" {% if request.path==url_for('materiasPrimas') %}class="active" {%
         endif %}>Materias Primas</a> /
+    <a href="{{ url_for('inventario')}}" {% if request.path==url_for('inventario') %}class="active" {%
+        endif %}>Inventario</a> /
     
 </span>
