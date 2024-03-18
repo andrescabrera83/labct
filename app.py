@@ -1,14 +1,21 @@
 ## IMPORTS AND CONFIGURATION ###############################
 
-from flask import Flask, render_template, request, redirect, url_for, session, g
+from flask import Flask, render_template, request, redirect, url_for, session, g, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 import pymysql
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from babel.dates import format_date
+import pandas as pd
+import pdfkit
+
+# Specify path to wkhtmltopdf executable
+path_wkthmltopdf = 'C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'
+config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
+
 
 from flask_login import UserMixin,current_user, login_required, LoginManager, login_user
 pymysql.install_as_MySQLdb()
@@ -29,6 +36,7 @@ app.config['MY_INTEGER'] = 6
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+## MODELS AND SCHEMAS ###########################################################################################################################
 
 #FORNECEDORES##################################################################################################################################
 
@@ -59,7 +67,6 @@ class FornecedorSchema(ma.SQLAlchemySchema):
     contato_tel = ma.auto_field()
     email_vendedor = ma.auto_field()
     
-
 #MATERIAS PRIMAS##################################################################################################################################
 
 class MateriasPrimas(db.Model):
@@ -76,8 +83,7 @@ class MateriasPrimas(db.Model):
     departamento_mp = db.Column(db.Enum('Carnes', 'Farinhas', 'Hortifruti', 'Mercearia', 'Misturas', 'Ovos', 'Queijos'))
     pedidomin_mp = db.Column(db.Integer)
     gastomedio_mp = db.Column(db.Numeric(10, 3))
-    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-    
+    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False) 
 
 class MateriasPrimasSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -94,13 +100,13 @@ class MateriasPrimasSchema(ma.SQLAlchemySchema):
     pedidomin_mp = ma.auto_field()
     gastomedio_mp = ma.auto_field()
 
-# Inventario ###########################################
+# Estoque #####################################################################################
 
-class Inventario(db.Model):
-    __tablename__ = "inventario"
+class Estoque(db.Model):
+    __tablename__ = "estoque"
     __table_args__ = {"extend_existing": True}
 
-    id_invt = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id_estq = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     id_mp = db.Column(db.Integer, db.ForeignKey('materiasprimas.id_mp'), nullable=False)
     materiaprima = db.relationship("MateriasPrimas", foreign_keys=[id_mp])
@@ -108,7 +114,59 @@ class Inventario(db.Model):
     nome_mp = db.Column(db.String(75))
     unidade_mp = db.Column(db.Enum('KG','UN'))
     
-    quantidade_invt = db.Column(db.Numeric(10,3), nullable=False)
+    quantidade_estq = db.Column(db.Numeric(10,3), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+   
+class EstoqueSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Estoque
+        
+    id_estq = ma.auto_field()
+    id_mp = ma.auto_field()
+    nome_mp = ma.auto_field()
+    unidade_mp = ma.auto_field()
+    quantidade_estq = ma.auto_field()
+
+# INVENTARIO HISTORICO #######################################################################
+
+class Historico(db.Model):
+    __tablename__ = "historico"
+    __table_args__ = {"extend_existing": True}
+
+    id_hst = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    date_change = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    id_mp = db.Column(db.Integer, db.ForeignKey('materiasprimas.id_mp'), nullable=False)
+    materiaprima = db.relationship("MateriasPrimas", foreign_keys=[id_mp])
+
+    nome_mp = db.Column(db.String(75))
+
+    ultimaquantidade_hst = db.Column(db.Numeric(10, 3))
+    novaquantidade_hst = db.Column(db.Numeric(10, 3))
+    difference_hst = db.Column(db.Numeric(10, 3))
+    modo_hst = db.Column(db.Enum('Registro Manual', 'Inventario'))
+    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+
+class HistoricoSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Historico
+        
+    id_hst = ma.auto_field() 
+    date_change = ma.auto_field()
+    id_mp = ma.auto_field()
+    nome_mp = ma.auto_field()
+    ultimaquantidade_hst = ma.auto_field()
+    novaquantidade_hst = ma.auto_field()
+    difference_hst = ma.auto_field()
+    modo_hst = ma.auto_field()
+
+# INVENTARIO ###################################################################################
+
+class Inventario(db.Model):
+    __tablename__ = "inventario"
+    __table_args__ = {"extend_existing": True}
+
+    id_invt = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    data_invt = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
    
 class InventarioSchema(ma.SQLAlchemySchema):
@@ -116,14 +174,35 @@ class InventarioSchema(ma.SQLAlchemySchema):
         model = Inventario
         
     id_invt = ma.auto_field()
-    id_mp = ma.auto_field()
-    nome_mp = ma.auto_field()
-    unidade_mp = ma.auto_field()
-    quantidade_invt = ma.auto_field()
+    data_invt = ma.auto_field()
 
-# USERS ##################################################
+# INVENTARIO DADOS ###################################################################################
+
+class InventarioDados(db.Model):
+    __tablename__ = "inventariodados"
+    __table_args__ = {"extend_existing": True}
+
+    id_invtdados = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id_invt = db.Column(db.Integer, db.ForeignKey('inventario.id_invt'), nullable=False)
+    data_invt = db.Column(db.DateTime,db.ForeignKey('inventario.data_invt'), default=datetime.now(timezone.utc),nullable=False)
+    id_mp = db.Column(db.Integer, db.ForeignKey('materiasprimas.id_mp'), nullable=False)
+    quantidade_invtdados = db.Column(db.Numeric(10, 3))
+    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+   
+class InventarioDadosSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = InventarioDados
+        
+    id_invtdados = ma.auto_field()
+    id_invt = ma.auto_field()
+    data_invt = ma.auto_field()
+    id_mp = ma.auto_field()
+    quantidade_invtdados = ma.auto_field()
+
+# USERS #################################################################################################
 
 class Usuarios(UserMixin,db.Model):
+
     __tablename__ = "usuarios"
     __table_args__ = {"extend_existing": True}
     id = db.Column(db.Integer, primary_key=True)
@@ -131,7 +210,13 @@ class Usuarios(UserMixin,db.Model):
     password = db.Column(db.String(100), nullable=False)
     materiasprimas = db.relationship('MateriasPrimas', backref='user', lazy=True)
     fornecedores = db.relationship('Fornecedores', backref='user', lazy=True)
+    estoque = db.relationship('Estoque', backref='user', lazy=True)
+    inventariohistorico = db.relationship('Historico', backref='user', lazy=True)
     inventario = db.relationship('Inventario', backref='user', lazy=True)
+    inventariosdados = db.relationship('InventarioDados', backref='user', lazy=True)
+
+# APP ###################################################################################################
+    
 
 with app.app_context():
     db.create_all()
@@ -318,7 +403,7 @@ def materiasPrimas():
 
         id_mp = materiasprimas.id_mp
 
-        inventario = Inventario(
+        estoque = Estoque(
             id_mp=id_mp,
             nome_mp=nome_mp,
             unidade_mp=unidade_mp,
@@ -327,7 +412,7 @@ def materiasPrimas():
         )
         
         
-        db.session.add(inventario)
+        db.session.add(estoque)
         db.session.commit()
 
         return redirect(url_for('materiasPrimas'))
@@ -372,28 +457,86 @@ def editMateriaPrima(id):
     
 # INVENTARIO ############################################################################
 
-
-
 @app.route('/inventario', methods=['GET', 'POST'])
 def inventario():
 
     today_date = datetime.today()
     formatted_date = format_date(today_date, format='full', locale='pt')
 
-    inventario = Inventario.query.filter_by(user_id=current_user.id).all()
-    inventario_schema = InventarioSchema(many=True)
-    serialized_data_invt = inventario_schema.dump(inventario)
+    estoque = Estoque.query.filter_by(user_id=current_user.id).all()
+    estoque_schema = EstoqueSchema(many=True)
+    serialized_data_estq = estoque_schema.dump(estoque)
 
     if request.method == 'POST':
         new_quantities = request.form.getlist('quantidade_invt')
-        for index, invt in enumerate(inventario):
-            invt.quantidade_invt = new_quantities[index]
-            # You may want to validate and handle the update to the database here
-        db.session.commit()  # Commit the session after updating quantities
-        return redirect(url_for('inventario')) 
 
-    return render_template('inventario.html', inventario=serialized_data_invt, today_date=formatted_date)
+        for index, invt in enumerate(estoque):
+            id_mp=invt.id_mp
+            nome_mp = invt.nome_mp
+            old_quantity = invt.quantidade_estq
+            new_quantity = new_quantities[index]
 
+            #diference between old quantity and new quantity
+            old_quantity_float = float(old_quantity)
+            new_quantity_float = float(new_quantity)
+            difference = new_quantity_float - old_quantity_float
+
+            # Get current timestamp with microseconds
+            current_time = datetime.now().strftime('%Y-%m-%d // %H:%M:%S.%f')[:-3]
+
+            modo = 'Registro Manual'
+
+            # Fetch the nome_fornecedor corresponding to the id_fornecedor from the Fornecedor table
+            
+
+            if difference != 0:
+                print(id_mp, current_time,old_quantity, new_quantity, difference)
+                historico = Historico(
+                date_change=current_time,
+                id_mp=id_mp,
+                nome_mp=nome_mp,
+                ultimaquantidade_hst=old_quantity,
+                novaquantidade_hst=new_quantity,
+                difference_hst=difference,
+                modo_hst=modo,
+                user_id=current_user.id
+                )
+
+                db.session.add(historico)
+
+            invt.quantidade_estq = new_quantities[index]
+
+        db.session.commit()
+
+
+        return redirect(url_for('inventario'))
+    
+    historico = Historico.query.filter_by(user_id=current_user.id).all()
+    historico_schema = HistoricoSchema(many=True)
+    serialized_data_hst = historico_schema.dump(historico)
+
+    return render_template('inventario.html', historico=serialized_data_hst , inventario=serialized_data_estq, today_date=formatted_date)
+
+@app.route('/print', methods=['POST'])
+def print_selected_items():
+    selected_items = request.form.get('selectedItems')
+    selected_items = pd.read_json(selected_items)
+
+    # Format selected items using Pandas
+    formatted_items = selected_items.to_html(index=False, classes='table')
+
+    # Convert HTML to PDF using pdfkit
+    pdf_content = pdfkit.from_string(formatted_items, configuration=config)
+
+    # Create a response with PDF content
+    response = make_response(pdf_content)
+    response.headers['Content-Type'] = 'application/pdf'
+    
+    # Add today's date to the filename
+    today_date = datetime.now().strftime("%Y-%m-%d")
+    response.headers['Content-Disposition'] = 'attachment; filename=inventario_{}.pdf'.format(today_date)
+
+    return response
 
 
 

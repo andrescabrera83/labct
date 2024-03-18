@@ -8,18 +8,39 @@
         margin-top: 15px;
     }
 
-    .titulo{
+    .titulo {
         display: flex;
         flex-direction: row;
+
     }
 
-    .titulo button{
+    .titulo button {
         margin-left: 21px;
     }
 
     .hidden {
-            display: none;
-        }
+        display: none;
+    }
+
+    .digitarManual{
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dateSelector{
+        display: flex;
+        flex-direction: column;
+        width: fit-content;
+    }
+
+    .topForm{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        height: fit-content;
+    }
+
+    
 </style>
 
 <body>
@@ -29,9 +50,8 @@
 
             <div class="header">
 
-                <div class="Inventario">
-                    <h3>Inventario</h3>
-
+                <div class="InventarioTitulo">
+                    <h3>Inventario </h3>
                 </div>
 
 
@@ -40,22 +60,23 @@
 
             <div class="titulo">
                 <div>
-                    <h3>{{today_date}}</h3>
+                    <h3>Estoque // {{today_date}}</h3>
                 </div>
                 <div class="ativarManual">
                     <button id="manualChangeBtn">Ativar Registro Manual</button>
                 </div>
             </div>
-            
 
+            <br>
+            
             <form action="/inventario" method="POST">
                 <table>
                     <thead>
                         <tr>
                             <th style="width: 5%;">
-                                IDMP
+                                Codigo MP
                             </th>
-                            <th>
+                            <th >
                                 Materia Prima
                             </th>
                             <th>
@@ -79,10 +100,10 @@
                                 {{invt.unidade_mp}}
                             </td>
                             <td>
-                                <span class="quantity">{{invt.quantidade_invt}}</span>
-                                <input  min="0" type="number" step="0.1" name="quantidade_invt"
-                                    id="quantidade_invt" value="{{invt.quantidade_invt}}" class="hidden">
-                                
+                                <span class="quantity">{{invt.quantidade_estq}}</span>
+                                <input min="0" type="number" step="0.001" name="quantidade_invt" id="quantidade_invt"
+                                    value="{{invt.quantidade_estq}}" class="hidden">
+
                             </td>
                         </tr>
                         {% endfor %}
@@ -95,30 +116,251 @@
                 </div>
             </form>
 
-            <script>
-                document.getElementById('manualChangeBtn').addEventListener('click', function() {
-                    var spans = document.querySelectorAll('.quantity');
-                    var inputs = document.querySelectorAll('input[type="number"]');
-                    var submitButton = document.getElementById('submitButton');
-                    for (var i = 0; i < spans.length; i++) {
-                        spans[i].classList.toggle('hidden');
-                    }
-                    for (var i = 0; i < inputs.length; i++) {
-                        inputs[i].classList.toggle('hidden');
-                    }
-                    submitButton.classList.toggle('hidden');
-                });
-            </script>
+            <!-- Fazer Inventario Modal -->
+            <div class="modal fade" id="fazerInventarioModal" role="dialog" aria-labelledby="editModalLabel"
+                tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editModalLabel">Fazer Inventario</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" style="margin-top: -22px !important;">
+
+                            <hr>
+
+                            <div class="topForm">
+                                <form class="dateSelector">
+                                    <label for="datePicker">Data do Inventario:</label>
+                                    <input type="date" id="datePicker" name="datePicker">
+                                </form>
+                                
+                                
+                                <button style="height: max-content; align-self: flex-end;" onclick="selectAll()">Seleccionar Todos</button>
+                            </div>
+
+                            
+                            <table style="margin-top: 12px ;">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th style="width: 5%;">
+                                            Codigo MP
+                                        </th>
+                                        <th>
+                                            Materia Prima
+                                        </th>
+                                        <th>
+                                            Unidade
+                                        </th>
+                                        <th>
+                                            Contagem De Estoque
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for invt in inventario %}
+                                    <tr>
+                                        <td class="hide">
+                                            <span class="checkboxContainer">
+                                                <input type="checkbox" class="checkbox" onchange="togglePrintButton()">
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {{invt.id_mp}}
+                                        </td>
+                                        <td>
+                                            {{invt.nome_mp}}
+                                        </td>
+                                        <td>
+                                            {{invt.unidade_mp}}
+                                        </td>
+                                        <td  contenteditable="true">
+                                            _______________
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <hr>
+                            
+                            <div class="digitarManual">
+                                <p>
+                                    Atencao: Ao clickar No "Digitar Manualmente Seleccionados" um arquivo sera baixado para imprimir
+                                    e digitar <b style="text-decoration: underline;">manualmente</b> o estoque de cada materia prima seleccionada, logo o inventario 
+                                    aparecera na lista de inventarios como "Pendente" para fechamento de estoque.
+                                </p>
+                                <button style="justify-self: end;"
+                                 id="printButton" onclick="printSelectedItems()" disabled>
+                                    Digitar Manualmente Seleccionados</button>
+                            </div>
+                            
+                            <form id="printForm" method="POST" action="/print">
+                                <input type="hidden" name="selectedItems" id="selectedItemsInput">
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="listaInventario">
+                <br>
+                <h3>Lista De inventarios</h3>
+                <button type="button" data-toggle="modal" data-target="#fazerInventarioModal">Fazer Inventario</button>
+                <br>
+                <br>
+            </div>
+
+            
 
             <div class="historico">
                 <h3>
                     Historico
                 </h3>
+
+                <div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">
+                                    Codigo
+                                </th>
+                                <th style="width: 5%;">
+                                    Codigo MP
+                                </th>
+                                <th>
+                                    Materia Prima
+                                </th>
+                                <th>
+                                    Data
+                                </th>
+                                <th>
+                                    Modo
+                                </th>
+                                <th>
+                                    Difference
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for hst in historico %}
+                            <tr>
+                                <td>
+                                    {{hst.id_hst}}
+                                </td>
+                                <td>
+                                    {{hst.id_mp}}
+                                </td>
+                                <td>
+                                    {{hst.nome_mp}}
+                                </td>
+                                <td>
+                                    {{hst.date_change}}
+                                </td>
+                                <td>
+                                    {{hst.modo_hst}}
+                                </td>
+                                <td
+                                    style="color: {% if hst.difference_hst < 0 %}red{% elif hst.difference_hst > 0 %}#32c232{% endif %};">
+                                    
+                                    {{ '+' if hst.difference_hst > 0 else '' }}{{ hst.difference_hst }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
         </div>
 
 
     </div>
 </body>
+
+<script>
+    document.getElementById('manualChangeBtn').addEventListener('click', function () {
+        var spans = document.querySelectorAll('.quantity');
+        var inputs = document.querySelectorAll('input[type="number"]');
+        var submitButton = document.getElementById('submitButton');
+        for (var i = 0; i < spans.length; i++) {
+            spans[i].classList.toggle('hidden');
+        }
+        for (var i = 0; i < inputs.length; i++) {
+            inputs[i].classList.toggle('hidden');
+        }
+        submitButton.classList.toggle('hidden');
+    });
+</script>
+
+<script>
+    function togglePrintButton() {
+        var checkboxes = document.getElementsByClassName('checkbox');
+        var printButton = document.getElementById('printButton');
+        var enableButton = false;
+
+        // Check if any checkbox is checked
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].checked) {
+                enableButton = true;
+                break;
+            }
+        }
+
+        // Enable or disable the print button based on checkbox status
+        if (enableButton) {
+            printButton.removeAttribute('disabled');
+        } else {
+            printButton.setAttribute('disabled', 'disabled');
+        }
+    }
+
+    function selectAll() {
+        var checkboxes = document.getElementsByClassName('checkbox');
+        var allChecked = true;
+
+        // Check if any checkbox is unchecked
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (!checkboxes[i].checked) {
+                allChecked = false;
+                break;
+            }
+        }
+
+        // Toggle selection based on current status
+        for (var j = 0; j < checkboxes.length; j++) {
+            checkboxes[j].checked = !allChecked;
+        }
+
+        // Enable print button
+        document.getElementById('printButton').removeAttribute('disabled');
+    }
+
+    function printSelectedItems() {
+        var selectedItems = [];
+        var checkboxes = document.getElementsByClassName('checkbox');
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].checked) {
+                var row = checkboxes[i].parentNode.parentNode.parentNode; // Get the row of the selected checkbox
+                var cells = row.getElementsByTagName('td');
+                var item = {
+                    'Materia Prima': cells[2].textContent.trim(),
+                    'Unidade': cells[3].textContent.trim(),
+                    'Manual Entry': cells[4].textContent.trim()
+                };
+                selectedItems.push(item);
+            }
+        }
+
+        // Set the selected items in the hidden input field
+        document.getElementById('selectedItemsInput').value = JSON.stringify(selectedItems);
+
+        // Submit the form to send data to backend
+        document.getElementById('printForm').submit();
+    }
+</script>
 
 {% endblock %}
