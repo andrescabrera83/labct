@@ -85,9 +85,9 @@
             <div class="header">
 
                 <div class="titleandbtn">
-                    <h3>Materias Primas</h3>
+                    <h3>Matérias Primas</h3>
                     <button type="button" data-toggle="modal" data-target="#cadastrarModal" class="btn-cadastrar"> +
-                        Cadastrar Nova Materia Prima</button>
+                        Cadastrar Nova Matéria Prima</button>
                 </div>
 
                 <div class="searchContainer">
@@ -98,10 +98,10 @@
             </div>
 
             <div class="giromedio">
-                <h5>Giro Medio Em Dias:</h5>
-                <form action="/update" method="POST">
+                <h5>Giro Médio Em Dias:</h5>
+                <form action="/giromedio" method="POST">
                     
-                    <input type="number" id="new_value" name="new_value" value="{{ my_integer }}" min="0">
+                    <input type="number" id="new_value" name="new_value" value="{{ giromedio }}" min="0">
                     <button type="submit"><i class="fa fa-refresh" aria-hidden="true"></i></button>
                 </form>
                 </div>
@@ -113,16 +113,16 @@
                         <tr>
                             <th class="hide"> </th>
                             <th class="hide" onclick="toggleSort(0)" style="width: 2%;">ID</th>
-                            <th onclick="toggleSort(1)" style="width: 21%;">Materia Prima</th>
+                            <th onclick="toggleSort(1)" style="width: 21%;">Matéria Prima</th>
                             <th class="hide" onclick="toggleSort(2)">Unidade</th>
-                            <th class="hide" onclick="toggleSort(3)">Peso Unitario/Pacote (KG)</th>
+                            <th class="hide" onclick="toggleSort(3)">Peso Unitário/Pacote (KG)</th>
                             <th class="hide" onclick="toggleSort(4)">Peso Total/Fardo (KG)</th>
                             <th class="hide" onclick="toggleSort(5)">Último Custo</th>
                             <th class="hide" onclick="toggleSort(6)">Custo Em KG</th>
                             <th onclick="toggleSort(7)">Departamento</th>
                             <th class="hide" onclick="toggleSort(8)">Compra Mínima</th>
                             <th class="hide" onclick="toggleSort(9)">GM/D</th>
-                            <th class="hide" onclick="toggleSort(10)">Giro Medio</th>
+                            <th class="hide" onclick="toggleSort(10)">Giro Médio</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -144,7 +144,7 @@
                             <td>{{ materiaprima.departamento_mp}}</td>
                             <td class="hide">{{ materiaprima.pedidomin_mp}}</td>
                             <td class="hide">{{ materiaprima.gastomedio_mp}}</td>
-                            <td class="hide">{{ materiaprima.gastomedio_mp | giromedio}}</td>
+                            <td class="hide">{{ materiaprima.gms_mp}}</td>
 
                             </td>
                             <td>
@@ -173,7 +173,7 @@
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="editModalLabel">Atualizar Materia Prima</h5>
+                                        <h5 class="modal-title" id="editModalLabel">Atualizar Matéria Prima</h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
@@ -187,7 +187,7 @@
                                             align-items: end;">
 
                                                 <div class="form-group" style="width: 95%;">
-                                                    <label for="edit-nome_mp">Materia Prima:</label>
+                                                    <label for="edit-nome_mp">Matéria Prima:</label>
                                                     <input type="text" class="form-control" id="edit-nome_mp"
                                                         name="nome_mp" value="{{ materiaprima.nome_mp }}" required>
                                                 </div>
@@ -212,7 +212,7 @@
                                                 align-items: end;">
 
                                                 <div class="form-group" style="width: 93%;">
-                                                    <label for="edit-pesounitario_mp">Peso Unitario (KG):</label>
+                                                    <label for="edit-pesounitario_mp">Peso Unitário (KG):</label>
                                                     <input type="number" class="form-control" id="edit-pesounitario_mp"
                                                         name="pesounitario_mp" step="0.1" value="{{ materiaprima.pesounitario_mp }}" required>
                                                 </div>
@@ -280,7 +280,7 @@
                                             <div style="display: flex;
                                             justify-content: end;
                                             margin-top: 24px;">
-                                                <button type="submit" class="btn btn-primary">Salvar Mudancas</button>
+                                                <button type="submit" class="btn btn-primary">Salvar Mudanças</button>
                                             </div>
 
                                         </form>
@@ -324,7 +324,7 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <p>Tem certeza que deseja apagar a materia prima {{ materiaprima.nome_mp }}?
+                                        <p>Tem certeza que deseja apagar a matéria prima {{ materiaprima.nome_mp }}?
                                         </p>
                                         <form action="{{ url_for('deleteMateriaPrima', id=materiaprima.id_mp) }}"
                                             method="post">
@@ -351,11 +351,11 @@
                 <div class="getValues">
                     <button class="btn-cadastrar-receita" id="submitButton" onclick="getSelectedValues()"
                         disabled>Cadastrar
-                        Receita Com Materias Primas Seleccionadas</button>
+                        Receita Com Matérias Primas Selecionadas</button>
                 </div>
 
                 <div class="deleteValues">
-                    <button class="btn-dlt" disabled> Apagar Seleccionados</button>
+                    <button class="btn-dlt" disabled> Apagar Selecionados</button>
                 </div>
 
             </div>

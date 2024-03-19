@@ -22,25 +22,24 @@
         display: none;
     }
 
-    .digitarManual{
+    .digitarManual {
         display: flex;
         flex-direction: column;
     }
 
-    .dateSelector{
+    .dateSelector {
         display: flex;
         flex-direction: column;
         width: fit-content;
     }
 
-    .topForm{
+    .topForm {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         height: fit-content;
+        width: 100%;
     }
-
-    
 </style>
 
 <body>
@@ -51,7 +50,7 @@
             <div class="header">
 
                 <div class="InventarioTitulo">
-                    <h3>Inventario </h3>
+                    <h3>Inventário </h3>
                 </div>
 
 
@@ -60,7 +59,7 @@
 
             <div class="titulo">
                 <div>
-                    <h3>Estoque // {{today_date}}</h3>
+                    <h3>Estoque</h3>
                 </div>
                 <div class="ativarManual">
                     <button id="manualChangeBtn">Ativar Registro Manual</button>
@@ -68,7 +67,7 @@
             </div>
 
             <br>
-            
+
             <form action="/inventario" method="POST">
                 <table>
                     <thead>
@@ -76,7 +75,7 @@
                             <th style="width: 5%;">
                                 Codigo MP
                             </th>
-                            <th >
+                            <th>
                                 Materia Prima
                             </th>
                             <th>
@@ -88,21 +87,21 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for invt in inventario %}
+                        {% for estq in estoque %}
                         <tr>
                             <td>
-                                {{invt.id_mp}}
+                                {{estq.id_mp}}
                             </td>
                             <td>
-                                {{invt.nome_mp}}
+                                {{estq.nome_mp}}
                             </td>
                             <td>
-                                {{invt.unidade_mp}}
+                                {{estq.unidade_mp}}
                             </td>
                             <td>
-                                <span class="quantity">{{invt.quantidade_estq}}</span>
-                                <input min="0" type="number" step="0.001" name="quantidade_invt" id="quantidade_invt"
-                                    value="{{invt.quantidade_estq}}" class="hidden">
+                                <span class="quantity">{{estq.quantidade_estq}}</span>
+                                <input min="0" type="number" step="0.001" name="quantidade_estq" id="quantidade_estq"
+                                    value="{{estq.quantidade_estq}}" class="hidden">
 
                             </td>
                         </tr>
@@ -112,7 +111,7 @@
                 <div style="display: flex;
                             justify-content: end;
                             margin-top: 24px;">
-                    <button type="submit" id="submitButton" class="btn btn-dark hidden">Salvar Inventario</button>
+                    <button type="submit" id="submitButton" class="btn btn-dark hidden">Salvar Registro</button>
                 </div>
             </form>
 
@@ -122,7 +121,7 @@
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="editModalLabel">Fazer Inventario</h5>
+                            <h5 class="modal-title" id="editModalLabel">Fazer Inventário</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -132,74 +131,39 @@
                             <hr>
 
                             <div class="topForm">
-                                <form class="dateSelector">
-                                    <label for="datePicker">Data do Inventario:</label>
-                                    <input type="date" id="datePicker" name="datePicker">
+                                <form action="/salvar_inventario" method="post" style="min-width: 100%;">
+                                    <label for="datePicker">Data do Inventário:</label>
+                                    <input type="date" id="datePicker" name="datePicker" required>
+                                    <table style="min-width: 100% !important;">
+                                        <thead>
+                                            <tr>
+                                                <th>Selecionar</th>
+                                                <th>ID</th>
+                                                <th>MP</th>
+                                                <th>Unidade</th>
+                                                <th>Quantidade</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for mp in materiasprimas %}
+                                            <tr>
+                                                <td><input type="checkbox" name="selected_items" value="{{ mp.id_mp }}">
+                                                </td>
+                                                <td>{{mp.id_mp}}</td>
+                                                <td>{{mp.nome_mp}}</td>
+                                                <td>{{mp.unidade_mp}}</td>
+                                                <td>________</td>
+
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    <button type="submit">Save</button>
                                 </form>
-                                
-                                
-                                <button style="height: max-content; align-self: flex-end;" onclick="selectAll()">Seleccionar Todos</button>
+
                             </div>
 
-                            
-                            <table style="margin-top: 12px ;">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th style="width: 5%;">
-                                            Codigo MP
-                                        </th>
-                                        <th>
-                                            Materia Prima
-                                        </th>
-                                        <th>
-                                            Unidade
-                                        </th>
-                                        <th>
-                                            Contagem De Estoque
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for invt in inventario %}
-                                    <tr>
-                                        <td class="hide">
-                                            <span class="checkboxContainer">
-                                                <input type="checkbox" class="checkbox" onchange="togglePrintButton()">
-                                            </span>
-                                        </td>
-                                        <td>
-                                            {{invt.id_mp}}
-                                        </td>
-                                        <td>
-                                            {{invt.nome_mp}}
-                                        </td>
-                                        <td>
-                                            {{invt.unidade_mp}}
-                                        </td>
-                                        <td  contenteditable="true">
-                                            _______________
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                            <hr>
-                            
-                            <div class="digitarManual">
-                                <p>
-                                    Atencao: Ao clickar No "Digitar Manualmente Seleccionados" um arquivo sera baixado para imprimir
-                                    e digitar <b style="text-decoration: underline;">manualmente</b> o estoque de cada materia prima seleccionada, logo o inventario 
-                                    aparecera na lista de inventarios como "Pendente" para fechamento de estoque.
-                                </p>
-                                <button style="justify-self: end;"
-                                 id="printButton" onclick="printSelectedItems()" disabled>
-                                    Digitar Manualmente Seleccionados</button>
-                            </div>
-                            
-                            <form id="printForm" method="POST" action="/print">
-                                <input type="hidden" name="selectedItems" id="selectedItemsInput">
-                            </form>
                         </div>
 
                     </div>
@@ -208,17 +172,93 @@
 
             <div class="listaInventario">
                 <br>
-                <h3>Lista De inventarios</h3>
-                <button type="button" data-toggle="modal" data-target="#fazerInventarioModal">Fazer Inventario</button>
+                <h3>Lista de Inventários</h3>
+                <div style="display: flex; width: 100%; justify-content: end;">
+                    <button type="button" data-toggle="modal" data-target="#fazerInventarioModal">Criar Novo
+                        Inventário</button>
+                </div>
+
+                <form action="/inventario" method="get"> <!-- Update action URL to "/inventarios" -->
+                    <select id="monthSelector" name="selected_month">
+                        {% for month in available_months %}
+                        {% if month == current_month %}
+                        <!-- Set selected attribute for the current month -->
+                        <option value="{{ month }}" selected>{{ month }}</option>
+                        {% else %}
+                        <!-- Regular option for other months -->
+                        <option value="{{ month }}">{{ month }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Filtrar</button>
+                </form>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Codigo</th>
+                            <th>Data Inventário</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invt in inventario %}
+                        <tr>
+                            <td>{{ invt.id_invt }}</td>
+                            <td>{{ invt.data_invt  | datetimeformat }}</td>
+                            <td>{{ invt.estado_invt }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
                 <br>
-                <br>
+                <hr>
+
+                <div style="display: none;">
+                    <form action="/inventario" method="get">
+
+                        <select id="monthSelector" name="selected_month">
+                            <option value="">Mes</option>
+                            {% for month in available_months %}
+                            <option value="{{ month }}">{{ month }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit">Filtrar</button>
+                    </form>
+
+                    <table>
+                        <thead>
+
+                            <tr>
+                                <th style="width: 5%;">Inventario #</th>
+                                <th>Data</th>
+                                <th>Materia Prima</th>
+                                <th>Quantidade</th>
+                            </tr>
+
+                        </thead>
+                        <tbody>
+                            {% for invtdados in invtdados %}
+
+                            <tr>
+                                <td>{{invtdados.id_invt}}</td>
+                                <td>{{invtdados.data_invt | datetimeformat}}</td>
+                                <td>{{invtdados.id_mp}}</td>
+                                <td>{{invtdados.quantidade_invtdados}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
 
-            
+
 
             <div class="historico">
                 <h3>
-                    Historico
+                    Histórico
                 </h3>
 
                 <div>
@@ -232,7 +272,7 @@
                                     Codigo MP
                                 </th>
                                 <th>
-                                    Materia Prima
+                                    Matéria Prima
                                 </th>
                                 <th>
                                     Data
@@ -241,7 +281,7 @@
                                     Modo
                                 </th>
                                 <th>
-                                    Difference
+                                    Diferença
                                 </th>
                             </tr>
                         </thead>
@@ -265,7 +305,7 @@
                                 </td>
                                 <td
                                     style="color: {% if hst.difference_hst < 0 %}red{% elif hst.difference_hst > 0 %}#32c232{% endif %};">
-                                    
+
                                     {{ '+' if hst.difference_hst > 0 else '' }}{{ hst.difference_hst }}
                                 </td>
                             </tr>
@@ -296,71 +336,5 @@
     });
 </script>
 
-<script>
-    function togglePrintButton() {
-        var checkboxes = document.getElementsByClassName('checkbox');
-        var printButton = document.getElementById('printButton');
-        var enableButton = false;
-
-        // Check if any checkbox is checked
-        for (var i = 0; i < checkboxes.length; i++) {
-            if (checkboxes[i].checked) {
-                enableButton = true;
-                break;
-            }
-        }
-
-        // Enable or disable the print button based on checkbox status
-        if (enableButton) {
-            printButton.removeAttribute('disabled');
-        } else {
-            printButton.setAttribute('disabled', 'disabled');
-        }
-    }
-
-    function selectAll() {
-        var checkboxes = document.getElementsByClassName('checkbox');
-        var allChecked = true;
-
-        // Check if any checkbox is unchecked
-        for (var i = 0; i < checkboxes.length; i++) {
-            if (!checkboxes[i].checked) {
-                allChecked = false;
-                break;
-            }
-        }
-
-        // Toggle selection based on current status
-        for (var j = 0; j < checkboxes.length; j++) {
-            checkboxes[j].checked = !allChecked;
-        }
-
-        // Enable print button
-        document.getElementById('printButton').removeAttribute('disabled');
-    }
-
-    function printSelectedItems() {
-        var selectedItems = [];
-        var checkboxes = document.getElementsByClassName('checkbox');
-        for (var i = 0; i < checkboxes.length; i++) {
-            if (checkboxes[i].checked) {
-                var row = checkboxes[i].parentNode.parentNode.parentNode; // Get the row of the selected checkbox
-                var cells = row.getElementsByTagName('td');
-                var item = {
-                    'Materia Prima': cells[2].textContent.trim(),
-                    'Unidade': cells[3].textContent.trim(),
-                    'Manual Entry': cells[4].textContent.trim()
-                };
-                selectedItems.push(item);
-            }
-        }
-
-        // Set the selected items in the hidden input field
-        document.getElementById('selectedItemsInput').value = JSON.stringify(selectedItems);
-
-        // Submit the form to send data to backend
-        document.getElementById('printForm').submit();
-    }
-</script>
 
 {% endblock %}

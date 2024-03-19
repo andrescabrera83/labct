@@ -3,7 +3,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, g, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import relationship
 import pymysql
 import os
@@ -11,6 +11,8 @@ from datetime import datetime, timedelta, timezone
 from babel.dates import format_date
 import pandas as pd
 import pdfkit
+from jinja2 import Environment
+from babel.dates import format_datetime
 
 # Specify path to wkhtmltopdf executable
 path_wkthmltopdf = 'C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'
@@ -30,13 +32,23 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=62)  # Set session exp
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
-app.config['MY_INTEGER'] = 6
+
+
 
 # Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 
 ## MODELS AND SCHEMAS ###########################################################################################################################
+
+#GIRO MEDIO##################################################################################################################################}
+
+# Model for storing configuration settings
+class Config(db.Model):
+    __tablename__ = "giromedio"
+    __table_args__ = {"extend_existing": True}
+    id_gm = db.Column(db.Integer, primary_key=True)
+    giro_medio = db.Column(db.Integer, default=6)
 
 #FORNECEDORES##################################################################################################################################
 
@@ -83,6 +95,7 @@ class MateriasPrimas(db.Model):
     departamento_mp = db.Column(db.Enum('Carnes', 'Farinhas', 'Hortifruti', 'Mercearia', 'Misturas', 'Ovos', 'Queijos'))
     pedidomin_mp = db.Column(db.Integer)
     gastomedio_mp = db.Column(db.Numeric(10, 3))
+    gms_mp = db.Column(db.Numeric(10, 3))
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False) 
 
 class MateriasPrimasSchema(ma.SQLAlchemySchema):
@@ -99,8 +112,9 @@ class MateriasPrimasSchema(ma.SQLAlchemySchema):
     departamento_mp = ma.auto_field()
     pedidomin_mp = ma.auto_field()
     gastomedio_mp = ma.auto_field()
+    gms_mp = ma.auto_field()
 
-# Estoque #####################################################################################
+# ESTOQUE #####################################################################################
 
 class Estoque(db.Model):
     __tablename__ = "estoque"
@@ -167,6 +181,7 @@ class Inventario(db.Model):
 
     id_invt = db.Column(db.Integer, primary_key=True, autoincrement=True)
     data_invt = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    estado_invt = db.Column(db.Enum('Aberto', 'Fechado'))
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
    
 class InventarioSchema(ma.SQLAlchemySchema):
@@ -174,6 +189,7 @@ class InventarioSchema(ma.SQLAlchemySchema):
         model = Inventario
         
     id_invt = ma.auto_field()
+    estado_invt = ma.auto_field()
     data_invt = ma.auto_field()
 
 # INVENTARIO DADOS ###################################################################################
@@ -215,27 +231,62 @@ class Usuarios(UserMixin,db.Model):
     inventario = db.relationship('Inventario', backref='user', lazy=True)
     inventariosdados = db.relationship('InventarioDados', backref='user', lazy=True)
 
-# APP ###################################################################################################
+####################################################################### APP ###################################################################################################
     
-
 with app.app_context():
     db.create_all()
 
-@app.route('/update', methods=['POST'])
+# FUNCOES DO GIRO MEDIO ########################################################################################################
+
+def some_function(giro_medio):
+    config = Config.query.filter_by(giro_medio=giro_medio).first()
+
+    # Create or update configuration settings
+def update_config(new_value):
+    config = Config.query.first()
+    if config:
+        config.giro_medio = new_value
+    else:
+        config = Config(giro_medio=new_value)
+        db.session.add(config)
+    db.session.commit()
+    
+# Route to update the GM ###############
+    
+@app.route('/giromedio', methods=['POST'])
 def update():
     new_value = int(request.form['new_value'])
-    app.config['MY_INTEGER'] = new_value
+    update_config(new_value)
+
+    materiaprima = MateriasPrimas.query.filter_by(user_id=current_user.id).all()
+
+    for mp in materiaprima:
+        if mp.gastomedio_mp is not None:
+            gm_float = float(mp.gastomedio_mp)
+            new_value_float = float(new_value)
+
+            new_gm = gm_float * new_value_float
+
+            mp.gms_mp = new_gm  # Update the gms_mp column of the existing MateriasPrimas object
+
+
+    db.session.commit()
+
+
     return redirect(url_for('materiasPrimas'))
 
 # Custom filter to round numbers
 @app.template_filter('giromedio')
 def round_filter(value):
-    return value * app.config['MY_INTEGER']
+    config = Config.query.first()
+    if config:
+        return value * config.giro_medio
+    else:
+        return value * 6  # Default value if not found
 
-@app.before_request
-def before_request():
-    if not hasattr(g, 'my_integer'):
-        g.my_integer = 6
+
+
+#################################################################################################################################
 
 # ROUTES ########################################################################################################################
 
@@ -364,6 +415,14 @@ def editFornecedor(id):
 @app.route('/materiasprimas', methods=['GET', 'POST'])
 @login_required
 def materiasPrimas():
+
+    
+    # Fetch the nome_fornecedor corresponding to the id_fornecedor from the Fornecedor table
+    config = Config.query.first()
+    giromedio = config.giro_medio if config else None
+
+    print(giromedio)
+
     cost_per_unit = 2
     if request.method == 'POST':
         id_mp = request.form.get('id_mp')
@@ -375,10 +434,18 @@ def materiasPrimas():
         departamento_mp = request.form.get('departamento_mp')
         pedidomin_mp = request.form.get('pedidomin_mp')
         gastomedio_mp = request.form.get('gastomedio_mp')
+
+
         
-        # Convert cost and total weight to floats
+        # Convert to floats
         custo_mp_float = float(custo_mp)
         pesototal_mp_float = float(pesototal_mp)
+        gastomedio_mp_float = float(gastomedio_mp)
+        giromedio_float = float(giromedio)
+
+        
+
+        gmps = gastomedio_mp_float * giromedio_float
 
         # Perform the division operation
         if pesototal_mp_float != 0:  # Avoid division by zero
@@ -395,6 +462,7 @@ def materiasPrimas():
             departamento_mp=departamento_mp,
             pedidomin_mp=pedidomin_mp,
             gastomedio_mp=gastomedio_mp,
+            gms_mp=gmps,
             user_id=current_user.id
             )
         
@@ -407,7 +475,7 @@ def materiasPrimas():
             id_mp=id_mp,
             nome_mp=nome_mp,
             unidade_mp=unidade_mp,
-            quantidade_invt=0,  
+            quantidade_estq=0,  
             user_id=current_user.id
         )
         
@@ -421,7 +489,15 @@ def materiasPrimas():
     materiaprima_schema = MateriasPrimasSchema(many=True)
     serialized_data_mp = materiaprima_schema.dump(materiasprimas)
 
-    return render_template('materiasprimas.html', materiasprimas = serialized_data_mp, my_integer=app.config['MY_INTEGER'])
+    #GIRO MEDIO####
+
+    config = Config.query.first()
+    if config:
+        giro_medio = config.giro_medio
+    else:
+        giro_medio = 6
+
+    return render_template('materiasprimas.html', materiasprimas = serialized_data_mp, giromedio=giro_medio)
 
 #DELETE
 @app.route('/delete-materiaprima/<int:id>', methods=['POST'])
@@ -467,8 +543,14 @@ def inventario():
     estoque_schema = EstoqueSchema(many=True)
     serialized_data_estq = estoque_schema.dump(estoque)
 
+    materiasprimas = MateriasPrimas.query.filter_by(user_id=current_user.id).all()
+    materiasprimas_schema = MateriasPrimasSchema(many=True)
+    serialized_data_mp = materiasprimas_schema.dump(materiasprimas)
+
+    
+
     if request.method == 'POST':
-        new_quantities = request.form.getlist('quantidade_invt')
+        new_quantities = request.form.getlist('quantidade_estq')
 
         for index, invt in enumerate(estoque):
             id_mp=invt.id_mp
@@ -515,34 +597,112 @@ def inventario():
     historico_schema = HistoricoSchema(many=True)
     serialized_data_hst = historico_schema.dump(historico)
 
-    return render_template('inventario.html', historico=serialized_data_hst , inventario=serialized_data_estq, today_date=formatted_date)
+    available_months = db.session.query(func.DATE_FORMAT(Inventario.data_invt, '%Y-%m')).distinct().all()
+    available_months = [date[0] for date in available_months]
 
-@app.route('/print', methods=['POST'])
-def print_selected_items():
-    selected_items = request.form.get('selectedItems')
-    selected_items = pd.read_json(selected_items)
+    current_month = datetime.now().strftime('%Y-%m')
 
-    # Format selected items using Pandas
-    formatted_items = selected_items.to_html(index=False, classes='table')
+    selected_month = request.args.get('selected_month')
 
-    # Convert HTML to PDF using pdfkit
-    pdf_content = pdfkit.from_string(formatted_items, configuration=config)
+    if selected_month:
+        start_date = datetime.strptime(selected_month, '%Y-%m')
+        end_date = start_date.replace(day=1, month=start_date.month % 12 + 1)
+        
+        inventario = Inventario.query.filter(Inventario.data_invt >= start_date, Inventario.data_invt < end_date).filter_by(user_id=current_user.id).all()
+       
+    else:
+        inventario = Inventario.query.filter_by(user_id=current_user.id).all()
 
-    # Create a response with PDF content
-    response = make_response(pdf_content)
-    response.headers['Content-Type'] = 'application/pdf'
     
-    # Add today's date to the filename
-    today_date = datetime.now().strftime("%Y-%m-%d")
-    response.headers['Content-Disposition'] = 'attachment; filename=inventario_{}.pdf'.format(today_date)
+    inventario_schema = InventarioSchema(many=True)
+    serialized_data_invt = inventario_schema.dump(inventario)
+    
+    
 
-    return response
+    return render_template('inventario.html', 
+                           historico=serialized_data_hst , 
+                           estoque=serialized_data_estq, 
+                           today_date=formatted_date,
+                            materiasprimas=serialized_data_mp,
+                            datetime=datetime,
+                            available_months=available_months,
+                            inventario=serialized_data_invt,
+                            current_month=current_month
+                            )
 
+# Translation dictionaries for months and days in Portuguese
+MONTHS_PT = {
+    1: "janeiro",
+    2: "fevereiro",
+    3: "março",
+    4: "abril",
+    5: "maio",
+    6: "junho",
+    7: "julho",
+    8: "agosto",
+    9: "setembro",
+    10: "outubro",
+    11: "novembro",
+    12: "dezembro"
+}
 
+DAYS_PT = {
+    0: "segunda-feira",
+    1: "terça-feira",
+    2: "quarta-feira",
+    3: "quinta-feira",
+    4: "sexta-feira",
+    5: "sábado",
+    6: "domingo"
+}
 
-# RUN APP ################################################
+def datetimeformat(value):
+    if isinstance(value, str):
+        # Adjust format string to match the datetime string format
+        value = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')  
+    month_pt = MONTHS_PT[value.month]
+    day_pt = DAYS_PT[value.weekday()]
+    return f"{day_pt}, {value.day} de {month_pt} de {value.year}"
+
+app.jinja_env.filters['datetimeformat'] = datetimeformat
+
+@app.route('/salvar_inventario', methods=['POST'])
+def salvar_inventario():
+    date_str = request.form['datePicker']
+    date_object = datetime.strptime(date_str, '%Y-%m-%d')
+
+    inventario = Inventario(
+        data_invt=date_object,
+        estado_invt='Aberto',
+        user_id=current_user.id
+        )
+    db.session.add(inventario)
+    db.session.commit()
+
+    selected_items = request.form.getlist('selected_items')
+    for item_id in selected_items:
+        inventariodados = InventarioDados( 
+            id_invt=inventario.id_invt,
+            data_invt=date_object,
+            id_mp=item_id,
+            quantidade_invtdados=0.0,
+            user_id=current_user.id
+            )
+        db.session.add(inventariodados)
+    db.session.commit()
+
+    
+
+    return redirect(url_for('inventario'))
+
+## PEDIDO DE COMPRAS ###################################################################################################################
+
+@app.route('/compras', methods=['GET', 'POST'])
+@login_required
+def compras():
+    return render_template('compras.html')
+
+############################################################################### RUN APP ################################################
 
 if __name__ == '__main__':
-
-    
     app.run(debug=True)

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Materias Primas{% endblock %}
+
+{% block content %}
+
+<body>
+    
+    <div class="container">
+        <div class="tabela">
+            <h3>Pedido De Comprasgit </h3>
+
+            <div class="listaCompras">
+
+               <h4>lista de pedidos</h4>
+               
+               <table>
+                <thead>
+                    <tr>
+                        <th>codigo do pedido</th>
+                        <th>data do pedido</th>
+                        <th>Situação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <td>##</td>
+                    <td>00/00/000</td>
+                    <td>pendente/entregue</td>
+                </tbody>
+               </table>
+
+
+            </div>
+
+            <br>
+            <br>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>idmp</th>
+                        <th>mp</th>
+                        <th>estq</th>
+                        <th>unidade</th>
+                        <th>consumo semanal</th>
+                        <th>necessidade</th>
+                        <th>indicador</th>
+                        <th>compra minima</th>
+                        <th>|</th>
+                        <th>pedido</th>
+                        <th>unidade</th>
+                        <th>fornecedor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>idmp</td>
+                        <td>mp</td>
+                        <td>estq</td>
+                        <td>unidade</td>
+                        <td>consumo semanal</td>
+                        <td>consumo semanal - estq</td>
+                        <td>if necessidade > 0 then compra</td>
+                        <td>compra minima</td>
+                        <td>|</td>
+                        <td>pedido</td>
+                        <td>unidade</td>
+                        <td>fornecedor</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+{% endblock %}
