@@ -3,73 +3,266 @@
 
 {% block content %}
 
+<style>
+    .hidden {
+        display: none;
+    }
+
+    #tableContainer {
+        transition: max-height 0.5s ease;
+        overflow: hidden;
+        max-height: 0;
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ferramentas{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding-block: 9px;
+        
+    }
+    .ativarManual{
+        margin-left: 18px;
+        align-self: center;
+        margin-bottom: 12px;
+    }
+    #submitButton[disabled] {
+        background-color: #ddd; /* Change background color */
+        color: #888; /* Change text color */
+        cursor: not-allowed; /* Change cursor to indicate unclickable */
+        opacity: 0.6; /* Reduce opacity */
+    }
+
+    #filterForm input[type="radio"]:checked + label {
+        text-decoration: underline; /* Add underline text decoration */
+    }
+</style>
+
 <body>
-    
+
     <div class="container">
         <div class="tabela">
-            <h3>Pedido De Comprasgit </h3>
+            <h3>Pedido De Compras </h3>
 
             <div class="listaCompras">
 
-               <h4>lista de pedidos</h4>
-               
-               <table>
-                <thead>
-                    <tr>
-                        <th>codigo do pedido</th>
-                        <th>data do pedido</th>
-                        <th>Situação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <td>##</td>
-                    <td>00/00/000</td>
-                    <td>pendente/entregue</td>
-                </tbody>
-               </table>
+                <h4>lista de pedidos</h4>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>codigo do pedido</th>
+                            <th>data do pedido</th>
+                            <th>Situação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for compras in compras%}
+                        <tr> 
+                                <td>{{compras.id_compras}}</td>
+                                <td>{{compras.data_compras  | datetimeformat}}</td>
+                                <td>{{compras.estado_compras}}</td>
+                                
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
 
 
             </div>
 
             <br>
-            <br>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>idmp</th>
-                        <th>mp</th>
-                        <th>estq</th>
-                        <th>unidade</th>
-                        <th>consumo semanal</th>
-                        <th>necessidade</th>
-                        <th>indicador</th>
-                        <th>compra minima</th>
-                        <th>|</th>
-                        <th>pedido</th>
-                        <th>unidade</th>
-                        <th>fornecedor</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>idmp</td>
-                        <td>mp</td>
-                        <td>estq</td>
-                        <td>unidade</td>
-                        <td>consumo semanal</td>
-                        <td>consumo semanal - estq</td>
-                        <td>if necessidade > 0 then compra</td>
-                        <td>compra minima</td>
-                        <td>|</td>
-                        <td>pedido</td>
-                        <td>unidade</td>
-                        <td>fornecedor</td>
-                    </tr>
-                </tbody>
-            </table>
+            <button id="expandBtn">Fazer Pedido De Compra</button>
+
+            <div id="tableContainer" class="hidden">
+                
+
+                <div class="ferramentas">
+                    <form id="filterForm">
+                        <input type="radio" name="filterOption" value="all" id="allOption" checked>
+                        <label for="allOption">Todos</label>
+
+                        <input type="radio" name="filterOption" value="comprar" id="comprarOption">
+                        <label for="comprarOption">Comprar</label>
+                        
+                        <input type="radio" name="filterOption" value="ok" id="okOption">
+                        <label for="okOption">OK</label>                             
+                    </form>
+    
+                    <div class="ativarManual">
+                        <button id="manualChangeBtn">Digitar Pedido</button>
+                    </div>
+                </div>
+                
+                
+                <form action="/salvar_compra" method="POST">
+                    <div id="tableFilter">
+                    
+                        <table>
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="select-all"></th>
+                                <th style="width: 5%;">codigo</th>
+                                <th>materia prima</th>
+                                <th>unidade</th>
+                                <th>estoque</th>
+                                <th style="width: 10%;">consumo medio semanal</th>
+                                <th>necesidade</th>
+                                <th>indicador</th>
+                                <th>compra minima</th>
+                                <th>|</th>
+                                <th style="width: 20%;">pedido</th>
+                                <th>unidade</th>
+                                <th>fornecedor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for estq in estoque %}
+                            <tr>
+                                <td><input type="checkbox" class="select-row" name="selected_items" value="{{ estq.id_mp }}"> </td>
+                                <td>{{ estq.id_mp }}</td>
+                                <td style="font-weight: bolder;"><b>{{ estq.nome_mp }}</b></td>
+                                <td>{{ estq.unidade_mp }}</td>
+                                <td>{{ estq.quantidade_estq }}</td>
+                                <td>{{ estq.gms_mp }}</td>
+                                <td style="background-color: {% if estq.gms_mp - estq.quantidade_estq > 0 %}yellow; color: red; font-weight: bold;{% else %}lightgreen; color: darkgreen;{% endif %}">
+                                    {{ estq.gms_mp - estq.quantidade_estq }}
+                                </td>
+                                <td style="background-color: {% if estq.gms_mp - estq.quantidade_estq > 0 %}yellow; color: red; font-weight: bold;{% else %}lightgreen; color: darkgreen;{% endif %}">
+                                    {% if estq.gms_mp - estq.quantidade_estq > 0 %}
+                                    Comprar
+                                    {% else %}
+                                    OK
+                                    {% endif %}
+                                </td>
+                                <td>{{ estq.pedidomin_mp }}</td>
+                                <td>|</td>
+                                <td>
+                                    <span class="quantity">{{ estq.gms_mp - estq.quantidade_estq }}</span>
+                                <input type="number" step="0.001" name="quantidade_estq" id="quantidade_estq"
+                                    value="{{ estq.gms_mp - estq.quantidade_estq }}" class="hidden">
+                                </td>
+                                <td>unidade</td>
+                                <td>fornecedor</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        </table>
+
+                        <div style="display: flex;
+                            justify-content: end;
+                            margin-block: 24px;
+                            margin-inline: 3px;
+                            height: 50px !important;">
+                            <button type="submit" id="submitButton" class="btn btn-dark hidden">Fazer Pedido</button>
+                        </div>
+                    
+                    </div>
+                </form> 
+             
+            </div>
         </div>
+
+        
+
     </div>
 </body>
+
+<script>
+    // jQuery code for filtering the table
+    $(document).ready(function() {
+        // Add event listener for form changes
+        $('#filterForm input[type="radio"]').change(filterTable);
+        
+        function filterTable() {
+            // Get the selected filter option
+            var selectedOption = $('#filterForm input[name="filterOption"]:checked').val();
+
+            // Get the table rows
+            var rows = $('#tableFilter table tbody tr');
+
+            // Loop through all table rows
+            rows.each(function() {
+                // Get the cell containing the indicator text
+                var cell = $(this).find('td:eq(7)'); // Adjust index as needed
+
+                // Get the indicator text content and convert to lowercase
+                var indicatorText = cell.text().trim().toLowerCase();
+
+                // Show or hide rows based on the selected filter option
+                if (selectedOption === 'all' || indicatorText === selectedOption) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Select all checkbox functionality
+        $('#select-all').change(function () {
+            $('.select-row:visible').prop('checked', $(this).prop('checked'));
+            toggleSubmitButtonState();
+        });
+
+        // Individual row checkbox functionality
+        $('.select-row').change(function () {
+            if ($('.select-row:checked').length === $('.select-row:visible').length) {
+                $('#select-all').prop('checked', true);
+            } else {
+                $('#select-all').prop('checked', false);
+            }
+
+            toggleSubmitButtonState();
+        });
+
+       // Function to toggle submit button state based on selected rows
+       function toggleSubmitButtonState() {
+            if ($('.select-row:checked').length > 0) {
+                $('#submitButton').removeClass('disabled').prop('disabled', false);
+            } else {
+                $('#submitButton').addClass('disabled').prop('disabled', true);
+            }
+        }
+    });
+</script>
+
+<script>
+    document.getElementById('manualChangeBtn').addEventListener('click', function () {
+        var spans = document.querySelectorAll('.quantity');
+        var inputs = document.querySelectorAll('input[type="number"]');
+        var submitButton = document.getElementById('submitButton');
+        for (var i = 0; i < spans.length; i++) {
+            spans[i].classList.toggle('hidden');
+        }
+        for (var i = 0; i < inputs.length; i++) {
+            inputs[i].classList.toggle('hidden');
+        }
+        submitButton.classList.toggle('hidden');
+    });
+</script>
+
+<script>
+    document.getElementById("expandBtn").addEventListener("click", function () {
+        var tableContainer = document.getElementById("tableContainer");
+        if (tableContainer.classList.contains("hidden")) {
+            tableContainer.classList.remove("hidden");
+            setTimeout(function () {
+                tableContainer.style.maxHeight = tableContainer.scrollHeight + "px";
+            }, 10);
+        } else {
+            tableContainer.style.maxHeight = null;
+            tableContainer.classList.add("hidden");
+        }
+    });
+</script>
 
 {% endblock %}

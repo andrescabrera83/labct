@@ -93,7 +93,7 @@ class MateriasPrimas(db.Model):
     custo_mp = db.Column(db.Numeric(10, 2))
     custoemkg_mp = db.Column(db.Numeric(10, 2))
     departamento_mp = db.Column(db.Enum('Carnes', 'Farinhas', 'Hortifruti', 'Mercearia', 'Misturas', 'Ovos', 'Queijos'))
-    pedidomin_mp = db.Column(db.Integer)
+    pedidomin_mp = db.Column(db.Numeric(10,3))
     gastomedio_mp = db.Column(db.Numeric(10, 3))
     gms_mp = db.Column(db.Numeric(10, 3))
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False) 
@@ -127,7 +127,9 @@ class Estoque(db.Model):
 
     nome_mp = db.Column(db.String(75))
     unidade_mp = db.Column(db.Enum('KG','UN'))
-    
+    gms_mp = db.Column(db.Numeric(10, 3))
+    pedidomin_mp = db.Column(db.Numeric(10,3))
+
     quantidade_estq = db.Column(db.Numeric(10,3), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
    
@@ -140,6 +142,8 @@ class EstoqueSchema(ma.SQLAlchemySchema):
     nome_mp = ma.auto_field()
     unidade_mp = ma.auto_field()
     quantidade_estq = ma.auto_field()
+    gms_mp = ma.auto_field()
+    pedidomin_mp = ma.auto_field()
 
 # INVENTARIO HISTORICO #######################################################################
 
@@ -149,8 +153,8 @@ class Historico(db.Model):
 
     id_hst = db.Column(db.Integer, primary_key=True, autoincrement=True)
     date_change = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-    id_mp = db.Column(db.Integer, db.ForeignKey('materiasprimas.id_mp'), nullable=False)
-    materiaprima = db.relationship("MateriasPrimas", foreign_keys=[id_mp])
+    id_mp = db.Column(db.Integer, nullable=False)
+    
 
     nome_mp = db.Column(db.String(75))
 
@@ -215,6 +219,25 @@ class InventarioDadosSchema(ma.SQLAlchemySchema):
     id_mp = ma.auto_field()
     quantidade_invtdados = ma.auto_field()
 
+# COMPRAS #################################################################################################
+
+class Compras(db.Model):
+    __tablename__ = "compras"
+    __table_args__ = {"extend_existing": True}
+
+    id_compras = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    data_compras = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    estado_compras = db.Column(db.Enum('Pendente', 'Entregue'))
+    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+
+class ComprasSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Compras
+        
+    id_compras = ma.auto_field()
+    estado_compras = ma.auto_field()
+    data_compras = ma.auto_field()   
+
 # USERS #################################################################################################
 
 class Usuarios(UserMixin,db.Model):
@@ -230,6 +253,7 @@ class Usuarios(UserMixin,db.Model):
     inventariohistorico = db.relationship('Historico', backref='user', lazy=True)
     inventario = db.relationship('Inventario', backref='user', lazy=True)
     inventariosdados = db.relationship('InventarioDados', backref='user', lazy=True)
+    compras = db.relationship('Compras', backref='user', lazy=True)
 
 ####################################################################### APP ###################################################################################################
     
@@ -425,7 +449,7 @@ def materiasPrimas():
 
     cost_per_unit = 2
     if request.method == 'POST':
-        id_mp = request.form.get('id_mp')
+        #id_mp = request.form.get('id_mp')
         nome_mp = request.form.get('nome_mp')
         unidade_mp = request.form.get('unidade_mp')
         pesounitario_mp = request.form.get('pesounitario_mp')
@@ -451,8 +475,7 @@ def materiasPrimas():
         if pesototal_mp_float != 0:  # Avoid division by zero
             cost_per_unit = custo_mp_float / pesototal_mp_float
 
-        materiasprimas = MateriasPrimas(
-            id_mp=id_mp, 
+        materiasprimas = MateriasPrimas( 
             nome_mp=nome_mp, 
             unidade_mp=unidade_mp,
             pesounitario_mp=pesounitario_mp,
@@ -470,12 +493,17 @@ def materiasPrimas():
         db.session.commit()
 
         id_mp = materiasprimas.id_mp
+        gms = materiasprimas.gms_mp
+        pedidomin = materiasprimas.pedidomin_mp
+
 
         estoque = Estoque(
             id_mp=id_mp,
             nome_mp=nome_mp,
             unidade_mp=unidade_mp,
-            quantidade_estq=0,  
+            quantidade_estq=0,
+            gms_mp=gms,
+            pedidomin_mp=pedidomin,  
             user_id=current_user.id
         )
         
@@ -502,6 +530,7 @@ def materiasPrimas():
 #DELETE
 @app.route('/delete-materiaprima/<int:id>', methods=['POST'])
 def deleteMateriaPrima(id):
+    #remove from estoque first
     materiasprimas = MateriasPrimas.query.get_or_404(id)
     db.session.delete(materiasprimas)
     db.session.commit()
@@ -666,19 +695,42 @@ def datetimeformat(value):
 
 app.jinja_env.filters['datetimeformat'] = datetimeformat
 
-@app.route('/salvar_inventario', methods=['POST'])
-def salvar_inventario():
-    date_str = request.form['datePicker']
-    date_object = datetime.strptime(date_str, '%Y-%m-%d')
 
-    inventario = Inventario(
-        data_invt=date_object,
-        estado_invt='Aberto',
+
+
+## PEDIDO DE COMPRAS ###################################################################################################################
+
+@app.route('/compras', methods=['GET', 'POST'])
+@login_required
+def compras():
+
+    estoque = Estoque.query.filter_by(user_id=current_user.id).all()
+    estoque_schema = EstoqueSchema(many=True)
+    serialized_data_estq = estoque_schema.dump(estoque)
+
+    compras = Compras.query.filter_by(user_id=current_user.id).all()
+    compras_schema = ComprasSchema(many=True)
+    serialized_data_compras = compras_schema.dump(compras)
+
+
+
+    return render_template('compras.html', compras=serialized_data_compras, estoque=serialized_data_estq)
+
+
+@app.route('/salvar_compra', methods=['POST'])
+def salvar_compra():
+    
+    print('salvando')
+    current_time = datetime.now().strftime('%Y-%m-%d // %H:%M:%S.%f')[:-3]
+
+    compras = Compras(
+        data_compras=current_time,
+        estado_compras='Pendente',
         user_id=current_user.id
         )
-    db.session.add(inventario)
+    db.session.add(compras)
     db.session.commit()
-
+    '''
     selected_items = request.form.getlist('selected_items')
     for item_id in selected_items:
         inventariodados = InventarioDados( 
@@ -690,17 +742,8 @@ def salvar_inventario():
             )
         db.session.add(inventariodados)
     db.session.commit()
-
-    
-
-    return redirect(url_for('inventario'))
-
-## PEDIDO DE COMPRAS ###################################################################################################################
-
-@app.route('/compras', methods=['GET', 'POST'])
-@login_required
-def compras():
-    return render_template('compras.html')
+    '''
+    return redirect(url_for('compras'))
 
 ############################################################################### RUN APP ################################################
 

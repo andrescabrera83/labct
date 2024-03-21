@@ -199,7 +199,7 @@ th:hover {
 }
 
 th:hover::before {
-    content: "▾";
+    /*content: "▾";*/
     /* Add content after the th */
     font-weight: bold;
     /* Optional: Adjust font weight */
