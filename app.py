@@ -13,6 +13,7 @@ import pandas as pd
 import pdfkit
 from jinja2 import Environment
 from babel.dates import format_datetime
+from decimal import Decimal
 
 # Specify path to wkhtmltopdf executable
 path_wkthmltopdf = 'C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'
@@ -238,6 +239,40 @@ class ComprasSchema(ma.SQLAlchemySchema):
     estado_compras = ma.auto_field()
     data_compras = ma.auto_field()   
 
+# COMPRASDADOS #################################################################################################
+
+class ComprasDados(db.Model):
+    __tablename__ = "comprasdados"
+    __table_args__ = {"extend_existing": True}
+
+    id_comprasd = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id_compras = db.Column(db.Integer)
+    nome_mp = db.Column(db.String(75))
+    unidade_mp = db.Column(db.Enum('KG', 'UN'))
+    pedido_comprasd = db.Column(db.Numeric(10, 3))
+    fornecedor_comprasd = db.Column(db.String(45))
+    valorpedido_comprasd = db.Column(db.Numeric(10, 2))
+    departamento_comprasd = db.Column(db.Enum('Carnes', 'Farinhas', 'Hortifruti', 'Mercearia', 'Misturas', 'Ovos', 'Queijos'))
+    previsao_comprasd = db.Column(db.Date)
+    vencimento_comprasd = db.Column(db.Date)
+    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+
+class ComprasDadosSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = ComprasDados
+        
+    id_comprasd = ma.auto_field()
+    id_compras = ma.auto_field()
+    nome_mp = ma.auto_field()
+    unidade_mp = ma.auto_field()
+    pedido_comprasd = ma.auto_field()
+    fornecedor_comprasd = ma.auto_field()
+    valorpedido_comprasd = ma.auto_field()
+    departamento_comprasd = ma.auto_field()
+    previsao_comprasd = ma.auto_field()
+    vencimento_comprasd = ma.auto_field()
+
+
 # USERS #################################################################################################
 
 class Usuarios(UserMixin,db.Model):
@@ -254,6 +289,7 @@ class Usuarios(UserMixin,db.Model):
     inventario = db.relationship('Inventario', backref='user', lazy=True)
     inventariosdados = db.relationship('InventarioDados', backref='user', lazy=True)
     compras = db.relationship('Compras', backref='user', lazy=True)
+    comprasdados = db.relationship('ComprasDados', backref='user', lazy=True)
 
 ####################################################################### APP ###################################################################################################
     
@@ -689,13 +725,37 @@ def datetimeformat(value):
     if isinstance(value, str):
         # Adjust format string to match the datetime string format
         value = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')  
-    month_pt = MONTHS_PT[value.month]
-    day_pt = DAYS_PT[value.weekday()]
-    return f"{day_pt}, {value.day} de {month_pt} de {value.year}"
+    return value.strftime("%d/%m/%Y")
 
 app.jinja_env.filters['datetimeformat'] = datetimeformat
 
+@app.route('/salvar_inventario', methods=['POST'])
+def salvar_inventario():
+    date_str = request.form['datePicker']
+    date_object = datetime.strptime(date_str, '%Y-%m-%d')
 
+    inventario = Inventario(
+        data_invt=date_object,
+        estado_invt='Aberto',
+        user_id=current_user.id
+        )
+    db.session.add(inventario)
+    db.session.commit()
+
+    selected_items = request.form.getlist('selected_items')
+    for item_id in selected_items:
+        inventariodados = InventarioDados( 
+            id_invt=inventario.id_invt,
+            data_invt=date_object,
+            id_mp=item_id,
+            quantidade_invtdados=0.0,
+            user_id=current_user.id
+            )
+        db.session.add(inventariodados)
+    db.session.commit()
+
+
+    return redirect(url_for('inventario'))
 
 
 ## PEDIDO DE COMPRAS ###################################################################################################################
@@ -703,6 +763,10 @@ app.jinja_env.filters['datetimeformat'] = datetimeformat
 @app.route('/compras', methods=['GET', 'POST'])
 @login_required
 def compras():
+
+    fornecedores = Fornecedores.query.filter_by(user_id=current_user.id).all()
+    fornecedores_schema = FornecedorSchema(many=True)
+    serialized_data_f = fornecedores_schema.dump(fornecedores)
 
     estoque = Estoque.query.filter_by(user_id=current_user.id).all()
     estoque_schema = EstoqueSchema(many=True)
@@ -712,9 +776,15 @@ def compras():
     compras_schema = ComprasSchema(many=True)
     serialized_data_compras = compras_schema.dump(compras)
 
+    comprasdados = ComprasDados.query.filter_by(user_id=current_user.id).all()
+    comprasdados_schema = ComprasDadosSchema(many=True)
+    serialized_data_comprasdados = comprasdados_schema.dump(comprasdados)
 
-
-    return render_template('compras.html', compras=serialized_data_compras, estoque=serialized_data_estq)
+    return render_template('compras.html', 
+                           compras=serialized_data_compras,
+                           comprasdados=serialized_data_comprasdados, 
+                           estoque=serialized_data_estq,
+                           fornecedores=serialized_data_f)
 
 
 @app.route('/salvar_compra', methods=['POST'])
@@ -730,19 +800,48 @@ def salvar_compra():
         )
     db.session.add(compras)
     db.session.commit()
-    '''
+    
     selected_items = request.form.getlist('selected_items')
     for item_id in selected_items:
-        inventariodados = InventarioDados( 
-            id_invt=inventario.id_invt,
-            data_invt=date_object,
-            id_mp=item_id,
-            quantidade_invtdados=0.0,
+
+        item = MateriasPrimas.query.filter_by(nome_mp=item_id).first()
+        unidade_mp = item.unidade_mp
+        cost_per_unit = item.custoemkg_mp
+        departamento_comprasd = item.departamento_mp
+
+        # Fetch form data
+        pedido_comprasd = Decimal(request.form.get('pedido_comprasd'))
+        fornecedor_comprasd = request.form.get('fornecedores')
+
+        forn = Fornecedores.query.filter_by(nome_fornecedor=fornecedor_comprasd).first()
+        previsao = forn.tempo_entrega
+        vencimento = forn.prazo_pagamento
+
+        # Get today's date
+        today = datetime.today()
+
+        previsao_comprasd = today + timedelta(days=previsao)        
+        vencimento_comprasd = today + timedelta(days=vencimento)        
+
+        #Calculate purchase order value
+        valorpedido_comprasd = pedido_comprasd * cost_per_unit
+
+        comprasdados = ComprasDados(  
+            id_compras = compras.id_compras,
+            nome_mp = item_id,
+            unidade_mp = unidade_mp,
+            pedido_comprasd = pedido_comprasd,
+            fornecedor_comprasd = fornecedor_comprasd,
+            valorpedido_comprasd =  valorpedido_comprasd,
+            departamento_comprasd=departamento_comprasd,
+            previsao_comprasd = previsao_comprasd,
+            vencimento_comprasd = vencimento_comprasd,
             user_id=current_user.id
             )
-        db.session.add(inventariodados)
+        db.session.add(comprasdados)
+
     db.session.commit()
-    '''
+    
     return redirect(url_for('compras'))
 
 ############################################################################### RUN APP ################################################
