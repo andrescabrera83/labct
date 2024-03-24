@@ -33,9 +33,6 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=62)  # Set session exp
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
-
-
-
 # Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -343,8 +340,6 @@ def round_filter(value):
         return value * config.giro_medio
     else:
         return value * 6  # Default value if not found
-
-
 
 #################################################################################################################################
 
@@ -712,21 +707,22 @@ MONTHS_PT = {
 }
 
 DAYS_PT = {
-    0: "segunda-feira",
-    1: "terça-feira",
-    2: "quarta-feira",
-    3: "quinta-feira",
-    4: "sexta-feira",
-    5: "sábado",
-    6: "domingo"
+    0: "seg",
+    1: "ter",
+    2: "qua",
+    3: "qui",
+    4: "sex",
+    5: "sáb",
+    6: "dom"
 }
 
 def datetimeformat(value):
     if isinstance(value, str):
         # Adjust format string to match the datetime string format
         value = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')  
-    return value.strftime("%d/%m/%Y")
-
+    formatted_date = value.strftime("%d/%m/%Y")
+    day_of_week = DAYS_PT[value.weekday()]  # Get the day of the week in Portuguese
+    return f"{formatted_date} ({day_of_week})"
 app.jinja_env.filters['datetimeformat'] = datetimeformat
 
 @app.route('/salvar_inventario', methods=['POST'])
@@ -801,7 +797,7 @@ def salvar_compra():
     db.session.add(compras)
     db.session.commit()
     
-    selected_items = request.form.getlist('selected_items')
+    selected_items = request.form.getlist('selected_items[]')
     for item_id in selected_items:
 
         item = MateriasPrimas.query.filter_by(nome_mp=item_id).first()
@@ -810,8 +806,8 @@ def salvar_compra():
         departamento_comprasd = item.departamento_mp
 
         # Fetch form data
-        pedido_comprasd = Decimal(request.form.get('pedido_comprasd'))
-        fornecedor_comprasd = request.form.get('fornecedores')
+        pedido_comprasd = Decimal(request.form.get(f'pedido_comprasd_{item_id}'))
+        fornecedor_comprasd = request.form.get(f'fornecedores_{item_id}')
 
         forn = Fornecedores.query.filter_by(nome_fornecedor=fornecedor_comprasd).first()
         previsao = forn.tempo_entrega
@@ -844,6 +840,26 @@ def salvar_compra():
     
     return redirect(url_for('compras'))
 
+
+@app.route('/fechar_compra', methods=['POST'])
+def fechar_compra():
+
+    for key, value in request.form.items():
+        print(f"Key: {key}, Value: {value}")
+        # Check if the form field is related to a notafiscalinput
+        if key.startswith('notafiscalinput_'):
+            # Extract the compra_id from the form field name
+            compra_id = key.split('_')[-1]
+
+            notasfiscais = request.form.getlist(f'notafiscalinput_{compra_id}')
+
+            # Process the form data as needed
+            # For example:
+            print(f"Compra ID: {compra_id}, Nota Fiscal: {value}")
+            print(f"New quantities: {notasfiscais}")
+
+
+    return redirect(url_for('compras'))
 ############################################################################### RUN APP ################################################
 
 if __name__ == '__main__':
