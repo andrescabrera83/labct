@@ -250,8 +250,9 @@ class ComprasDados(db.Model):
     fornecedor_comprasd = db.Column(db.String(45))
     valorpedido_comprasd = db.Column(db.Numeric(10, 2))
     departamento_comprasd = db.Column(db.Enum('Carnes', 'Farinhas', 'Hortifruti', 'Mercearia', 'Misturas', 'Ovos', 'Queijos'))
-    previsao_comprasd = db.Column(db.Date)
-    vencimento_comprasd = db.Column(db.Date)
+    previsao_comprasd = db.Column(db.DateTime)
+    vencimento_comprasd = db.Column(db.DateTime)
+    fechado_comprasd = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
 
 class ComprasDadosSchema(ma.SQLAlchemySchema):
@@ -268,6 +269,7 @@ class ComprasDadosSchema(ma.SQLAlchemySchema):
     departamento_comprasd = ma.auto_field()
     previsao_comprasd = ma.auto_field()
     vencimento_comprasd = ma.auto_field()
+    fechado_comprasd = ma.auto_field()
 
 
 # USERS #################################################################################################
@@ -799,12 +801,17 @@ def salvar_compra():
     
     selected_items = request.form.getlist('selected_items[]')
     for item_id in selected_items:
-
         item = MateriasPrimas.query.filter_by(nome_mp=item_id).first()
-        unidade_mp = item.unidade_mp
-        cost_per_unit = item.custoemkg_mp
-        departamento_comprasd = item.departamento_mp
-
+# Check if the item exists
+        if item:
+        # If the item exists, access its attributes
+            unidade_mp = item.unidade_mp
+            cost_per_unit = item.custoemkg_mp
+            departamento_comprasd = item.departamento_mp
+        else:
+        # Handle the case where the item does not exist
+        # You can log a message, skip this item, or handle it in any other appropriate way
+            print(f"Item with nome_mp '{item_id}' does not exist in the database.")
         # Fetch form data
         pedido_comprasd = Decimal(request.form.get(f'pedido_comprasd_{item_id}'))
         fornecedor_comprasd = request.form.get(f'fornecedores_{item_id}')
@@ -814,10 +821,13 @@ def salvar_compra():
         vencimento = forn.prazo_pagamento
 
         # Get today's date
-        today = datetime.today()
+        today = datetime.now()
 
         previsao_comprasd = today + timedelta(days=previsao)        
-        vencimento_comprasd = today + timedelta(days=vencimento)        
+        vencimento_comprasd = today + timedelta(days=vencimento)  
+
+        formatted_previsao = previsao_comprasd.strftime('%Y-%m-%dT%H:%M:%S')
+        formatted_vencimento = vencimento_comprasd.strftime('%Y-%m-%dT%H:%M:%S')      
 
         #Calculate purchase order value
         valorpedido_comprasd = pedido_comprasd * cost_per_unit
@@ -830,8 +840,9 @@ def salvar_compra():
             fornecedor_comprasd = fornecedor_comprasd,
             valorpedido_comprasd =  valorpedido_comprasd,
             departamento_comprasd=departamento_comprasd,
-            previsao_comprasd = previsao_comprasd,
-            vencimento_comprasd = vencimento_comprasd,
+            previsao_comprasd = formatted_previsao,
+            vencimento_comprasd = formatted_vencimento,
+            fechado_comprasd = False,
             user_id=current_user.id
             )
         db.session.add(comprasdados)
@@ -844,6 +855,25 @@ def salvar_compra():
 @app.route('/fechar_compra', methods=['POST'])
 def fechar_compra():
 
+    selected_items = request.form.getlist('selected_dados[]')
+    for item_id in selected_items:
+
+        print(item_id)
+
+        
+        comprasd = ComprasDados.query.get_or_404(item_id)
+        comprasd.fechado_comprasd = True
+        #update stock
+        estoquemp = Estoque.query.filter_by(nome_mp=comprasd.nome_mp).first()
+        estoquequantidade = estoquemp.quantidade_estq
+        pedidoFloat = Decimal(comprasd.pedido_comprasd)
+        estoquemp.quantidade_estq = estoquequantidade + pedidoFloat
+        #add history
+        # system that knows if all items were closed to close the purchase order
+
+        db.session.commit()
+    
+    """""
     for key, value in request.form.items():
         print(f"Key: {key}, Value: {value}")
         # Check if the form field is related to a notafiscalinput
@@ -857,10 +887,11 @@ def fechar_compra():
             # For example:
             print(f"Compra ID: {compra_id}, Nota Fiscal: {value}")
             print(f"New quantities: {notasfiscais}")
-
+    """
 
     return redirect(url_for('compras'))
 ############################################################################### RUN APP ################################################
 
 if __name__ == '__main__':
+
     app.run(debug=True)
