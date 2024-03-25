@@ -159,7 +159,7 @@ class Historico(db.Model):
     ultimaquantidade_hst = db.Column(db.Numeric(10, 3))
     novaquantidade_hst = db.Column(db.Numeric(10, 3))
     difference_hst = db.Column(db.Numeric(10, 3))
-    modo_hst = db.Column(db.Enum('Registro Manual', 'Inventario'))
+    modo_hst = db.Column(db.Enum('Registro Manual', 'Compra'))
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
 
 class HistoricoSchema(ma.SQLAlchemySchema):
@@ -227,6 +227,7 @@ class Compras(db.Model):
     data_compras = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     estado_compras = db.Column(db.Enum('Pendente', 'Entregue'))
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    
 
 class ComprasSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -243,7 +244,7 @@ class ComprasDados(db.Model):
     __table_args__ = {"extend_existing": True}
 
     id_comprasd = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    id_compras = db.Column(db.Integer)
+    id_compras = db.Column(db.Integer,  ForeignKey('compras.id_compras'))
     nome_mp = db.Column(db.String(75))
     unidade_mp = db.Column(db.Enum('KG', 'UN'))
     pedido_comprasd = db.Column(db.Numeric(10, 3))
@@ -254,6 +255,7 @@ class ComprasDados(db.Model):
     vencimento_comprasd = db.Column(db.DateTime)
     fechado_comprasd = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+
 
 class ComprasDadosSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -634,7 +636,7 @@ def inventario():
             
 
             if difference != 0:
-                print(id_mp, current_time,old_quantity, new_quantity, difference)
+                #print(id_mp, current_time,old_quantity, new_quantity, difference)
                 historico = Historico(
                 date_change=current_time,
                 id_mp=id_mp,
@@ -764,18 +766,44 @@ def compras():
 
     fornecedores = Fornecedores.query.filter_by(user_id=current_user.id).all()
     fornecedores_schema = FornecedorSchema(many=True)
-    serialized_data_f = fornecedores_schema.dump(fornecedores)
+    
 
     estoque = Estoque.query.filter_by(user_id=current_user.id).all()
     estoque_schema = EstoqueSchema(many=True)
-    serialized_data_estq = estoque_schema.dump(estoque)
+    
 
     compras = Compras.query.filter_by(user_id=current_user.id).all()
     compras_schema = ComprasSchema(many=True)
-    serialized_data_compras = compras_schema.dump(compras)
+    
 
     comprasdados = ComprasDados.query.filter_by(user_id=current_user.id).all()
     comprasdados_schema = ComprasDadosSchema(many=True)
+    
+
+      # Dictionary to store counts of fechado_comprasd for each compras_id
+     # Dictionary to store fechado_comprasd values for each compras_id
+    fechado_comprasd_counts = {}
+
+    # Counting fechado_comprasd values for each compras_id
+    for dado in comprasdados:
+        if dado.id_compras not in fechado_comprasd_counts:
+            fechado_comprasd_counts[dado.id_compras] = []
+        fechado_comprasd_counts[dado.id_compras].append(dado.fechado_comprasd)
+
+    # Updating estado_compras for compras with all fechado_comprasd values set to 1
+    for compra in compras:
+        fechado_comprasd_values = fechado_comprasd_counts.get(compra.id_compras, [])
+        if all(value == 1 for value in fechado_comprasd_values):
+            compra.estado_compras = "Entregue"
+
+    
+    # Commit the changes to the database
+    db.session.commit()
+
+    # Serialize the data for rendering in the template
+    serialized_data_f = fornecedores_schema.dump(fornecedores)
+    serialized_data_estq = estoque_schema.dump(estoque)
+    serialized_data_compras = compras_schema.dump(compras)
     serialized_data_comprasdados = comprasdados_schema.dump(comprasdados)
 
     return render_template('compras.html', 
@@ -856,6 +884,7 @@ def salvar_compra():
 def fechar_compra():
 
     selected_items = request.form.getlist('selected_dados[]')
+
     for item_id in selected_items:
 
         print(item_id)
@@ -866,28 +895,39 @@ def fechar_compra():
         #update stock
         estoquemp = Estoque.query.filter_by(nome_mp=comprasd.nome_mp).first()
         estoquequantidade = estoquemp.quantidade_estq
+        estoquenome = estoquemp.nome_mp
         pedidoFloat = Decimal(comprasd.pedido_comprasd)
         estoquemp.quantidade_estq = estoquequantidade + pedidoFloat
         #add history
+
+        # Fetch the nome_fornecedor corresponding to the id_fornecedor from the Fornecedor table
+        materiap = MateriasPrimas.query.filter_by(nome_mp=estoquenome).first()
+        id_materiaprima = materiap.id_mp if materiap else None
+
+        # Get current timestamp with microseconds
+        current_time = datetime.now().strftime('%Y-%m-%d // %H:%M:%S.%f')[:-3]
+
+        modo = 'Compra'
+
+        historico = Historico(
+            date_change=current_time,
+            id_mp=id_materiaprima,
+            nome_mp=comprasd.nome_mp,
+            ultimaquantidade_hst=estoquequantidade,
+            novaquantidade_hst=estoquequantidade + pedidoFloat,
+            difference_hst=pedidoFloat,
+            modo_hst=modo,
+            user_id=current_user.id
+            )
+        
+        db.session.add(historico)
+
+        
+
         # system that knows if all items were closed to close the purchase order
 
         db.session.commit()
-    
-    """""
-    for key, value in request.form.items():
-        print(f"Key: {key}, Value: {value}")
-        # Check if the form field is related to a notafiscalinput
-        if key.startswith('notafiscalinput_'):
-            # Extract the compra_id from the form field name
-            compra_id = key.split('_')[-1]
 
-            notasfiscais = request.form.getlist(f'notafiscalinput_{compra_id}')
-
-            # Process the form data as needed
-            # For example:
-            print(f"Compra ID: {compra_id}, Nota Fiscal: {value}")
-            print(f"New quantities: {notasfiscais}")
-    """
 
     return redirect(url_for('compras'))
 ############################################################################### RUN APP ################################################

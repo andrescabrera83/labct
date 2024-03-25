@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Materias Primas{% endblock %}
+{% block title %}Compras{% endblock %}
 
 {% block content %}
 
@@ -44,9 +44,18 @@
         /* Reduce opacity */
     }
 
+
+
     #filterForm input[type="radio"]:checked+label {
         text-decoration: underline;
         /* Add underline text decoration */
+    }
+
+/* Hover style for enabled button */
+    .btn-dark:not(.disabled):hover {
+        /* Define the hover style here */
+        /* For example, change background color */
+        background-color: #555 !important;
     }
 
 
@@ -64,7 +73,7 @@
 
     table.fold-table>tbody>tr.view td,
     table.fold-table>tbody>tr.view th {
-        cursor: pointer;
+        cursor: default;
 
 
     }
@@ -136,6 +145,15 @@
 
     }
 
+    .pedido_comprasd{
+        color: blue;
+    }
+
+    .valorpedido_comprasd{
+        color: rgb(10, 167, 10);
+        font-weight: 500;
+    }
+
     .fold-content h3 {
         margin-top: 0;
     }
@@ -158,7 +176,7 @@
         cursor: default;
     }
 
-    .fechado{
+    .fechado {
 
         background-color: rgb(241, 241, 241);
         color: rgb(153, 153, 153) !important;
@@ -166,7 +184,7 @@
     
     }
 
-    .fechado:hover{
+    .fechado:hover {
         text-decoration: none;
         cursor: default;
         background-color: rgb(241, 241, 241);
@@ -236,7 +254,11 @@
                                     <td>{{ estq.gms_mp }}</td>
                                     <td
                                         style="background-color: {% if estq.gms_mp - estq.quantidade_estq > 0 %}yellow; color: red; font-weight: bold;{% else %}lightgreen; color: darkgreen;{% endif %}">
+{% if estq.gms_mp - estq.quantidade_estq < 0 %}
+                                            0.000
+                                                    {% else %}
                                         {{ estq.gms_mp - estq.quantidade_estq }}
+{% endif %}
                                     </td>
                                     <td
                                         style="background-color: {% if estq.gms_mp - estq.quantidade_estq > 0 %}yellow; color: red; font-weight: bold;{% else %}lightgreen; color: darkgreen;{% endif %}">
@@ -255,7 +277,7 @@
                                     </td>
                                     <td>
                                         <select name="fornecedores_{{ estq.nome_mp }}" class="fornecedor-select"
-                                            id="fornecedores">
+                                            id="fornecedores_{{ estq.nome_mp }}">
                                             <option value="" disabled selected>Seleccionar fornecedor</option>
                                             <!-- Default option -->
                                             {% if fornecedores %}
@@ -286,6 +308,52 @@
 
                     </div>
                 </form>
+
+<script>
+                    $(document).ready(function () {
+                        // Select all checkbox functionality
+                        $('#select-all').change(function () {
+                            $('.select-row:visible').prop('checked', $(this).prop('checked'));
+                            toggleSubmitButtonState();
+                            toggleFornecedorRequired();
+                        });
+
+                        // Individual row checkbox functionality
+                        $('.select-row').change(function () {
+                            if ($('.select-row:checked').length === $('.select-row:visible').length) {
+                                $('#select-all').prop('checked', true);
+                            } else {
+                                $('#select-all').prop('checked', false);
+                            }
+
+                            toggleSubmitButtonState();
+                            toggleFornecedorRequired();
+                        });
+
+                        // Function to toggle submit button state based on selected rows
+                        function toggleSubmitButtonState() {
+                            if ($('.select-row:checked').length > 0) {
+                                $('#submitButton').removeClass('disabled').prop('disabled', false);
+                            } else {
+                                $('#submitButton').addClass('disabled').prop('disabled', true);
+                            }
+                        }
+
+                        // Function to toggle fornecedor select required attribute based on selected rows
+                        function toggleFornecedorRequired() {
+                            $('.select-row').each(function () {
+                                var row = $(this).closest('tr');
+                                var select = row.find('.fornecedor-select');
+                                if ($(this).prop('checked')) {
+                                    select.prop('required', true);
+                                } else {
+                                    select.prop('required', false);
+                                }
+                            });
+                        }
+                    });
+                </script>
+                s
 
             </div>
 
@@ -334,7 +402,8 @@
 
                                         <button class="btn-ferramenta"> Imprimir</button>
 
-                                        <button class="btn-ferramenta" id="notaFiscal_{{compras.id_compras}}" hidden> Digitar
+                                        <button class="btn-ferramenta" id="notaFiscal_{{compras.id_compras}}" hidden>
+                                            Digitar
                                             Nota Fiscal </button>
 
 
@@ -355,7 +424,7 @@
 
                                             // Iterate over the table rows to extract unique values from the first column
                                             $(tableId + " tbody tr").each(function () {
-                                                var firstColumnValue = $(this).find("td:first").text().trim();
+                                                var firstColumnValue = $(this).find("td:eq(1)").text().trim();
                                                 if (firstColumnValue && !uniqueValues.includes(firstColumnValue)) {
                                                     uniqueValues.push(firstColumnValue);
                                                 }
@@ -410,26 +479,24 @@
 
                                                 {% for comprasdados in comprasdados %}
                                                 {% if comprasdados.id_compras == compras.id_compras %}
-                                                <tr class="listaDado {% if comprasdados.fechado_comprasd == 1 %}fechado{% endif %}"" >
+                                                <tr class="listaDado {% if comprasdados.fechado_comprasd == 1 %}fechado{% endif %}" >
                                                     
                                                     <td><input type="checkbox"
                                                             class="select-rowdados_{{compras.id_compras}}"
-                                                            name="selected_dados[]"
-                                                            value="{{ comprasdados.id_comprasd }}" 
-                                                            {% if comprasdados.fechado_comprasd == 1 %} checked disabled {% endif %}
-                                                           ></td>
+                                                            name="selected_dados[]" value="{{ comprasdados.id_comprasd }}" {% if
+                                                    comprasdados.fechado_comprasd==1 %} checked disabled {% endif %}>
+                                                    </td>
                                                     <td>{{comprasdados.fornecedor_comprasd}}</td>
                                                     <td>{{comprasdados.departamento_comprasd}}</td>
                                                     <td style="font-weight: 600;">{{comprasdados.nome_mp}}</td>
-                                                    <td style="color: blue;">{{comprasdados.pedido_comprasd}}</td>
+                                                    <td  class="pedido_comprasd {% if comprasdados.fechado_comprasd == 1 %}fechado{% endif %}" >{{comprasdados.pedido_comprasd}}</td>
                                                     <td>{{comprasdados.unidade_mp}}</td>
-                                                    <td style="color: rgb(10, 167, 10); font-weight: 500;">
+                                                    <td  class="valorpedido_comprasd {% if comprasdados.fechado_comprasd == 1 %}fechado{% endif %}" >
                                                         R${{comprasdados.valorpedido_comprasd}}</td>
                                                     <td>{{comprasdados.previsao_comprasd | datetimeformat}}</td>
                                                     <td>{{comprasdados.vencimento_comprasd | datetimeformat}}</td>
                                                     <td>
-                                                        <span class="notafiscal_{{compras.id_compras}}"
-                                                            style="text-decoration: underline;">
+                                                        <span class="notafiscal_{{compras.id_compras}}" style="text-decoration: underline;">
                                                             {% if comprasdados.fechado_comprasd == 1 %}      
                                                             Fechado
                                                             {% else %}
@@ -439,31 +506,26 @@
                                                           
                                                         </span>
 
-                                                        <input style="width: 65%;" type="number"
-                                                            name="notafiscalinput_{{compras.id_compras}}"
-                                                            placeholder=" DIGITAR NOTA FISCAL"
-                                                            {% if comprasdados.fechado_comprasd == 1 %} hidden disabled {% endif %}>
+                                                        <input style="width: 65%;" type="number" name="notafiscalinput_{{compras.id_compras}}"
+                                                            placeholder=" DIGITAR NOTA FISCAL" {% if comprasdados.fechado_comprasd==1 %} hidden
+                                                            disabled {% endif %}>
                                                     </td>
                                                 </tr>
-                                                <!--Select Functionalities-->
-
-                                                <script>
-                                                    $(document).ready(function () {
-                                                        // Creating a select element
-
-                                                    });
-                                                </script>
+                                                
                                                 <script>
                                                     $(document).ready(function () {
                                                         // Function to toggle submit button state based on selected rows
                                                         function toggleSubmitButtonDadosState() {
-                                                            var selectedCount = $('.select-rowdados_{{compras.id_compras}}:checked').length;
+                                                            var selectedCount = $('.select-rowdados_{{compras.id_compras}}:checked').not(':disabled').length;
+                                    var rowCount = $("#tabelaCompras_{{compras.id_compras}} tbody tr").length;
                                                             $("#submitButton_{{compras.id_compras}}").text("Fechar Pedido De Compras " + selectedCount + "/" + rowCount);
 
                                                             if (selectedCount > 0) {
                                                                 $('#submitButton_{{compras.id_compras}}').removeClass('disabled').prop('disabled', false);
+$('#submitButton_{{compras.id_compras}}').css({ 'opacity': '', 'cursor': '', 'background-color': 'black', 'color': 'white' }); // Remove disabled styles
                                                             } else {
                                                                 $('#submitButton_{{compras.id_compras}}').addClass('disabled').prop('disabled', true);
+$('#submitButton_{{compras.id_compras}}').css({ 'opacity': '0.5', 'cursor': 'not-allowed', 'background-color': '#ddd', 'color': '#888' });
                                                             }
                                                         }
 
@@ -485,7 +547,8 @@
                                                             toggleSubmitButtonDadosState();
 
                                                             // Recalculate selectedCount whenever a checkbox is changed
-                                                            var selectedCount = $('.select-rowdados_{{compras.id_compras}}:checked').length;
+                                                            var selectedCount = $('.select-rowdados_{{compras.id_compras}}:checked').not(':disabled').length;
+                                    var rowCount = $("#tabelaCompras_{{compras.id_compras}} tbody tr").length;
                                                             $("#submitButton_{{compras.id_compras}}").text("Fechar Pedido De Compras " + selectedCount + "/" + rowCount);
 
                                                             // Add or remove 'required' attribute based on checkbox state
@@ -497,9 +560,7 @@
                                                         });
 
                                                         // Initial calculation of rowCount and selectedCount
-                                                        var rowCount = $("#tabelaCompras_{{compras.id_compras}} tbody tr").length;
-                                                        var selectedCount = $('.select-rowdados_{{compras.id_compras}}:checked').length;
-                                                        $("#submitButton_{{compras.id_compras}}").text("Fechar Pedido De Compras " + selectedCount + "/" + rowCount);
+                                                        toggleSubmitButtonDadosState();
                                                     });
 
                                                 </script>
@@ -627,35 +688,7 @@
     });
 </script>
 
-<script>
-    $(document).ready(function () {
-        // Select all checkbox functionality
-        $('#select-all').change(function () {
-            $('.select-row:visible').prop('checked', $(this).prop('checked'));
-            toggleSubmitButtonState();
-        });
 
-        // Individual row checkbox functionality
-        $('.select-row').change(function () {
-            if ($('.select-row:checked').length === $('.select-row:visible').length) {
-                $('#select-all').prop('checked', true);
-            } else {
-                $('#select-all').prop('checked', false);
-            }
-
-            toggleSubmitButtonState();
-        });
-
-        // Function to toggle submit button state based on selected rows
-        function toggleSubmitButtonState() {
-            if ($('.select-row:checked').length > 0) {
-                $('#submitButton').removeClass('disabled').prop('disabled', false);
-            } else {
-                $('#submitButton').addClass('disabled').prop('disabled', true);
-            }
-        }
-    });
-</script>
 
 <script>
     document.getElementById('manualChangeBtn').addEventListener('click', function () {
