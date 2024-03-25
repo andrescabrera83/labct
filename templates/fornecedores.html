@@ -4,10 +4,6 @@
 {% block content %}
 
 <style>
-
-    /*SPECIFICS*/
-
-    
     
 </style>
 
@@ -44,13 +40,13 @@
                             <th> </th>
                             <th >ID</th>
                             <th >Fornecedor</th>
-                            <th style="width: 10%;">Tempo de entrega do produto (em dias)</th>
-                            <th style="width: 10%;">Prazo para pagamento (em dias)</th>
+                            <th>Tempo de entrega do produto (em dias)</th>
+                            <th >Prazo para pagamento (em dias)</th>
                             <th >Dia Fixo Para Realizar O Pedido</th>
                             <th >Nome do(a) Vendedor(a)</th>
                             <th >Contato Telefônico</th>
-                            <th class="emailColumn">E-mail</th>
-                            <th class="actioncolumn">Açao</th>
+                            <th >E-mail</th>
+                            <th >Açao</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -70,7 +66,7 @@
                             <td >{{ fornecedor.nome_vendedor}}</td>
                             <td >{{ fornecedor.contato_tel}}</td>
                             <td >{{ fornecedor.email_vendedor}}</td>
-                            <td class="actioncontent">
+                            <td >
                                 <div class="actionButtons">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="#85827a"
                                         class="bi bi-pencil-fill" viewBox="0 0 16 16" type="button" style="margin: 2px;"

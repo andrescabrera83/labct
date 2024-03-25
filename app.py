@@ -1,52 +1,20 @@
 ## IMPORTS AND CONFIGURATION ###############################
 
-from flask import Flask, render_template, request, redirect, url_for, session, g, make_response
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-from sqlalchemy import ForeignKey, func
-from sqlalchemy.orm import relationship
+from sqlalchemy.exc import IntegrityError
+from flask import abort
+
+
 import pymysql
-import os
-from datetime import datetime, timedelta, timezone
-from babel.dates import format_date
-import pandas as pd
-import pdfkit
-from jinja2 import Environment
-from babel.dates import format_datetime
-from decimal import Decimal
-
-# Specify path to wkhtmltopdf executable
-path_wkthmltopdf = 'C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'
-config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
-
-
-from flask_login import UserMixin,current_user, login_required, LoginManager, login_user
 pymysql.install_as_MySQLdb()
 
 app = Flask(__name__)
-secret_key = os.environ.get('FLASK_SECRET_KEY')
-app.secret_key = secret_key
-app.config.from_object('config.Config')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:pass123@localhost/labct2'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:pass123@localhost/labct'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=62)  # Set session expiration to 62 days
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
-
-# Initialize Flask-Login
-login_manager = LoginManager()
-login_manager.init_app(app)
-
-## MODELS AND SCHEMAS ###########################################################################################################################
-
-#GIRO MEDIO##################################################################################################################################}
-
-# Model for storing configuration settings
-class Config(db.Model):
-    __tablename__ = "giromedio"
-    __table_args__ = {"extend_existing": True}
-    id_gm = db.Column(db.Integer, primary_key=True)
-    giro_medio = db.Column(db.Integer, default=6)
 
 #FORNECEDORES##################################################################################################################################
 
@@ -62,7 +30,6 @@ class Fornecedores(db.Model):
     nome_vendedor = db.Column(db.String(45))
     contato_tel = db.Column(db.String(45))
     email_vendedor = db.Column(db.String(100))
-    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
 
 class FornecedorSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -76,7 +43,7 @@ class FornecedorSchema(ma.SQLAlchemySchema):
     nome_vendedor = ma.auto_field()
     contato_tel = ma.auto_field()
     email_vendedor = ma.auto_field()
-    
+
 #MATERIAS PRIMAS##################################################################################################################################
 
 class MateriasPrimas(db.Model):
@@ -86,15 +53,14 @@ class MateriasPrimas(db.Model):
     id_mp = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nome_mp = db.Column(db.String(75))
     unidade_mp = db.Column(db.Enum('KG', 'UN'))
-    pesounitario_mp = db.Column(db.Numeric(10, 3))
-    pesototal_mp = db.Column(db.Numeric(10, 3))
+    peso_mp = db.Column(db.Numeric(10, 3))
+    quantidade_mp = db.Column(db.Integer)
     custo_mp = db.Column(db.Numeric(10, 2))
-    custoemkg_mp = db.Column(db.Numeric(10, 2))
     departamento_mp = db.Column(db.Enum('Carnes', 'Farinhas', 'Hortifruti', 'Mercearia', 'Misturas', 'Ovos', 'Queijos'))
-    pedidomin_mp = db.Column(db.Numeric(10,3))
+    pedidomin_mp = db.Column(db.Integer)
     gastomedio_mp = db.Column(db.Numeric(10, 3))
-    gms_mp = db.Column(db.Numeric(10, 3))
-    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False) 
+    id_fornecedor = db.Column(db.Integer)
+    nome_fornecedor = db.Column(db.String(45))
 
 class MateriasPrimasSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -103,299 +69,116 @@ class MateriasPrimasSchema(ma.SQLAlchemySchema):
     id_mp = ma.auto_field()
     nome_mp = ma.auto_field()
     unidade_mp = ma.auto_field()
-    pesounitario_mp = ma.auto_field()
-    pesototal_mp = ma.auto_field()
+    peso_mp = ma.auto_field()
+    quantidade_mp = ma.auto_field()
     custo_mp = ma.auto_field()
-    custoemkg_mp = ma.auto_field()
     departamento_mp = ma.auto_field()
     pedidomin_mp = ma.auto_field()
     gastomedio_mp = ma.auto_field()
-    gms_mp = ma.auto_field()
+    id_fornecedor = ma.auto_field()
+    nome_fornecedor = ma.auto_field()
 
-# ESTOQUE #####################################################################################
 
-class Estoque(db.Model):
-    __tablename__ = "estoque"
+#CLIENTES##################################################################################################################################
+
+
+class Clientes(db.Model):
+    __tablename__ = "clientes"
     __table_args__ = {"extend_existing": True}
 
-    id_estq = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id_clt = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nome_clt = db.Column(db.String(45))
+    cnpj_clt = db.Column(db.String(14))
+    endereco_clt = db.Column(db.String(100))
+    numeroende_clt = db.Column(db.String(5))
+    bairro_clt = db.Column(db.String(45))
+    cidade_clt = db.Column(db.String(45))
+    estado_clt = db.Column(db.String(45))
+    contatotel_clt = db.Column(db.String(45))
+    email_clt = db.Column(db.String(75))
+    responsavel_clt = db.Column(db.String(45))
 
-    id_mp = db.Column(db.Integer, db.ForeignKey('materiasprimas.id_mp'), nullable=False)
-    materiaprima = db.relationship("MateriasPrimas", foreign_keys=[id_mp])
-
-    nome_mp = db.Column(db.String(75))
-    unidade_mp = db.Column(db.Enum('KG','UN'))
-    gms_mp = db.Column(db.Numeric(10, 3))
-    pedidomin_mp = db.Column(db.Numeric(10,3))
-
-    quantidade_estq = db.Column(db.Numeric(10,3), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-   
-class EstoqueSchema(ma.SQLAlchemySchema):
+class ClientesSchema(ma.SQLAlchemySchema):
     class Meta:
-        model = Estoque
-        
-    id_estq = ma.auto_field()
+        model = Clientes
+
+    id_clt = ma.auto_field()
+    nome_clt = ma.auto_field()
+    cnpj_clt = ma.auto_field()
+    endereco_clt = ma.auto_field()
+    numeroende_clt = ma.auto_field()    
+    bairro_clt = ma.auto_field()
+    cidade_clt = ma.auto_field()
+    estado_clt = ma.auto_field()
+    contatotel_clt = ma.auto_field()
+    email_clt = ma.auto_field()
+    responsavel_clt = ma.auto_field()
+
+
+#RECEITAS##################################################################################################################################
+
+class Receitas(db.Model):
+    __tablename__ = "receitas"
+    __table_args__ = {"extend_existing": True}
+
+    id_rct = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nome_rct = db.Column(db.String(75))
+    descricao_rct = db.Column(db.String)
+    preparo_rct = db.Column(db.String)
+    id_clt = db.Column(db.Integer)
+    nome_clt = db.Column(db.String(45))
+
+class ReceitasSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Receitas
+
+    id_rct = ma.auto_field()
+    nome_rct = ma.auto_field()
+    descricao_rct = ma.auto_field()
+    preparo_rct = ma.auto_field()
+    id_clt = ma.auto_field()
+    nome_clt = ma.auto_field()
+
+
+
+
+####################################################################################
+    
+class ReceitaMateriasPrimas(db.Model):
+    __tablename__ = "receitamateriasprimas"
+    __table_args__ = {"extend_existing": True}
+
+    id_rct = db.Column(db.Integer, db.ForeignKey('receitas.id_rct'), primary_key=True)
+    id_mp = db.Column(db.Integer, db.ForeignKey('materiasprimas.id_mp'), primary_key=True)
+    nome_mp = db.Column(db.String(75))
+    quantidade = db.Column(db.Numeric(10,2))
+    unidade = db.Column(db.Enum('Unidade(s)', 'Grama(s)', 'Kilogramo(s)', 'Colher(es)', 'Xícara(s)'))
+
+class ReceitasMateriasPrimasSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = ReceitaMateriasPrimas
+
+    id_rct = ma.auto_field()
     id_mp = ma.auto_field()
     nome_mp = ma.auto_field()
-    unidade_mp = ma.auto_field()
-    quantidade_estq = ma.auto_field()
-    gms_mp = ma.auto_field()
-    pedidomin_mp = ma.auto_field()
-
-# INVENTARIO HISTORICO #######################################################################
-
-class Historico(db.Model):
-    __tablename__ = "historico"
-    __table_args__ = {"extend_existing": True}
-
-    id_hst = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    date_change = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-    id_mp = db.Column(db.Integer, nullable=False)
+    quantidade = ma.auto_field()
+    unidade = ma.auto_field()
     
 
-    nome_mp = db.Column(db.String(75))
-
-    ultimaquantidade_hst = db.Column(db.Numeric(10, 3))
-    novaquantidade_hst = db.Column(db.Numeric(10, 3))
-    difference_hst = db.Column(db.Numeric(10, 3))
-    modo_hst = db.Column(db.Enum('Registro Manual', 'Inventario'))
-    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-
-class HistoricoSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = Historico
-        
-    id_hst = ma.auto_field() 
-    date_change = ma.auto_field()
-    id_mp = ma.auto_field()
-    nome_mp = ma.auto_field()
-    ultimaquantidade_hst = ma.auto_field()
-    novaquantidade_hst = ma.auto_field()
-    difference_hst = ma.auto_field()
-    modo_hst = ma.auto_field()
-
-# INVENTARIO ###################################################################################
-
-class Inventario(db.Model):
-    __tablename__ = "inventario"
-    __table_args__ = {"extend_existing": True}
-
-    id_invt = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    data_invt = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-    estado_invt = db.Column(db.Enum('Aberto', 'Fechado'))
-    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-   
-class InventarioSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = Inventario
-        
-    id_invt = ma.auto_field()
-    estado_invt = ma.auto_field()
-    data_invt = ma.auto_field()
-
-# INVENTARIO DADOS ###################################################################################
-
-class InventarioDados(db.Model):
-    __tablename__ = "inventariodados"
-    __table_args__ = {"extend_existing": True}
-
-    id_invtdados = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    id_invt = db.Column(db.Integer, db.ForeignKey('inventario.id_invt'), nullable=False)
-    data_invt = db.Column(db.DateTime,db.ForeignKey('inventario.data_invt'), default=datetime.now(timezone.utc),nullable=False)
-    id_mp = db.Column(db.Integer, db.ForeignKey('materiasprimas.id_mp'), nullable=False)
-    quantidade_invtdados = db.Column(db.Numeric(10, 3))
-    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-   
-class InventarioDadosSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = InventarioDados
-        
-    id_invtdados = ma.auto_field()
-    id_invt = ma.auto_field()
-    data_invt = ma.auto_field()
-    id_mp = ma.auto_field()
-    quantidade_invtdados = ma.auto_field()
-
-# COMPRAS #################################################################################################
-
-class Compras(db.Model):
-    __tablename__ = "compras"
-    __table_args__ = {"extend_existing": True}
-
-    id_compras = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    data_compras = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-    estado_compras = db.Column(db.Enum('Pendente', 'Entregue'))
-    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-
-class ComprasSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = Compras
-        
-    id_compras = ma.auto_field()
-    estado_compras = ma.auto_field()
-    data_compras = ma.auto_field()   
-
-# COMPRASDADOS #################################################################################################
-
-class ComprasDados(db.Model):
-    __tablename__ = "comprasdados"
-    __table_args__ = {"extend_existing": True}
-
-    id_comprasd = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    id_compras = db.Column(db.Integer)
-    nome_mp = db.Column(db.String(75))
-    unidade_mp = db.Column(db.Enum('KG', 'UN'))
-    pedido_comprasd = db.Column(db.Numeric(10, 3))
-    fornecedor_comprasd = db.Column(db.String(45))
-    valorpedido_comprasd = db.Column(db.Numeric(10, 2))
-    departamento_comprasd = db.Column(db.Enum('Carnes', 'Farinhas', 'Hortifruti', 'Mercearia', 'Misturas', 'Ovos', 'Queijos'))
-    previsao_comprasd = db.Column(db.DateTime)
-    vencimento_comprasd = db.Column(db.DateTime)
-    fechado_comprasd = db.Column(db.Integer)
-    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-
-class ComprasDadosSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = ComprasDados
-        
-    id_comprasd = ma.auto_field()
-    id_compras = ma.auto_field()
-    nome_mp = ma.auto_field()
-    unidade_mp = ma.auto_field()
-    pedido_comprasd = ma.auto_field()
-    fornecedor_comprasd = ma.auto_field()
-    valorpedido_comprasd = ma.auto_field()
-    departamento_comprasd = ma.auto_field()
-    previsao_comprasd = ma.auto_field()
-    vencimento_comprasd = ma.auto_field()
-    fechado_comprasd = ma.auto_field()
-
-
-# USERS #################################################################################################
-
-class Usuarios(UserMixin,db.Model):
-
-    __tablename__ = "usuarios"
-    __table_args__ = {"extend_existing": True}
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
-    materiasprimas = db.relationship('MateriasPrimas', backref='user', lazy=True)
-    fornecedores = db.relationship('Fornecedores', backref='user', lazy=True)
-    estoque = db.relationship('Estoque', backref='user', lazy=True)
-    inventariohistorico = db.relationship('Historico', backref='user', lazy=True)
-    inventario = db.relationship('Inventario', backref='user', lazy=True)
-    inventariosdados = db.relationship('InventarioDados', backref='user', lazy=True)
-    compras = db.relationship('Compras', backref='user', lazy=True)
-    comprasdados = db.relationship('ComprasDados', backref='user', lazy=True)
-
-####################################################################### APP ###################################################################################################
-    
 with app.app_context():
     db.create_all()
 
-# FUNCOES DO GIRO MEDIO ########################################################################################################
-
-def some_function(giro_medio):
-    config = Config.query.filter_by(giro_medio=giro_medio).first()
-
-    # Create or update configuration settings
-def update_config(new_value):
-    config = Config.query.first()
-    if config:
-        config.giro_medio = new_value
-    else:
-        config = Config(giro_medio=new_value)
-        db.session.add(config)
-    db.session.commit()
-    
-# Route to update the GM ###############
-    
-@app.route('/giromedio', methods=['POST'])
-def update():
-    new_value = int(request.form['new_value'])
-    update_config(new_value)
-
-    materiaprima = MateriasPrimas.query.filter_by(user_id=current_user.id).all()
-
-    for mp in materiaprima:
-        if mp.gastomedio_mp is not None:
-            gm_float = float(mp.gastomedio_mp)
-            new_value_float = float(new_value)
-
-            new_gm = gm_float * new_value_float
-
-            mp.gms_mp = new_gm  # Update the gms_mp column of the existing MateriasPrimas object
-
-
-    db.session.commit()
-
-
-    return redirect(url_for('materiasPrimas'))
 
 # Custom filter to round numbers
-@app.template_filter('giromedio')
+@app.template_filter('round')
 def round_filter(value):
-    config = Config.query.first()
-    if config:
-        return value * config.giro_medio
-    else:
-        return value * 6  # Default value if not found
-
-#################################################################################################################################
+    return round(value)
 
 # ROUTES ########################################################################################################################
 
-@login_manager.user_loader
-def user_loader(user_id):
-    return Usuarios.query.get(int(user_id))
-
 @app.route('/')
 def index():
-     
-    if 'username' in session:
-        return render_template('home.html', username=session['username'])
-    return redirect(url_for('login'))
-
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = Usuarios(username=username, password=password)
-        db.session.add(user)
-        db.session.commit()
-        return redirect(url_for('login'))
-    return render_template('signup.html')
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        next_url = request.form.get("next")
-
-      
-
-        user = Usuarios.query.filter_by(username=username, password=password).first()
-        if user:
-            session['username'] = username
-            session['user_id'] = user.id 
-            login_user(user)
-
-            
-            # Redirect to the originally requested URL if available, or else redirect to the index route
-            next_page = request.args.get('next')  # Get the 'next' parameter from the request URL
-            return redirect(next_page or url_for('index'))
-        else:
-            return render_template('login.html', error="Invalid username or password")
-    return render_template('login.html')
-    
-@app.route('/logout')
-def logout():
-    session.pop('username', None)
-    return redirect(url_for('login'))
+    return render_template('index.html')
 
 @app.route('/cleanup-fornecedores', methods=['GET'])
 def cleanupFornecedor():
@@ -404,17 +187,10 @@ def cleanupFornecedor():
         db.session.commit()
     return redirect(url_for('fornecedores'))
 
-@app.route('/cleanup-mp', methods=['GET'])
-def cleanupMP():
-    with app.app_context():
-        db.session.query(MateriasPrimas).delete()  # Delete all entries from the Entry table
-        db.session.commit()
-    return redirect(url_for('materiasprimas'))
 
 ## FORNECEDORES ##########################################
 
 @app.route('/fornecedores', methods=['GET', 'POST'])
-@login_required
 def fornecedores():
     if request.method == 'POST':
         nome_fornecedor = request.form.get('nome_fornecedor')
@@ -432,18 +208,18 @@ def fornecedores():
             dia_pedido=dia_pedido,
             nome_vendedor=nome_vendedor,
             contato_tel=contato_tel,
-            email_vendedor=email_vendedor,
-            user_id=current_user.id 
+            email_vendedor=email_vendedor
             )
         db.session.add(fornecedores)
         db.session.commit()
         return redirect(url_for('fornecedores'))  # Redirect to GET request after form submission
 
-    
-    fornecedores = Fornecedores.query.filter_by(user_id=current_user.id).all()
+    fornecedores = Fornecedores.query.all()
     fornecedor_schema = FornecedorSchema(many=True)
     serialized_data = fornecedor_schema.dump(fornecedores)
     return render_template('fornecedores.html', fornecedores=serialized_data)
+
+
 
 @app.route('/delete-fornecedor/<int:id>', methods=['POST'])
 def deleteFornecedor(id):
@@ -466,104 +242,59 @@ def editFornecedor(id):
         
         db.session.commit()
         return redirect(url_for('fornecedores', id=id))
+    
+
 
 # MATERIAS PRIMAS ###################################
 
 @app.route('/materiasprimas', methods=['GET', 'POST'])
-@login_required
 def materiasPrimas():
 
-    
-    # Fetch the nome_fornecedor corresponding to the id_fornecedor from the Fornecedor table
-    config = Config.query.first()
-    giromedio = config.giro_medio if config else None
+    fornecedores = Fornecedores.query.all() #get values from fornecedores table
+    fornecedor_schema = FornecedorSchema(many=True)
+    serialized_data_f = fornecedor_schema.dump(fornecedores)
 
-    print(giromedio)
-
-    cost_per_unit = 2
     if request.method == 'POST':
-        #id_mp = request.form.get('id_mp')
+        id_mp = request.form.get('id_mp')
         nome_mp = request.form.get('nome_mp')
         unidade_mp = request.form.get('unidade_mp')
-        pesounitario_mp = request.form.get('pesounitario_mp')
-        pesototal_mp = request.form.get('pesototal_mp')
+        peso_mp = request.form.get('peso_mp')
+        quantidade_mp = request.form.get('quantidade_mp')
         custo_mp = request.form.get('custo_mp')
         departamento_mp = request.form.get('departamento_mp')
         pedidomin_mp = request.form.get('pedidomin_mp')
         gastomedio_mp = request.form.get('gastomedio_mp')
+        id_fornecedor = request.form.get('id_fornecedor')
 
+        # Fetch the nome_fornecedor corresponding to the id_fornecedor from the Fornecedor table
+        fornecedor = Fornecedores.query.filter_by(id_fornecedor=id_fornecedor).first()
+        nome_fornecedor = fornecedor.nome_fornecedor if fornecedor else None
 
-        
-        # Convert to floats
-        custo_mp_float = float(custo_mp)
-        pesototal_mp_float = float(pesototal_mp)
-        gastomedio_mp_float = float(gastomedio_mp)
-        giromedio_float = float(giromedio)
-
-        
-
-        gmps = gastomedio_mp_float * giromedio_float
-
-        # Perform the division operation
-        if pesototal_mp_float != 0:  # Avoid division by zero
-            cost_per_unit = custo_mp_float / pesototal_mp_float
-
-        materiasprimas = MateriasPrimas( 
+        materiasprimas = MateriasPrimas(
+            id_mp=id_mp, 
             nome_mp=nome_mp, 
             unidade_mp=unidade_mp,
-            pesounitario_mp=pesounitario_mp,
-            pesototal_mp=pesototal_mp,
+            peso_mp=peso_mp,
+            quantidade_mp=quantidade_mp,
             custo_mp=custo_mp,
-            custoemkg_mp=cost_per_unit,
             departamento_mp=departamento_mp,
             pedidomin_mp=pedidomin_mp,
             gastomedio_mp=gastomedio_mp,
-            gms_mp=gmps,
-            user_id=current_user.id
+            id_fornecedor=id_fornecedor,
+            nome_fornecedor=nome_fornecedor
             )
-        
         db.session.add(materiasprimas)
         db.session.commit()
-
-        id_mp = materiasprimas.id_mp
-        gms = materiasprimas.gms_mp
-        pedidomin = materiasprimas.pedidomin_mp
-
-
-        estoque = Estoque(
-            id_mp=id_mp,
-            nome_mp=nome_mp,
-            unidade_mp=unidade_mp,
-            quantidade_estq=0,
-            gms_mp=gms,
-            pedidomin_mp=pedidomin,  
-            user_id=current_user.id
-        )
-        
-        
-        db.session.add(estoque)
-        db.session.commit()
-
         return redirect(url_for('materiasPrimas'))
 
-    materiasprimas = MateriasPrimas.query.filter_by(user_id=current_user.id).all()
+    materiasprimas = MateriasPrimas.query.all()
     materiaprima_schema = MateriasPrimasSchema(many=True)
     serialized_data_mp = materiaprima_schema.dump(materiasprimas)
-
-    #GIRO MEDIO####
-
-    config = Config.query.first()
-    if config:
-        giro_medio = config.giro_medio
-    else:
-        giro_medio = 6
-
-    return render_template('materiasprimas.html', materiasprimas = serialized_data_mp, giromedio=giro_medio)
+    return render_template('materiasprimas.html', fornecedores=serialized_data_f, materiasprimas = serialized_data_mp)
 
 #DELETE
 @app.route('/delete-materiaprima/<int:id>', methods=['POST'])
 def deleteMateriaPrima(id):
-    #remove from estoque first
     materiasprimas = MateriasPrimas.query.get_or_404(id)
     db.session.delete(materiasprimas)
     db.session.commit()
@@ -576,322 +307,213 @@ def editMateriaPrima(id):
         materiasprimas = MateriasPrimas.query.get_or_404(id)
         materiasprimas.nome_mp = request.form.get('nome_mp')
         materiasprimas.unidade_mp = request.form.get('unidade_mp')
-        materiasprimas.pesounitario_mp = request.form.get('pesounitario_mp')
-        materiasprimas.pesototal_mp = request.form.get('pesototal_mp')
+        materiasprimas.peso_mp = request.form.get('peso_mp')
+        materiasprimas.quantidade_mp = request.form.get('quantidade_mp')
         materiasprimas.custo_mp = request.form.get('custo_mp')
         materiasprimas.departamento_mp = request.form.get('departamento_mp')
         materiasprimas.pedidomin_mp = request.form.get('pedidomin_mp')
         materiasprimas.gastomedio_mp = request.form.get('gastomedio_mp')
-
-        # Convert cost and total weight to floats
-        custo_mp_float = float(materiasprimas.custo_mp)
-        pesototal_mp_float = float(materiasprimas.pesototal_mp)  
+        materiasprimas.id_fornecedor = request.form.get('id_fornecedor')
         
-        if pesototal_mp_float != 0:
-            materiasprimas.custoemkg_mp = custo_mp_float / pesototal_mp_float
-
+        
         db.session.commit()
         return redirect(url_for('materiasPrimas', id=id))
+
+
+# CLIENTES #####################################################
     
-# INVENTARIO ############################################################################
 
-@app.route('/inventario', methods=['GET', 'POST'])
-def inventario():
+@app.route('/clientes', methods=['GET', 'POST'])
+def clientes():
 
-    today_date = datetime.today()
-    formatted_date = format_date(today_date, format='full', locale='pt')
+    if request.method == 'POST':
+        nome_clt = request.form.get('nome_clt')
+        cnpj_clt = request.form.get('cnpj_clt')
+        endereco_clt = request.form.get('endereco_clt')
+        numeroende_clt = request.form.get('numeroende_clt')   
+        bairro_clt = request.form.get('bairro_clt')
+        cidade_clt = request.form.get('cidade_clt')
+        estado_clt = request.form.get('estado_clt')
+        responsavel_clt = request.form.get('responsavel_clt')
+        contatotel_clt = request.form.get('contatotel_clt')
+        email_clt = request.form.get('email_clt')
+       
 
-    estoque = Estoque.query.filter_by(user_id=current_user.id).all()
-    estoque_schema = EstoqueSchema(many=True)
-    serialized_data_estq = estoque_schema.dump(estoque)
+        clientes = Clientes(
+            
+            nome_clt=nome_clt,
+            cnpj_clt=cnpj_clt,
+            endereco_clt=endereco_clt,
+            numeroende_clt=numeroende_clt,
+            bairro_clt=bairro_clt,
+            cidade_clt=cidade_clt,
+            estado_clt=estado_clt,
+            contatotel_clt=contatotel_clt,
+            email_clt=email_clt,
+            responsavel_clt=responsavel_clt
+        )
+        db.session.add(clientes)
+        db.session.commit()
+        return redirect(url_for('clientes')) 
 
-    materiasprimas = MateriasPrimas.query.filter_by(user_id=current_user.id).all()
+   
+    clientes = Clientes.query.all()
+    clientes_schema = ClientesSchema(many=True)
+    serialized_data_clt = clientes_schema.dump(clientes)
+    
+    return render_template('clientes.html', clientes=serialized_data_clt)
+
+
+#DELETE
+@app.route('/delete-cliente/<int:id>', methods=['POST'])
+def deleteCliente(id):
+    clientes = Clientes.query.get_or_404(id)
+    db.session.delete(clientes)
+    db.session.commit()
+    return redirect(url_for('clientes', id=id) )
+
+#EDIT
+@app.route('/edit-cliente/<int:id>', methods=['POST'])
+def editCliente(id):
+    if request.method == 'POST':
+        clientes = Clientes.query.get_or_404(id)
+        clientes.nome_clt = request.form.get('nome_clt')
+        clientes.cnpj_clt = request.form.get('nome_clt')
+        clientes.endereco_clt = request.form.get('endereco_clt')
+        clientes.numeroende_clt = request.form.get('numeroende_clt')   
+        clientes.bairro_clt = request.form.get('bairro_clt')
+        clientes.cidade_clt = request.form.get('cidade_clt')
+        clientes.estado_clt = request.form.get('estado_clt')
+        clientes.responsavel_clt = request.form.get('responsavel_clt')
+        clientes.contatotel_clt = request.form.get('contatotel_clt')
+        clientes.email_clt = request.form.get('email_clt')
+        
+        
+        db.session.commit()
+        return redirect(url_for('clientes', id=id))
+
+
+# RECEITAS #####################################################
+    
+
+@app.route('/receitas', methods=['GET', 'POST'])
+def receitas():
+
+    materiasprimas = MateriasPrimas.query.all()
     materiasprimas_schema = MateriasPrimasSchema(many=True)
     serialized_data_mp = materiasprimas_schema.dump(materiasprimas)
 
-    
+    clientes = Clientes.query.all()
+    clientes_schema = ClientesSchema(many=True)
+    serialized_data_clt = clientes_schema.dump(clientes)
 
+    #if request
     if request.method == 'POST':
-        new_quantities = request.form.getlist('quantidade_estq')
+        nome_rct = request.form.get('nome_rct')
+        id_clt = request.form.get('id_clt')
+        descricao_rct = request.form.get('descricao_rct')
+        preparo_rct = request.form.get('preparo_rct')
 
-        for index, invt in enumerate(estoque):
-            id_mp=invt.id_mp
-            nome_mp = invt.nome_mp
-            old_quantity = invt.quantidade_estq
-            new_quantity = new_quantities[index]
+        # Fetch the nome_mp corresponding to the id_mp from the MP table
+        cliente = Clientes.query.filter_by(id_clt=id_clt).first()
+        nome_clt = cliente.nome_clt if cliente else None
 
-            #diference between old quantity and new quantity
-            old_quantity_float = float(old_quantity)
-            new_quantity_float = float(new_quantity)
-            difference = new_quantity_float - old_quantity_float
+        receitas = Receitas(
+            nome_rct=nome_rct,
+            id_clt=id_clt,
+            nome_clt=nome_clt,
+            descricao_rct=descricao_rct,
+            preparo_rct=preparo_rct
+        )
 
-            # Get current timestamp with microseconds
-            current_time = datetime.now().strftime('%Y-%m-%d // %H:%M:%S.%f')[:-3]
+        db.session.add(receitas)
+        db.session.commit()
 
-            modo = 'Registro Manual'
+        # Handle ingredients insertion
+        ingredient_count = int(request.form.get('ingredient_count'))
 
-            # Fetch the nome_fornecedor corresponding to the id_fornecedor from the Fornecedor table
-            
+        for i in range(ingredient_count):
+            id_mp = request.form.get(f'id_mp_{i}')
+            quantidade = request.form.get(f'quantidade_{i}')
+            unidade = request.form.get(f'unidade_{i}')
 
-            if difference != 0:
-                print(id_mp, current_time,old_quantity, new_quantity, difference)
-                historico = Historico(
-                date_change=current_time,
+            #print(quantidade)
+
+             # Fetch the nome_mp corresponding to the id_mp from the MP table
+            materiaprima = MateriasPrimas.query.filter_by(id_mp=id_mp).first()
+            nome_mp = materiaprima.nome_mp if materiaprima else None
+
+            receita_mp = ReceitaMateriasPrimas(
+                id_rct=receitas.id_rct,
                 id_mp=id_mp,
                 nome_mp=nome_mp,
-                ultimaquantidade_hst=old_quantity,
-                novaquantidade_hst=new_quantity,
-                difference_hst=difference,
-                modo_hst=modo,
-                user_id=current_user.id
-                )
-
-                db.session.add(historico)
-
-            invt.quantidade_estq = new_quantities[index]
-
-        db.session.commit()
-
-
-        return redirect(url_for('inventario'))
-    
-    historico = Historico.query.filter_by(user_id=current_user.id).all()
-    historico_schema = HistoricoSchema(many=True)
-    serialized_data_hst = historico_schema.dump(historico)
-
-    available_months = db.session.query(func.DATE_FORMAT(Inventario.data_invt, '%Y-%m')).distinct().all()
-    available_months = [date[0] for date in available_months]
-
-    current_month = datetime.now().strftime('%Y-%m')
-
-    selected_month = request.args.get('selected_month')
-
-    if selected_month:
-        start_date = datetime.strptime(selected_month, '%Y-%m')
-        end_date = start_date.replace(day=1, month=start_date.month % 12 + 1)
-        
-        inventario = Inventario.query.filter(Inventario.data_invt >= start_date, Inventario.data_invt < end_date).filter_by(user_id=current_user.id).all()
-       
-    else:
-        inventario = Inventario.query.filter_by(user_id=current_user.id).all()
-
-    
-    inventario_schema = InventarioSchema(many=True)
-    serialized_data_invt = inventario_schema.dump(inventario)
-    
-    
-
-    return render_template('inventario.html', 
-                           historico=serialized_data_hst , 
-                           estoque=serialized_data_estq, 
-                           today_date=formatted_date,
-                            materiasprimas=serialized_data_mp,
-                            datetime=datetime,
-                            available_months=available_months,
-                            inventario=serialized_data_invt,
-                            current_month=current_month
-                            )
-
-# Translation dictionaries for months and days in Portuguese
-MONTHS_PT = {
-    1: "janeiro",
-    2: "fevereiro",
-    3: "março",
-    4: "abril",
-    5: "maio",
-    6: "junho",
-    7: "julho",
-    8: "agosto",
-    9: "setembro",
-    10: "outubro",
-    11: "novembro",
-    12: "dezembro"
-}
-
-DAYS_PT = {
-    0: "seg",
-    1: "ter",
-    2: "qua",
-    3: "qui",
-    4: "sex",
-    5: "sáb",
-    6: "dom"
-}
-
-def datetimeformat(value):
-    if isinstance(value, str):
-        # Adjust format string to match the datetime string format
-        value = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')  
-    formatted_date = value.strftime("%d/%m/%Y")
-    day_of_week = DAYS_PT[value.weekday()]  # Get the day of the week in Portuguese
-    return f"{formatted_date} ({day_of_week})"
-app.jinja_env.filters['datetimeformat'] = datetimeformat
-
-@app.route('/salvar_inventario', methods=['POST'])
-def salvar_inventario():
-    date_str = request.form['datePicker']
-    date_object = datetime.strptime(date_str, '%Y-%m-%d')
-
-    inventario = Inventario(
-        data_invt=date_object,
-        estado_invt='Aberto',
-        user_id=current_user.id
-        )
-    db.session.add(inventario)
-    db.session.commit()
-
-    selected_items = request.form.getlist('selected_items')
-    for item_id in selected_items:
-        inventariodados = InventarioDados( 
-            id_invt=inventario.id_invt,
-            data_invt=date_object,
-            id_mp=item_id,
-            quantidade_invtdados=0.0,
-            user_id=current_user.id
+                quantidade=quantidade,
+                unidade=unidade
             )
-        db.session.add(inventariodados)
-    db.session.commit()
-
-
-    return redirect(url_for('inventario'))
-
-
-## PEDIDO DE COMPRAS ###################################################################################################################
-
-@app.route('/compras', methods=['GET', 'POST'])
-@login_required
-def compras():
-
-    fornecedores = Fornecedores.query.filter_by(user_id=current_user.id).all()
-    fornecedores_schema = FornecedorSchema(many=True)
-    serialized_data_f = fornecedores_schema.dump(fornecedores)
-
-    estoque = Estoque.query.filter_by(user_id=current_user.id).all()
-    estoque_schema = EstoqueSchema(many=True)
-    serialized_data_estq = estoque_schema.dump(estoque)
-
-    compras = Compras.query.filter_by(user_id=current_user.id).all()
-    compras_schema = ComprasSchema(many=True)
-    serialized_data_compras = compras_schema.dump(compras)
-
-    comprasdados = ComprasDados.query.filter_by(user_id=current_user.id).all()
-    comprasdados_schema = ComprasDadosSchema(many=True)
-    serialized_data_comprasdados = comprasdados_schema.dump(comprasdados)
-
-    return render_template('compras.html', 
-                           compras=serialized_data_compras,
-                           comprasdados=serialized_data_comprasdados, 
-                           estoque=serialized_data_estq,
-                           fornecedores=serialized_data_f)
-
-
-@app.route('/salvar_compra', methods=['POST'])
-def salvar_compra():
-    
-    print('salvando')
-    current_time = datetime.now().strftime('%Y-%m-%d // %H:%M:%S.%f')[:-3]
-
-    compras = Compras(
-        data_compras=current_time,
-        estado_compras='Pendente',
-        user_id=current_user.id
-        )
-    db.session.add(compras)
-    db.session.commit()
-    
-    selected_items = request.form.getlist('selected_items[]')
-    for item_id in selected_items:
-        item = MateriasPrimas.query.filter_by(nome_mp=item_id).first()
-# Check if the item exists
-        if item:
-        # If the item exists, access its attributes
-            unidade_mp = item.unidade_mp
-            cost_per_unit = item.custoemkg_mp
-            departamento_comprasd = item.departamento_mp
-        else:
-        # Handle the case where the item does not exist
-        # You can log a message, skip this item, or handle it in any other appropriate way
-            print(f"Item with nome_mp '{item_id}' does not exist in the database.")
-        # Fetch form data
-        pedido_comprasd = Decimal(request.form.get(f'pedido_comprasd_{item_id}'))
-        fornecedor_comprasd = request.form.get(f'fornecedores_{item_id}')
-
-        forn = Fornecedores.query.filter_by(nome_fornecedor=fornecedor_comprasd).first()
-        previsao = forn.tempo_entrega
-        vencimento = forn.prazo_pagamento
-
-        # Get today's date
-        today = datetime.now()
-
-        previsao_comprasd = today + timedelta(days=previsao)        
-        vencimento_comprasd = today + timedelta(days=vencimento)  
-
-        formatted_previsao = previsao_comprasd.strftime('%Y-%m-%dT%H:%M:%S')
-        formatted_vencimento = vencimento_comprasd.strftime('%Y-%m-%dT%H:%M:%S')      
-
-        #Calculate purchase order value
-        valorpedido_comprasd = pedido_comprasd * cost_per_unit
-
-        comprasdados = ComprasDados(  
-            id_compras = compras.id_compras,
-            nome_mp = item_id,
-            unidade_mp = unidade_mp,
-            pedido_comprasd = pedido_comprasd,
-            fornecedor_comprasd = fornecedor_comprasd,
-            valorpedido_comprasd =  valorpedido_comprasd,
-            departamento_comprasd=departamento_comprasd,
-            previsao_comprasd = formatted_previsao,
-            vencimento_comprasd = formatted_vencimento,
-            fechado_comprasd = False,
-            user_id=current_user.id
-            )
-        db.session.add(comprasdados)
-
-    db.session.commit()
-    
-    return redirect(url_for('compras'))
-
-
-@app.route('/fechar_compra', methods=['POST'])
-def fechar_compra():
-
-    selected_items = request.form.getlist('selected_dados[]')
-    for item_id in selected_items:
-
-        print(item_id)
-
         
-        comprasd = ComprasDados.query.get_or_404(item_id)
-        comprasd.fechado_comprasd = True
-        #update stock
-        estoquemp = Estoque.query.filter_by(nome_mp=comprasd.nome_mp).first()
-        estoquequantidade = estoquemp.quantidade_estq
-        pedidoFloat = Decimal(comprasd.pedido_comprasd)
-        estoquemp.quantidade_estq = estoquequantidade + pedidoFloat
-        #add history
-        # system that knows if all items were closed to close the purchase order
-
-        db.session.commit()
+            db.session.add(receita_mp)
+            db.session.commit()
+        
+        return redirect(url_for('receitas')) 
     
-    """""
-    for key, value in request.form.items():
-        print(f"Key: {key}, Value: {value}")
-        # Check if the form field is related to a notafiscalinput
-        if key.startswith('notafiscalinput_'):
-            # Extract the compra_id from the form field name
-            compra_id = key.split('_')[-1]
+    receitas = Receitas.query.all()
+    receitas_schema = ReceitasSchema(many=True)
+    serialized_data_rct = receitas_schema.dump(receitas)
 
-            notasfiscais = request.form.getlist(f'notafiscalinput_{compra_id}')
+    receitasmp = ReceitaMateriasPrimas.query.all()
+    receitasmp_schema = ReceitasMateriasPrimasSchema(many=True)
+    serialized_data_rctmp = receitasmp_schema.dump(receitasmp)
+    
 
-            # Process the form data as needed
-            # For example:
-            print(f"Compra ID: {compra_id}, Nota Fiscal: {value}")
-            print(f"New quantities: {notasfiscais}")
-    """
 
-    return redirect(url_for('compras'))
-############################################################################### RUN APP ################################################
+
+    return render_template('receitas.html', 
+    materiasprimas=serialized_data_mp, 
+    clientes=serialized_data_clt,
+    receitas=serialized_data_rct,
+    receitasmp=serialized_data_rctmp)
+
+
+#EDIT
+@app.route('/edit-receita/<int:id>', methods=['POST'])
+def editReceita(id):
+    if request.method == 'POST':
+        receitas = Receitas.query.get_or_404(id)
+        receitas.nome_rct = request.form.get('nome_rct')
+        receitas.descricao_rct = request.form.get('descricao_rct')
+        receitas.preparo_rct = request.form.get('preparo_rct')
+        #receitas.id_clt = request.form.get('id_clt')
+        
+        
+        
+        db.session.commit()
+        return redirect(url_for('receitas', id=id))
+    
+#DELETE
+@app.route('/delete-receita/<int:id>', methods=['POST'])
+def deleteReceita(id):
+    
+     # Fetch the receitas record
+    receitas = Receitas.query.get_or_404(id)
+    
+    try:
+        # Delete child records from ReceitaMateriasPrimas table
+        ReceitaMateriasPrimas.query.filter_by(id_rct=id).delete()
+        
+        # Delete the parent record from Receitas table
+        db.session.delete(receitas)
+        db.session.commit()
+    except IntegrityError:
+        # If there's an integrity error, rollback changes and abort with error message
+        db.session.rollback()
+        abort(500, "Cannot delete or update a parent row: a foreign key constraint fails")
+    
+    return redirect(url_for('receitas', id=id) )
+
+
+# RUN APP ################################################
 
 if __name__ == '__main__':
 
+    
     app.run(debug=True)

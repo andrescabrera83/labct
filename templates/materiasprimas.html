@@ -73,6 +73,7 @@
         text-decoration: none;
 
     }
+
 </style>
 
 <body>
@@ -85,9 +86,9 @@
             <div class="header">
 
                 <div class="titleandbtn">
-                    <h3>Matérias Primas</h3>
-                    <button style="margin-left: 21px;" type="button" data-toggle="modal" data-target="#cadastrarModal" class="btn-cadastrar"> +
-                        Cadastrar Nova Matéria Prima</button>
+                    <h3>Materias Primas</h3>
+                    <button type="button" data-toggle="modal" data-target="#cadastrarModal" class="btn-cadastrar"> +
+                        Cadastrar Nova Materia Prima</button>
                 </div>
 
                 <div class="searchContainer">
@@ -97,15 +98,6 @@
 
             </div>
 
-            <div class="giromedio">
-                <h5>Giro Médio Em Dias:</h5>
-                <form action="/giromedio" method="POST">
-                    
-                    <input type="number" id="new_value" name="new_value" value="{{ giromedio }}" min="0">
-                    <button type="submit"><i class="fa fa-refresh" aria-hidden="true"></i></button>
-                </form>
-                </div>
-
 
             <div class="table-responsive">
                 <table id="materiasprimasTable">
@@ -113,16 +105,15 @@
                         <tr>
                             <th class="hide"> </th>
                             <th class="hide" onclick="toggleSort(0)" style="width: 2%;">ID</th>
-                            <th onclick="toggleSort(1)" style="width: 21%;">Matéria Prima</th>
-                            <th class="hide" onclick="toggleSort(2)">Unidade</th>
-                            <th class="hide" onclick="toggleSort(3)">Peso Unitário/Pacote (KG)</th>
-                            <th class="hide" onclick="toggleSort(4)">Peso Total/Fardo (KG)</th>
+                            <th onclick="toggleSort(1)" style="width: 21%;">Materia Prima</th>
+                            <th class="hide" onclick="toggleSort(2)">Uni de compra</th>
+                            <th class="hide" onclick="toggleSort(3)">Peso em KG</th>
+                            <th class="hide" onclick="toggleSort(4)">Quantidade</th>
                             <th class="hide" onclick="toggleSort(5)">Último Custo</th>
-                            <th class="hide" onclick="toggleSort(6)">Custo Em KG</th>
-                            <th onclick="toggleSort(7)">Departamento</th>
-                            <th class="hide" onclick="toggleSort(8)">Compra Mínima</th>
-                            <th class="hide" onclick="toggleSort(9)">GM/D</th>
-                            <th class="hide" onclick="toggleSort(10)">Giro Médio</th>
+                            <th onclick="toggleSort(6)">Departamento</th>
+                            <th class="hide" onclick="toggleSort(7)">Compra Mínima</th>
+                            <th class="hide" onclick="toggleSort(8)">GM/D</th>
+                            <th onclick="toggleSort(9)">Fornecedor</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -137,15 +128,13 @@
                             <td class="hide">{{ materiaprima.id_mp }}</td>
                             <td class="tdmp">{{ materiaprima.nome_mp }}</td>
                             <td class="hide">{{ materiaprima.unidade_mp }}</td>
-                            <td class="hide"> {{ materiaprima.pesounitario_mp }}</td>
-                            <td class="hide">{{ materiaprima.pesototal_mp}}</td>
+                            <td class="hide"> {{ materiaprima.peso_mp }}</td>
+                            <td class="hide">{{ materiaprima.quantidade_mp}}</td>
                             <td class="hide"> R$ {{ materiaprima.custo_mp}}</td>
-                            <td class="hide"> R$ {{ materiaprima.custoemkg_mp }}</td>
                             <td>{{ materiaprima.departamento_mp}}</td>
                             <td class="hide">{{ materiaprima.pedidomin_mp}}</td>
                             <td class="hide">{{ materiaprima.gastomedio_mp}}</td>
-                            <td class="hide">{{ materiaprima.gms_mp}}</td>
-
+                            <td>{{ materiaprima.nome_fornecedor}}
                             </td>
                             <td>
                                 <div class="actionButtons">
@@ -173,7 +162,7 @@
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="editModalLabel">Atualizar Matéria Prima</h5>
+                                        <h5 class="modal-title" id="editModalLabel">Atualizar Materia Prima</h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
@@ -187,17 +176,15 @@
                                             align-items: end;">
 
                                                 <div class="form-group" style="width: 95%;">
-                                                    <label for="edit-nome_mp">Matéria Prima:</label>
-                                                    <input type="text" class="form-control" id="edit-nome_mp"
-                                                        name="nome_mp" value="{{ materiaprima.nome_mp }}" required>
+                                                    <label for="edit-nome_mp">Materia Prima:</label>
+                                                    <input type="text" class="form-control" id="edit-nome_mp" name="nome_mp"
+                                                        value="{{ materiaprima.nome_mp }}" required>
                                                 </div>
-
+    
                                                 <div class="form-group">
-                                                    <label style="text-align: right;" for="edit-unidade_mp">Unidade De
-                                                        Compra:</label>
+                                                    <label style="text-align: right;" for="edit-unidade_mp">Unidade De Compra:</label>
                                                     <select class="form-control" id="edit-unidade_mp"
-                                                        value="{{ materiaprima.unidade_mp }}" name="unidade_mp"
-                                                        required>
+                                                        value="{{ materiaprima.unidade_mp }}" name="unidade_mp" required>
                                                         <option value="KG">KG</option>
                                                         <option value="UN">UN</option>
                                                     </select>
@@ -205,22 +192,22 @@
 
                                             </div>
 
-
+                                            
 
                                             <div style="display: grid;
                                                 grid-template-columns: 50% 50%;
                                                 align-items: end;">
 
                                                 <div class="form-group" style="width: 93%;">
-                                                    <label for="edit-pesounitario_mp">Peso Unitário (KG):</label>
-                                                    <input type="number" class="form-control" id="edit-pesounitario_mp"
-                                                        name="pesounitario_mp" step="0.1" value="{{ materiaprima.pesounitario_mp }}" required>
+                                                    <label for="edit-peso_mp">Peso(KG):</label>
+                                                    <input type="number" class="form-control" id="edit-peso_mp"
+                                                        name="peso_mp" value="{{ materiaprima.peso_mp }}" required>
                                                 </div>
 
                                                 <div class="form-group">
-                                                    <label for="edit-pesototal_mp">Peso Total/Fardo (KG):</label>
-                                                    <input type="number" class="form-control" id="edit-pesototal_mp"
-                                                        name="pesototal_mp" step="0.1" value="{{ materiaprima.pesototal_mp }}"
+                                                    <label for="edit-quantidade_mp">Quantidade:</label>
+                                                    <input type="number" class="form-control" id="edit-quantidade_mp"
+                                                        name="quantidade_mp" value="{{ materiaprima.quantidade_mp }}"
                                                         required>
                                                 </div>
 
@@ -233,7 +220,7 @@
                                                 <div class="form-group" style="width: 93%;">
                                                     <label for="edit-custo_mp">Ultimo Custo($R):</label>
                                                     <input type="number" class="form-control" id="edit-custo_mp"
-                                                        name="custo_mp" step="0.1" value="{{ materiaprima.custo_mp }}" required>
+                                                        name="custo_mp" value="{{ materiaprima.custo_mp }}" required>
                                                 </div>
 
                                                 <div class="form-group">
@@ -251,47 +238,58 @@
                                                     </select>
                                                 </div>
 
-                                            </div>
+                                            </div >
 
 
                                             <div style="display: grid;
                                             grid-template-columns: 30% 70%;
                                             align-items: end;">
 
+                                                
+                                            <div class="form-group" style="width: 90%;">
+                                                <label for="edit-pedidomin_mp">Pedido Minimo:</label>
+                                                <input type="number" class="form-control" id="edit-pedidomin_mp"
+                                                    name="pedidomin_mp" value="{{ materiaprima.pedidomin_mp }}"
+                                                    required>
+                                            </div>
 
-                                                <div class="form-group" style="width: 90%;">
-                                                    <label for="edit-pedidomin_mp">Pedido Minimo:</label>
-                                                    <input type="number" class="form-control" id="edit-pedidomin_mp"
-                                                        name="pedidomin_mp" value="{{ materiaprima.pedidomin_mp }}"
-                                                        required>
-                                                </div>
+                                            <div class="form-group">
+                                                <label for="edit-gastomedio_mp">Gasto médio por dia de
+                                                    consumo:</label>
+                                                <input type="number" class="form-control" id="edit-gastomedio_mp"
+                                                    name="gastomedio_mp" value="{{ materiaprima.gastomedio_mp }}"
+                                                    required>
+                                            </div>
 
-                                                <div class="form-group">
-                                                    <label for="edit-gastomedio_mp">Gasto médio por dia de
-                                                        consumo:</label>
-                                                    <input type="number" class="form-control" id="edit-gastomedio_mp"
-                                                        name="gastomedio_mp" value="{{ materiaprima.gastomedio_mp }}"
-                                                        required>
-                                                </div>
 
                                             </div>
 
+
+
+                                            <div class="form-group">
+                                                <label for="edit-id_fornecedor">Fornecedor:</label>
+                                                <select class="form-control" id="edit-id_fornecedor"
+                                                    value="{{ materiaprima.id_fornecedor }}" name="id_fornecedor"
+                                                    required>
+                                                    {% for fornecedor in fornecedores %}
+                                                    <option value="{{ fornecedor.id_fornecedor }}">{{
+                                                        fornecedor.nome_fornecedor }}</option>
+                                                    {% endfor %}
+
+                                                </select>
+                                            </div>
 
                                             <div style="display: flex;
                                             justify-content: end;
                                             margin-top: 24px;">
-                                                <button type="submit" class="btn btn-primary">Salvar Mudanças</button>
+                                                    <button type="submit" class="btn btn-primary">Salvar Mudancas</button>
                                             </div>
-
+                                            
                                         </form>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        
-
-                        
 
 
                         <!-- Delete Modal -->
@@ -324,7 +322,7 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <p>Tem certeza que deseja apagar a matéria prima {{ materiaprima.nome_mp }}?
+                                        <p>Tem certeza que deseja apagar a materia prima {{ materiaprima.nome_mp }}?
                                         </p>
                                         <form action="{{ url_for('deleteMateriaPrima', id=materiaprima.id_mp) }}"
                                             method="post">
@@ -351,11 +349,11 @@
                 <div class="getValues">
                     <button class="btn-cadastrar-receita" id="submitButton" onclick="getSelectedValues()"
                         disabled>Cadastrar
-                        Receita Com Matérias Primas Selecionadas</button>
+                        Receita Com Materias Primas Seleccionadas</button>
                 </div>
 
                 <div class="deleteValues">
-                    <button class="btn-dlt" disabled> Apagar Selecionados</button>
+                    <button class="btn-dlt" disabled> Apagar Seleccionados</button>
                 </div>
 
             </div>
@@ -363,6 +361,84 @@
 
 
         </div>
+
+        <!-- FORM -->
+        <div class="forma">
+            <h4 style="margin-bottom: 18px;">Cadastrar Materias Primas</h4>
+            <form action="/materiasprimas" method="post">
+
+                <div class="form-group">
+                    <label style="margin-bottom: 1px;" for="nome_mp">Materia Prima</label>
+                    <input type="text" class="form-control" id="nome_mp" name="nome_mp" required>
+                </div>
+
+                <div class="form-group">
+                    <label style="margin-bottom: 1px;" for="unidade_mp">Unidade De Compra</label>
+                    <select class="form-control" id="unidade_mp" name="unidade_mp" required>
+                        <option value="KG">KG</option>
+                        <option value="UN">UN</option>
+                    </select>
+                </div>
+
+                <div style="display: grid;
+                grid-template-columns: 50% 50%;
+                align-items: end;">
+
+                    <div class="form-group" style="width: 90%;">
+                        <label style="margin-bottom: 1px;" for="peso_mp">Peso(KG)</label>
+                        <input type="number" class="form-control" step="0.1" id="peso_mp" name="peso_mp" required>
+                    </div>
+                    <div class="form-group">
+                        <label style="margin-bottom: 1px;" for="quantidade_mp">Quantidade</label>
+                        <input type="number" class="form-control" id="quantidade_mp" name="quantidade_mp" required>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label style="margin-bottom: 1px;" for="custo_mp">Ultimo Custo($R)</label>
+                    <input type="number" step=".01" class="form-control" id="custo_mp" name="custo_mp" required>
+                </div>
+
+                <div class="form-group">
+                    <label style="margin-bottom: 1px;" for="departamento_mp">Departamento</label>
+                    <select class="form-control" id="departamento_mp" name="departamento_mp" required>
+                        <option value="Carnes">Carnes</option>
+                        <option value="Farinhas">Farinhas</option>
+                        <option value="Hortifruti">Hortifruti</option>
+                        <option value="Mercearia">Mercearia</option>
+                        <option value="Misturas">Misturas</option>
+                        <option value="Ovos">Ovos</option>
+                        <option value="Queijos">Queijos</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label style="margin-bottom: 1px;" for="pedidomin_mp">Pedido Minimo</label>
+                    <input type="number" class="form-control" id="pedidomin_mp" name="pedidomin_mp" required>
+                </div>
+
+                <div class="form-group">
+                    <label style="margin-bottom: 1px;" for="gastomedio_mp">Gasto médio em kg/uni por dia de
+                        consumo</label>
+                    <input type="number" class="form-control" id="gastomedio_mp" name="gastomedio_mp" required>
+                </div>
+
+                <div class="form-group">
+                    <label style="margin-bottom: 1px;" for="id_fornecedor">Fornecedor:</label>
+                    <select class="form-control" id="id_fornecedor" name="id_fornecedor" required>
+                        {% for fornecedor in fornecedores %}
+                        <option value="{{ fornecedor.id_fornecedor }}">{{ fornecedor.nome_fornecedor }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="display: flex; width: 100%; margin-top: 43px;">
+                    <button style="width: 100%;" type="submit" class="btn btn-dark">Cadastrar</button>
+                </div>
+
+            </form>
+        </div>
+
 
     </div>
 
@@ -380,46 +456,39 @@
                 <div class="modal-body">
                     <form action="/materiasprimas" method="post">
 
-                        <div class="cadastroTitle">
-                            <h5>Detalhes da Materia Prima</h5>
+                        <div class="form-group">
+                            <label style="margin-bottom: 1px;" for="nome_mp">Materia Prima</label>
+                            <input type="text" class="form-control" id="nome_mp" name="nome_mp" required>
                         </div>
 
-                        <div style="display: grid;
-                        grid-template-columns: 65% 35%;
-                        align-items: end;">
-
-                            <div class="form-group" style="width: 96%;">
-                                <label style="margin-bottom: 1px;" for="nome_mp">Materia Prima</label>
-                                <input type="text" class="form-control" id="nome_mp" name="nome_mp" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label style="margin-bottom: 1px;" for="unidade_mp">Unidade De Compra</label>
-                                <select class="form-control" id="unidade_mp" name="unidade_mp" required>
-                                    <option value="KG">KG</option>
-                                    <option value="UN">UN</option>
-                                </select>
-                            </div>
-
+                        <div class="form-group">
+                            <label style="margin-bottom: 1px;" for="unidade_mp">Unidade De Compra</label>
+                            <select class="form-control" id="unidade_mp" name="unidade_mp" required>
+                                <option value="KG">KG</option>
+                                <option value="UN">UN</option>
+                            </select>
                         </div>
-
-
 
                         <div style="display: grid;
                     grid-template-columns: 50% 50%;
                     align-items: end;">
 
-                            <div class="form-group" style="width: 94%;">
-                                <label style="margin-bottom: 1px;" for="pesounitario_mp">Peso Unitario (KG)</label>
-                                <input type="number" class="form-control" step="0.1" id="pesounitario_mp"
-                                    name="pesounitario_mp" required>
+                            <div class="form-group" style="width: 90%;">
+                                <label style="margin-bottom: 1px;" for="peso_mp">Peso(KG)</label>
+                                <input type="number" class="form-control" step="0.1" id="peso_mp" name="peso_mp"
+                                    required>
                             </div>
                             <div class="form-group">
-                                <label style="margin-bottom: 1px;" for="pesototal_mp">Peso Total/Fardo (KG)</label>
-                                <input type="number" class="form-control" id="pesototal_mp" name="pesototal_mp"
+                                <label style="margin-bottom: 1px;" for="quantidade_mp">Quantidade</label>
+                                <input type="number" class="form-control" id="quantidade_mp" name="quantidade_mp"
                                     required>
                             </div>
 
+                        </div>
+
+                        <div class="form-group">
+                            <label style="margin-bottom: 1px;" for="custo_mp">Ultimo Custo($R)</label>
+                            <input type="number" step=".01" class="form-control" id="custo_mp" name="custo_mp" required>
                         </div>
 
                         <div class="form-group">
@@ -435,40 +504,25 @@
                             </select>
                         </div>
 
-                        <div class="cadastroTitle" style="margin-top: 25px;">
-                            <h5>Detalhes de Compra</h5>
+                        <div class="form-group">
+                            <label style="margin-bottom: 1px;" for="pedidomin_mp">Pedido Minimo</label>
+                            <input type="number" class="form-control" id="pedidomin_mp" name="pedidomin_mp" required>
                         </div>
 
-                        <div style="display: grid;
-                        grid-template-columns: 50% 50%;
-                        align-items: end;">
-
-                            <div class="form-group" style="width: 92%;">
-                                <label style="margin-bottom: 1px;" for="pedidomin_mp">Quantidade Minima De Compra
-                                    (KG/UN)</label>
-                                <input type="number" class="form-control" id="pedidomin_mp" name="pedidomin_mp"
-                                    required>
-                            </div>
-
-                            <div class="form-group">
-                                <label style="margin-bottom: 1px;" for="custo_mp">Ultimo Custo Total($R)</label>
-                                <input type="number" step=".01" class="form-control" id="custo_mp" name="custo_mp"
-                                    required>
-                            </div>
-
-                        </div>
-
-                        <div class="cadastroTitle" style="margin-top: 12px;">
-                            <h5>Detalhes de Produção</h5>
-                        </div>
-
-                        <div class="form-group" style="width: 75%;">
+                        <div class="form-group">
                             <label style="margin-bottom: 1px;" for="gastomedio_mp">Gasto médio em kg/uni por dia de
                                 consumo</label>
-                            <input type="number" step="0.1" class="form-control" id="gastomedio_mp" name="gastomedio_mp" required>
+                            <input type="number" class="form-control" id="gastomedio_mp" name="gastomedio_mp" required>
                         </div>
 
-
+                        <div class="form-group">
+                            <label style="margin-bottom: 1px;" for="id_fornecedor">Fornecedor:</label>
+                            <select class="form-control" id="id_fornecedor" name="id_fornecedor" required>
+                                {% for fornecedor in fornecedores %}
+                                <option value="{{ fornecedor.id_fornecedor }}">{{ fornecedor.nome_fornecedor }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                         <div style="display: flex; width: 100%; margin-top: 43px;">
                             <button style="width: 100%;" type="submit" class="btn btn-dark">Cadastrar</button>
                         </div>
