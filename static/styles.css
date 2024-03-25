@@ -8,8 +8,9 @@ body {
 }
 
 .container {
-    min-width: fit-content;
-    margin-top: 9px !important;
+    
+    margin-top: 18px !important;
+    max-width: 65%;
 
 }
 
@@ -20,6 +21,7 @@ body {
     -webkit-border-radius: 14px;
     -moz-border-radius: 14px;
     border-radius: 14px;
+    border: 0.5px solid #a8a8a8;
 }
 
 .forma {
@@ -34,6 +36,35 @@ body {
     font-size: 15px;
 }
 
+.giromedio{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: end;
+    align-items: center;
+    
+}
+
+.giromedio input{
+    max-width: 50px;
+    margin-left: 8px;
+    max-height: 20px;
+    margin-bottom: 8px;
+}
+
+.giromedio h5{
+    font-size: 15px;
+}
+
+.giromedio button {
+    border: none;
+    margin-bottom: 8px;
+    margin-inline: 8px;
+}
+
+.giromedio button:hover {
+    background-color: #979797;
+}
 
 @media only screen and (max-width: 1600px) {
     .container {
@@ -137,13 +168,13 @@ table {
     /* IE 10+/Edge */
     user-select: none;
     /* Standard syntax */
+    
 }
 
 table td,
 table th {
-    border: 1px solid rgb(208, 208, 208);
-    border-right: none;
-    border-left: none;
+    border: 1px solid #a8a8a8;
+    
 }
 
 table th {
@@ -156,6 +187,9 @@ table th {
     vertical-align: middle;
     padding-inline: 10px;
 
+    border-right: 1px solid #4f4f4f;
+    border-left: 1px solid #4f4f4f;
+
 
 }
 
@@ -165,14 +199,14 @@ th:hover {
 }
 
 th:hover::before {
-    content: "▾";
+    /*content: "▾";*/
     /* Add content after the th */
     font-weight: bold;
     /* Optional: Adjust font weight */
 }
 
 tr:hover {
-    background-color: #dcdcdc;
+    background-color: #c0c0c0;
     text-decoration: underline;
     cursor: pointer;
     /* Change background color on hover */
@@ -203,7 +237,6 @@ table td {
 }
 
 .btn-cadastrar {
-    margin-left: 21px;
 
     margin-bottom: 5px;
     padding-inline: 18px;
@@ -231,6 +264,39 @@ table td {
 
 .btn-cadastrar:focus {
     background-color: rgb(122, 163, 237);
+    color: white;
+    outline: none;
+
+}
+
+.btn-ferramenta {
+
+    margin-bottom: 5px;
+    padding-inline: 18px;
+
+    border: 1px solid rgb(40, 40, 40);
+    border-radius: 10px;
+
+    background-color: white;
+    transition: background-color 0.6s ease;
+    transition: color 0.1s ease;
+    color: rgb(40, 40, 40);
+}
+
+.btn-ferramenta:hover {
+    background-color: rgb(40, 40, 40);
+    color: white;
+    outline: none;
+}
+
+.btn-ferramenta:active {
+    background-color: rgb(48, 48, 48);
+    color: white;
+    outline: none;
+}
+
+.btn-ferramenta:focus {
+    background-color: rgb(55, 55, 55);
     color: white;
     outline: none;
 
@@ -271,4 +337,8 @@ table td {
 .checkboxContainer {
     display: flex;
     justify-content: center;
+}
+
+.cadastroTitle{
+    margin-bottom: 16px;
 }
