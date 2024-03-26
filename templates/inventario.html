@@ -40,6 +40,20 @@
         height: fit-content;
         width: 100%;
     }
+
+    .pageBtn {
+        all: unset;
+    }
+
+    .pageBtn:hover {
+        cursor: pointer;
+        color: black;
+        text-decoration: underline;
+    }
+
+    .pageBtn:disabled {
+        color: rgb(175, 175, 175);
+    }
 </style>
 
 <body>
@@ -62,7 +76,8 @@
                     <h3>Estoque</h3>
                 </div>
                 <div class="ativarManual">
-                    <button id="manualChangeBtn">Ativar Registro Manual</button>
+                    <button id="manualChangeBtn" style="margin-top: 6px;" class="btn-cadastrar">Ativar Registro
+                        Manual</button>
                 </div>
             </div>
 
@@ -78,12 +93,14 @@
                             <th>
                                 Materia Prima
                             </th>
-                            <th>
+                            <th style="width: 10%;">
                                 Unidade
                             </th>
                             <th>
                                 Quantidade
                             </th>
+
+                            <th style="width: 8%;">indicador</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -103,6 +120,15 @@
                                 <input min="0" type="number" step="0.001" name="quantidade_estq" id="quantidade_estq"
                                     value="{{estq.quantidade_estq}}" class="hidden">
 
+                            </td>
+
+                            <td
+                                style="background-color: {% if estq.gms_mp - estq.quantidade_estq > 0 %}yellow; color: red; font-weight: bold;{% else %}lightgreen; color: darkgreen;{% endif %}">
+                                {% if estq.gms_mp - estq.quantidade_estq > 0 %}
+                                Comprar
+                                {% else %}
+                                OK
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
@@ -173,27 +199,82 @@
             <div class="listaInventario">
                 <br>
                 <h3>Lista de Inventários</h3>
-                <div style="display: flex; width: 100%; justify-content: end;">
-                    <button type="button" data-toggle="modal" data-target="#fazerInventarioModal">Criar Novo
-                        Inventário</button>
+                <div
+                    style="display: flex; width: 100%; flex-direction: row; justify-content: start; margin-block: 18px; gap: 12px;">
+                    <div class="ferramentas">
+                        <label style="font-weight: 400;">Filtrar Por Mes:</label>
+                    </div>
+
+                    <button class="btn-cadastrar" type="button" data-toggle="modal"
+                        data-target="#fazerInventarioModal">Criar Novo Inventário</button>
                 </div>
 
-                <form action="/inventario" method="get"> <!-- Update action URL to "/inventarios" -->
-                    <select id="monthSelector" name="selected_month">
-                        {% for month in available_months %}
-                        {% if month == current_month %}
-                        <!-- Set selected attribute for the current month -->
-                        <option value="{{ month }}" selected>{{ month }}</option>
-                        {% else %}
-                        <!-- Regular option for other months -->
-                        <option value="{{ month }}">{{ month }}</option>
-                        {% endif %}
-                        {% endfor %}
-                    </select>
-                    <button type="submit">Filtrar</button>
-                </form>
+                <script>
+                    $(document).ready(function () {
+                        // Creating a select element
+                        var selectElement = $("<select></select>");
 
-                <table>
+                        // Reference to the table
+                        var tableId = "#tabelaInventarios";
+
+                        // Array to store unique values for MM/YYYY
+                        var uniqueMonthYearValues = [];
+
+                        // Month names array
+                        var monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+                        // Iterate over the table rows to extract unique values for MM/YYYY
+                        $(tableId + " tbody tr").each(function () {
+                            var firstColumnValue = $(this).find("td:eq(1)").text().trim();
+                            if (firstColumnValue) {
+                                // Extracting month and year from the formatted date string
+                                var dateParts = firstColumnValue.split(" ")[0].split("/");
+                                if (dateParts.length === 3) {
+                                    var monthIndex = parseInt(dateParts[1]) - 1; // Month index (0-based)
+                                    var monthName = monthNames[monthIndex]; // Get month name from array
+                                    var year = dateParts[2];
+                                    var monthYearValue = monthName + "/" + year;
+                                    if (!uniqueMonthYearValues.includes(monthYearValue)) {
+                                        uniqueMonthYearValues.push(monthYearValue);
+                                    }
+                                }
+                            }
+                        });
+
+                        // Append "All" option to the select element
+                        selectElement.append("<option value=''>Todos</option>");
+
+                        // Append options for unique values to the select element
+                        uniqueMonthYearValues.forEach(function (value) {
+                            selectElement.append("<option value='" + value + "'>" + value + "</option>");
+                        });
+
+                        // Appending the select element to the ferramentas div
+                        $(".ferramentas").append(selectElement);
+
+                        // Add event listener to the select element to filter the table
+                        selectElement.change(function () {
+                            var selectedValue = $(this).val();
+                            $(tableId + " tbody tr").each(function () {
+                                var firstColumnValue = $(this).find("td:eq(1)").text().trim();
+                                // Extracting month and year from the formatted date string
+                                var dateParts = firstColumnValue.split(" ")[0].split("/");
+                                var monthIndex = parseInt(dateParts[1]) - 1; // Month index (0-based)
+                                var monthName = monthNames[monthIndex]; // Get month name from array
+                                var year = dateParts[2];
+                                var monthYearValue = monthName + "/" + year;
+                                if (selectedValue === "" || monthYearValue === selectedValue) {
+                                    $(this).show();
+                                } else {
+                                    $(this).hide();
+                                }
+                            });
+                        });
+                    });
+                </script>
+
+
+                <table id="tabelaInventarios">
                     <thead>
                         <tr>
                             <th>Codigo</th>
@@ -205,7 +286,7 @@
                         {% for invt in inventario %}
                         <tr>
                             <td>{{ invt.id_invt }}</td>
-                            <td>{{ invt.data_invt  | datetimeformat }}</td>
+                            <td>{{ invt.data_invt | datetimeformat }}</td>
                             <td>{{ invt.estado_invt }}</td>
                         </tr>
                         {% endfor %}
@@ -261,8 +342,123 @@
                     Histórico
                 </h3>
 
+                <div
+                    style="display: flex; width: 100%; flex-direction: row; justify-content: start; margin-block: 18px; gap: 12px;">
+                    <div class="ferramentasHistorico"
+                        style="display: flex; flex-direction: row; gap: 12px; align-items: center;">
+                        <label style="margin-top: 6px;">Filtrar Por Mes:</label>
+                    </div>
+
+                    <form id="filterForm" style="margin-top: 6px;">
+
+                        <label style="margin-left: 6px;  margin-right: 10px;"> | Filtrar Por Modo:</label>
+
+                        <input type="radio" name="filterOption" value="all" id="allOption" checked>
+                        <label for="allOption">Todos</label>
+
+                        <input style="margin-left: 12px;" type="radio" name="filterOption" value="registro manual"
+                            id="registromanualOption">
+                        <label for="registromanualOption">Registro Manual</label>
+
+                        <input style="margin-left: 12px;" type="radio" name="filterOption" value="compra"
+                            id="comprasOption">
+                        <label for="comprasOption">Compra</label>
+                    </form>
+
+                </div>
+
+                <script>
+                    $(document).ready(function () {
+                        // Function to format date to month/year
+                        function formatDateToMonthYear(dateString) {
+                            var date = new Date(dateString);
+                            var monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+                                "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+                            ];
+                            var month = monthNames[date.getMonth()];
+                            var year = date.getFullYear();
+                            return month + " " + year;
+                        }
+                    
+                        // Create the select element
+                        var selectElement = $("<select id='selectMonthYear'></select>");
+                    
+                        // Reference to the table
+                        var tableId = "#tabelaHistorico";
+                    
+                        // Array to store unique month/year values
+                        var uniqueValues = [];
+                    
+                        // Iterate over the table rows to extract unique month/year values
+                        $(tableId + " tbody tr").each(function () {
+                            var dateValue = $(this).find("td:eq(3)").text().trim();
+                            var monthYear = formatDateToMonthYear(dateValue);
+                            if (monthYear && !uniqueValues.includes(monthYear)) {
+                                uniqueValues.push(monthYear);
+                            }
+                        });
+                    
+                        // Append "All" option to the select element
+                        selectElement.append("<option value=''>Todos</option>");
+                    
+                        // Append options for unique month/year values to the select element
+                        uniqueValues.forEach(function (value) {
+                            selectElement.append("<option value='" + value + "'>" + value + "</option>");
+                        });
+                    
+                        // Appending the select element to the ferramentas div
+                        $(".ferramentasHistorico").append(selectElement);
+                    
+                        // Add event listener for form changes
+                        $('#filterForm input[type="radio"], #selectMonthYear').change(filterTable);
+                    
+                        // Function to filter the table rows
+                        function filterTable() {
+                            var selectedOption = $('#filterForm input[name="filterOption"]:checked').val().toLowerCase();
+                            var selectedMonthYear = $('#selectMonthYear').val();
+                    
+                            // Get the table rows
+                            var rows = $('#tabelaHistorico tbody tr');
+                    
+                            // Loop through all table rows
+                            rows.each(function () {
+                                var cell = $(this).find('td:eq(4)');
+                                var indicatorText = cell.text().trim().toLowerCase();
+                                var dateValue = $(this).find("td:eq(3)").text().trim();
+                                var monthYear = formatDateToMonthYear(dateValue);
+                    
+                                // Show or hide rows based on the selected filter option and month/year
+                                if ((selectedOption === 'all' || indicatorText === selectedOption) &&
+                                    (selectedMonthYear === '' || monthYear === selectedMonthYear)) {
+                                    $(this).show();
+                                } else {
+                                    $(this).hide();
+                                }
+                            });
+                        }
+                    
+                        // Function to scroll to the last visible row
+                        function scrollToLastRow() {
+                            var lastVisibleRow = $('#tabelaHistorico tbody tr:visible:last');
+                            if (lastVisibleRow.length > 0) {
+                                $('html, body, container').animate({
+                                    scrollTop: lastVisibleRow.offset().top
+                                }, 1000); // Adjust scroll speed as needed
+                            }
+                        }
+                    
+                        // Trigger initial filtering and scrolling
+                        filterTable();
+                        scrollToLastRow();
+                    });
+                    </script>
+
+
+
+
+
                 <div>
-                    <table>
+                    <table id="tabelaHistorico">
                         <thead>
                             <tr>
                                 <th style="width: 5%;">
@@ -298,7 +494,7 @@
                                     {{hst.nome_mp}}
                                 </td>
                                 <td>
-                                    {{hst.date_change}}
+                                    {{hst.date_change | custom_datetime_format}}
                                 </td>
                                 <td>
                                     {{hst.modo_hst}}
@@ -312,6 +508,22 @@
                             {% endfor %}
                         </tbody>
                     </table>
+
+                    <br>
+                    <div style="display: none; width: 100%; justify-content: end; ">
+                        <div class="pagination">
+                            <button class="pageBtn" id="prevPage">Anterior</button>
+                            <span style="margin-inline: 15px; text-decoration: underline; font-weight: 500;"
+                                id="pageNumber">1</span>
+                            <button class="pageBtn" id="nextPage">Próximo</button>
+                        </div>
+                    </div>
+
+
+                    
+                    
+
+
                 </div>
             </div>
 

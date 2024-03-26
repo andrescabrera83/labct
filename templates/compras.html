@@ -254,11 +254,11 @@
                                     <td>{{ estq.gms_mp }}</td>
                                     <td
                                         style="background-color: {% if estq.gms_mp - estq.quantidade_estq > 0 %}yellow; color: red; font-weight: bold;{% else %}lightgreen; color: darkgreen;{% endif %}">
-{% if estq.gms_mp - estq.quantidade_estq < 0 %}
+                                            {% if estq.gms_mp - estq.quantidade_estq < 0 %}
                                             0.000
                                                     {% else %}
                                         {{ estq.gms_mp - estq.quantidade_estq }}
-{% endif %}
+                                                        {% endif %}
                                     </td>
                                     <td
                                         style="background-color: {% if estq.gms_mp - estq.quantidade_estq > 0 %}yellow; color: red; font-weight: bold;{% else %}lightgreen; color: darkgreen;{% endif %}">

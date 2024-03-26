@@ -73,6 +73,11 @@
         text-decoration: none;
 
     }
+
+    /* Custom CSS */
+    .custom-modal-dialog {
+        min-width: 20% !important;
+    }
 </style>
 
 <body>
@@ -86,7 +91,8 @@
 
                 <div class="titleandbtn">
                     <h3>Matérias Primas</h3>
-                    <button style="margin-left: 21px;" type="button" data-toggle="modal" data-target="#cadastrarModal" class="btn-cadastrar"> +
+                    <button style="margin-left: 21px;" type="button" data-toggle="modal" data-target="#cadastrarModal"
+                        class="btn-cadastrar"> +
                         Cadastrar Nova Matéria Prima</button>
                 </div>
 
@@ -100,11 +106,11 @@
             <div class="giromedio">
                 <h5>Giro Médio Em Dias:</h5>
                 <form action="/giromedio" method="POST">
-                    
+
                     <input type="number" id="new_value" name="new_value" value="{{ giromedio }}" min="0">
                     <button type="submit"><i class="fa fa-refresh" aria-hidden="true"></i></button>
                 </form>
-                </div>
+            </div>
 
 
             <div class="table-responsive">
@@ -214,14 +220,15 @@
                                                 <div class="form-group" style="width: 93%;">
                                                     <label for="edit-pesounitario_mp">Peso Unitário (KG):</label>
                                                     <input type="number" class="form-control" id="edit-pesounitario_mp"
-                                                        name="pesounitario_mp" step="0.1" value="{{ materiaprima.pesounitario_mp }}" required>
+                                                        name="pesounitario_mp" step="0.1"
+                                                        value="{{ materiaprima.pesounitario_mp }}" required>
                                                 </div>
 
                                                 <div class="form-group">
                                                     <label for="edit-pesototal_mp">Peso Total/Fardo (KG):</label>
                                                     <input type="number" class="form-control" id="edit-pesototal_mp"
-                                                        name="pesototal_mp" step="0.1" value="{{ materiaprima.pesototal_mp }}"
-                                                        required>
+                                                        name="pesototal_mp" step="0.1"
+                                                        value="{{ materiaprima.pesototal_mp }}" required>
                                                 </div>
 
                                             </div>
@@ -233,7 +240,8 @@
                                                 <div class="form-group" style="width: 93%;">
                                                     <label for="edit-custo_mp">Ultimo Custo($R):</label>
                                                     <input type="number" class="form-control" id="edit-custo_mp"
-                                                        name="custo_mp" step="0.1" value="{{ materiaprima.custo_mp }}" required>
+                                                        name="custo_mp" step="0.1" value="{{ materiaprima.custo_mp }}"
+                                                        required>
                                                 </div>
 
                                                 <div class="form-group">
@@ -289,23 +297,20 @@
                             </div>
                         </div>
 
-                        
 
-                        
+
+
 
 
                         <!-- Delete Modal -->
                         <div class="modal fade" id="deleteModal{{ materiaprima.id_mp }}" role="dialog"
                             aria-labelledby="deleteModalLabel" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
+                            <div class="modal-dialog modal-dialog-centered custom-modal-dialog"
+                                 role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <span style="display: flex; 
-                                        flex-direction: row; 
-                                        align-items: center; 
-                                        justify-content: center;
-                                        margin-left: 5px;">
-
+                                        <span
+                                            style="display: flex; flex-direction: row; align-items: center; justify-content: center; margin-left: 5px;">
                                             <svg style="margin-right: 8px;" xmlns="http://www.w3.org/2000/svg"
                                                 width="24" height="24" fill="currentColor"
                                                 class="bi bi-exclamation-triangle" viewBox="0 0 16 16">
@@ -315,29 +320,24 @@
                                                     d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z" />
                                             </svg>
                                             <h5 class="modal-title" id="deleteModalLabel">Apagar Fornecedor</h5>
-
                                         </span>
-
-
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <p>Tem certeza que deseja apagar a matéria prima {{ materiaprima.nome_mp }}?
-                                        </p>
+                                        <p style="font-size: large;">Tem certeza que deseja apagar a matéria prima <span style="font-weight: 500; text-decoration: underline;">{{ materiaprima.nome_mp }}</span>?</p>
                                         <form action="{{ url_for('deleteMateriaPrima', id=materiaprima.id_mp) }}"
                                             method="post">
                                             <div style="display: flex; width: 100%; justify-content: end;">
                                                 <button type="submit" class="btn btn-danger">Apagar</button>
                                             </div>
-
                                         </form>
-
                                     </div>
                                 </div>
                             </div>
                         </div>
+
 
 
 
@@ -465,7 +465,8 @@
                         <div class="form-group" style="width: 75%;">
                             <label style="margin-bottom: 1px;" for="gastomedio_mp">Gasto médio em kg/uni por dia de
                                 consumo</label>
-                            <input type="number" step="0.1" class="form-control" id="gastomedio_mp" name="gastomedio_mp" required>
+                            <input type="number" step="0.1" class="form-control" id="gastomedio_mp" name="gastomedio_mp"
+                                required>
                         </div>
 
 

@@ -9,11 +9,24 @@ import pymysql
 import os
 from datetime import datetime, timedelta, timezone
 from babel.dates import format_date
-import pandas as pd
+
 import pdfkit
-from jinja2 import Environment
-from babel.dates import format_datetime
 from decimal import Decimal
+
+#from models.materiasprimas import MateriasPrimas
+
+
+from models.estoque_model import Estoque
+from models.materiasprimas_model import MateriasPrimas  
+from models.fornecedores_model import Fornecedores
+from models.historico_model import Historico
+from models.inventario_model import Inventario
+from models.inventariodados_model import InventarioDados
+from models.compras_model import Compras
+from models.comprasdados_model import ComprasDados
+from models.usuarios_model import Usuarios
+from models.config_model import Config
+from db import db, ma, app
 
 # Specify path to wkhtmltopdf executable
 path_wkthmltopdf = 'C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'
@@ -23,46 +36,13 @@ config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
 from flask_login import UserMixin,current_user, login_required, LoginManager, login_user
 pymysql.install_as_MySQLdb()
 
-app = Flask(__name__)
-secret_key = os.environ.get('FLASK_SECRET_KEY')
-app.secret_key = secret_key
-app.config.from_object('config.Config')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:pass123@localhost/labct2'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=62)  # Set session expiration to 62 days
-db = SQLAlchemy(app)
-ma = Marshmallow(app)
+
 
 # Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 
 ## MODELS AND SCHEMAS ###########################################################################################################################
-
-#GIRO MEDIO##################################################################################################################################}
-
-# Model for storing configuration settings
-class Config(db.Model):
-    __tablename__ = "giromedio"
-    __table_args__ = {"extend_existing": True}
-    id_gm = db.Column(db.Integer, primary_key=True)
-    giro_medio = db.Column(db.Integer, default=6)
-
-#FORNECEDORES##################################################################################################################################
-
-class Fornecedores(db.Model):
-    __tablename__ = "fornecedores"
-    __table_args__ = {"extend_existing": True}
-
-    id_fornecedor = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    nome_fornecedor = db.Column(db.String(45))
-    tempo_entrega = db.Column(db.Integer)
-    prazo_pagamento = db.Column(db.Integer)
-    dia_pedido = db.Column(db.Enum('Segunda-Feira', 'Terça-Feira', 'Quarta-Feira', 'Quinta-Feira', 'Sexta-Feira', 'Sábado', 'Domingo'))
-    nome_vendedor = db.Column(db.String(45))
-    contato_tel = db.Column(db.String(45))
-    email_vendedor = db.Column(db.String(100))
-    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
 
 class FornecedorSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -76,30 +56,11 @@ class FornecedorSchema(ma.SQLAlchemySchema):
     nome_vendedor = ma.auto_field()
     contato_tel = ma.auto_field()
     email_vendedor = ma.auto_field()
-    
-#MATERIAS PRIMAS##################################################################################################################################
-
-class MateriasPrimas(db.Model):
-    __tablename__ = "materiasprimas"
-    __table_args__ = {"extend_existing": True}
-
-    id_mp = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    nome_mp = db.Column(db.String(75))
-    unidade_mp = db.Column(db.Enum('KG', 'UN'))
-    pesounitario_mp = db.Column(db.Numeric(10, 3))
-    pesototal_mp = db.Column(db.Numeric(10, 3))
-    custo_mp = db.Column(db.Numeric(10, 2))
-    custoemkg_mp = db.Column(db.Numeric(10, 2))
-    departamento_mp = db.Column(db.Enum('Carnes', 'Farinhas', 'Hortifruti', 'Mercearia', 'Misturas', 'Ovos', 'Queijos'))
-    pedidomin_mp = db.Column(db.Numeric(10,3))
-    gastomedio_mp = db.Column(db.Numeric(10, 3))
-    gms_mp = db.Column(db.Numeric(10, 3))
-    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False) 
 
 class MateriasPrimasSchema(ma.SQLAlchemySchema):
+    
     class Meta:
         model = MateriasPrimas
-
     id_mp = ma.auto_field()
     nome_mp = ma.auto_field()
     unidade_mp = ma.auto_field()
@@ -112,25 +73,6 @@ class MateriasPrimasSchema(ma.SQLAlchemySchema):
     gastomedio_mp = ma.auto_field()
     gms_mp = ma.auto_field()
 
-# ESTOQUE #####################################################################################
-
-class Estoque(db.Model):
-    __tablename__ = "estoque"
-    __table_args__ = {"extend_existing": True}
-
-    id_estq = db.Column(db.Integer, primary_key=True, autoincrement=True)
-
-    id_mp = db.Column(db.Integer, db.ForeignKey('materiasprimas.id_mp'), nullable=False)
-    materiaprima = db.relationship("MateriasPrimas", foreign_keys=[id_mp])
-
-    nome_mp = db.Column(db.String(75))
-    unidade_mp = db.Column(db.Enum('KG','UN'))
-    gms_mp = db.Column(db.Numeric(10, 3))
-    pedidomin_mp = db.Column(db.Numeric(10,3))
-
-    quantidade_estq = db.Column(db.Numeric(10,3), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-   
 class EstoqueSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Estoque
@@ -142,25 +84,6 @@ class EstoqueSchema(ma.SQLAlchemySchema):
     quantidade_estq = ma.auto_field()
     gms_mp = ma.auto_field()
     pedidomin_mp = ma.auto_field()
-
-# INVENTARIO HISTORICO #######################################################################
-
-class Historico(db.Model):
-    __tablename__ = "historico"
-    __table_args__ = {"extend_existing": True}
-
-    id_hst = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    date_change = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-    id_mp = db.Column(db.Integer, nullable=False)
-    
-
-    nome_mp = db.Column(db.String(75))
-
-    ultimaquantidade_hst = db.Column(db.Numeric(10, 3))
-    novaquantidade_hst = db.Column(db.Numeric(10, 3))
-    difference_hst = db.Column(db.Numeric(10, 3))
-    modo_hst = db.Column(db.Enum('Registro Manual', 'Compra'))
-    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
 
 class HistoricoSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -175,17 +98,6 @@ class HistoricoSchema(ma.SQLAlchemySchema):
     difference_hst = ma.auto_field()
     modo_hst = ma.auto_field()
 
-# INVENTARIO ###################################################################################
-
-class Inventario(db.Model):
-    __tablename__ = "inventario"
-    __table_args__ = {"extend_existing": True}
-
-    id_invt = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    data_invt = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-    estado_invt = db.Column(db.Enum('Aberto', 'Fechado'))
-    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-   
 class InventarioSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Inventario
@@ -193,20 +105,7 @@ class InventarioSchema(ma.SQLAlchemySchema):
     id_invt = ma.auto_field()
     estado_invt = ma.auto_field()
     data_invt = ma.auto_field()
-
-# INVENTARIO DADOS ###################################################################################
-
-class InventarioDados(db.Model):
-    __tablename__ = "inventariodados"
-    __table_args__ = {"extend_existing": True}
-
-    id_invtdados = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    id_invt = db.Column(db.Integer, db.ForeignKey('inventario.id_invt'), nullable=False)
-    data_invt = db.Column(db.DateTime,db.ForeignKey('inventario.data_invt'), default=datetime.now(timezone.utc),nullable=False)
-    id_mp = db.Column(db.Integer, db.ForeignKey('materiasprimas.id_mp'), nullable=False)
-    quantidade_invtdados = db.Column(db.Numeric(10, 3))
-    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-   
+ 
 class InventarioDadosSchema(ma.SQLAlchemySchema):
     class Meta:
         model = InventarioDados
@@ -215,19 +114,7 @@ class InventarioDadosSchema(ma.SQLAlchemySchema):
     id_invt = ma.auto_field()
     data_invt = ma.auto_field()
     id_mp = ma.auto_field()
-    quantidade_invtdados = ma.auto_field()
-
-# COMPRAS #################################################################################################
-
-class Compras(db.Model):
-    __tablename__ = "compras"
-    __table_args__ = {"extend_existing": True}
-
-    id_compras = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    data_compras = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-    estado_compras = db.Column(db.Enum('Pendente', 'Entregue'))
-    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-    
+    quantidade_invtdados = ma.auto_field()   
 
 class ComprasSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -236,26 +123,6 @@ class ComprasSchema(ma.SQLAlchemySchema):
     id_compras = ma.auto_field()
     estado_compras = ma.auto_field()
     data_compras = ma.auto_field()   
-
-# COMPRASDADOS #################################################################################################
-
-class ComprasDados(db.Model):
-    __tablename__ = "comprasdados"
-    __table_args__ = {"extend_existing": True}
-
-    id_comprasd = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    id_compras = db.Column(db.Integer,  ForeignKey('compras.id_compras'))
-    nome_mp = db.Column(db.String(75))
-    unidade_mp = db.Column(db.Enum('KG', 'UN'))
-    pedido_comprasd = db.Column(db.Numeric(10, 3))
-    fornecedor_comprasd = db.Column(db.String(45))
-    valorpedido_comprasd = db.Column(db.Numeric(10, 2))
-    departamento_comprasd = db.Column(db.Enum('Carnes', 'Farinhas', 'Hortifruti', 'Mercearia', 'Misturas', 'Ovos', 'Queijos'))
-    previsao_comprasd = db.Column(db.DateTime)
-    vencimento_comprasd = db.Column(db.DateTime)
-    fechado_comprasd = db.Column(db.Integer)
-    user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-
 
 class ComprasDadosSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -274,23 +141,6 @@ class ComprasDadosSchema(ma.SQLAlchemySchema):
     fechado_comprasd = ma.auto_field()
 
 
-# USERS #################################################################################################
-
-class Usuarios(UserMixin,db.Model):
-
-    __tablename__ = "usuarios"
-    __table_args__ = {"extend_existing": True}
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
-    materiasprimas = db.relationship('MateriasPrimas', backref='user', lazy=True)
-    fornecedores = db.relationship('Fornecedores', backref='user', lazy=True)
-    estoque = db.relationship('Estoque', backref='user', lazy=True)
-    inventariohistorico = db.relationship('Historico', backref='user', lazy=True)
-    inventario = db.relationship('Inventario', backref='user', lazy=True)
-    inventariosdados = db.relationship('InventarioDados', backref='user', lazy=True)
-    compras = db.relationship('Compras', backref='user', lazy=True)
-    comprasdados = db.relationship('ComprasDados', backref='user', lazy=True)
 
 ####################################################################### APP ###################################################################################################
     
@@ -562,20 +412,33 @@ def materiasPrimas():
 
     return render_template('materiasprimas.html', materiasprimas = serialized_data_mp, giromedio=giro_medio)
 
-#DELETE
 @app.route('/delete-materiaprima/<int:id>', methods=['POST'])
 def deleteMateriaPrima(id):
-    #remove from estoque first
+    # Get the MateriasPrimas object to delete
     materiasprimas = MateriasPrimas.query.get_or_404(id)
+    
+    # Delete related records in the estoque table
+    estoque_items = Estoque.query.filter_by(id_mp=id).all()
+    for estoque_item in estoque_items:
+        db.session.delete(estoque_item)
+    
+    # Commit the session to delete the related records
+    db.session.commit()
+
+    # Now, delete the MateriasPrimas object
     db.session.delete(materiasprimas)
     db.session.commit()
-    return redirect(url_for('materiasPrimas', id=id) )
 
-#EDIT
+    return redirect(url_for('materiasPrimas', id=id))
+
+
 @app.route('/edit-materiaprima/<int:id>', methods=['POST'])
 def editMateriaPrima(id):
     if request.method == 'POST':
+        # Get the MateriasPrimas object to edit
         materiasprimas = MateriasPrimas.query.get_or_404(id)
+
+        # Update attributes of the MateriasPrimas object
         materiasprimas.nome_mp = request.form.get('nome_mp')
         materiasprimas.unidade_mp = request.form.get('unidade_mp')
         materiasprimas.pesounitario_mp = request.form.get('pesounitario_mp')
@@ -592,9 +455,22 @@ def editMateriaPrima(id):
         if pesototal_mp_float != 0:
             materiasprimas.custoemkg_mp = custo_mp_float / pesototal_mp_float
 
+        # Commit the changes to the MateriasPrimas object
         db.session.commit()
+
+        # Update corresponding values in the related Estoque table
+        estoque_items = Estoque.query.filter_by(id_mp=id).all()
+        for estoque_item in estoque_items:
+            estoque_item.nome_mp = materiasprimas.nome_mp
+            estoque_item.unidade_mp = materiasprimas.unidade_mp
+            estoque_item.gms_mp = materiasprimas.gms_mp
+            estoque_item.pedidomin_mp = materiasprimas.pedidomin_mp
+
+        # Commit the changes to the related Estoque records
+        db.session.commit()
+
         return redirect(url_for('materiasPrimas', id=id))
-    
+
 # INVENTARIO ############################################################################
 
 @app.route('/inventario', methods=['GET', 'POST'])
@@ -666,18 +542,8 @@ def inventario():
 
     current_month = datetime.now().strftime('%Y-%m')
 
-    selected_month = request.args.get('selected_month')
-
-    if selected_month:
-        start_date = datetime.strptime(selected_month, '%Y-%m')
-        end_date = start_date.replace(day=1, month=start_date.month % 12 + 1)
-        
-        inventario = Inventario.query.filter(Inventario.data_invt >= start_date, Inventario.data_invt < end_date).filter_by(user_id=current_user.id).all()
-       
-    else:
-        inventario = Inventario.query.filter_by(user_id=current_user.id).all()
-
-    
+   
+    inventario = Inventario.query.filter_by(user_id=current_user.id).all()
     inventario_schema = InventarioSchema(many=True)
     serialized_data_invt = inventario_schema.dump(inventario)
     
@@ -728,6 +594,13 @@ def datetimeformat(value):
     day_of_week = DAYS_PT[value.weekday()]  # Get the day of the week in Portuguese
     return f"{formatted_date} ({day_of_week})"
 app.jinja_env.filters['datetimeformat'] = datetimeformat
+
+def custom_datetime_format(value):
+    if isinstance(value, str):
+        value = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')
+    formatted_date = value.strftime("%Y-%m-%d (%H:%M)")
+    return formatted_date
+app.jinja_env.filters['custom_datetime_format'] = custom_datetime_format
 
 @app.route('/salvar_inventario', methods=['POST'])
 def salvar_inventario():
