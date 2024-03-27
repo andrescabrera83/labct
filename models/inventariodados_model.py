@@ -11,6 +11,7 @@ class InventarioDados(db.Model):
     data_invt = db.Column(db.DateTime, default=datetime.now(timezone.utc),nullable=False)
     id_mp = db.Column(db.Integer, db.ForeignKey('materiasprimas.id_mp'), nullable=False)
     nome_mp = db.Column(db.String(75), nullable=False)
+    unidade_mp = db.Column(db.Enum('KG', 'UN'))
     quantidade_estq = db.Column(db.Numeric(10,3), db.ForeignKey('estoque.quantidade_estq'), nullable=False)
     quantidade_invtdados = db.Column(db.Numeric(10, 3))
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)

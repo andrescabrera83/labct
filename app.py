@@ -115,6 +115,7 @@ class InventarioDadosSchema(ma.SQLAlchemySchema):
     data_invt = ma.auto_field()
     id_mp = ma.auto_field()
     nome_mp = ma.auto_field()
+    unidade_mp = ma.auto_field()
     quantidade_invtdados = ma.auto_field()   
     quantidade_estq = ma.auto_field()   
 
@@ -644,6 +645,7 @@ def salvar_inventario():
         if item:
         # If the item exists, access its attributes
             nome_mp = item.nome_mp
+            unidades_mp = item.unidade_mp
         else:
         # Handle the case where the item does not exist
         # You can log a message, skip this item, or handle it in any other appropriate way
@@ -656,6 +658,7 @@ def salvar_inventario():
             data_invt=date_object,
             id_mp=item_id,
             nome_mp=nome_mp,
+            unidade_mp=unidades_mp,
             quantidade_invtdados=0.0,
             quantidade_estq=quantidade_estq,
             user_id=current_user.id
@@ -671,10 +674,14 @@ def fechar_inventario():
     
     new_quantities = request.form.getlist('quantidade_invtdados')
     id_mps = request.form.getlist('id_mp')
+    id_invts = request.form.getlist('id_invt')
 
 
-    for new_quantity, id_mp in zip(new_quantities, id_mps):
+    for new_quantity, id_mp, id_invt in zip(new_quantities, id_mps, id_invts):
         estoque = Estoque.query.filter_by(id_mp=id_mp).first()
+
+        inventario = Inventario.query.filter_by(id_invt=id_invt).first()
+        inventario.estado_invt = 'Fechado'
 
         # Check if estoque is found
         if estoque:
@@ -706,7 +713,10 @@ def fechar_inventario():
         # Update the quantity in estoque
         estoque.quantidade_estq = new_quantity
 
-# Commit changes to the database
+        #change the status of the inventory to 'Fechado'
+        
+
+        # Commit changes to the database
         db.session.commit()
     return redirect(url_for('inventario'))
 
@@ -888,6 +898,17 @@ def fechar_compra():
 
     return redirect(url_for('compras'))
 ############################################################################### RUN APP ################################################
+
+@app.route('/historico')
+@login_required
+def historico():
+    historico = Historico.query.filter_by(user_id=current_user.id).all()
+    historico_schema = HistoricoSchema(many=True)
+    serialized_data_hst = historico_schema.dump(historico)
+
+    return render_template('historico.html', historico=serialized_data_hst)
+   
+
 
 if __name__ == '__main__':
 
