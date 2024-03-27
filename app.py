@@ -114,7 +114,9 @@ class InventarioDadosSchema(ma.SQLAlchemySchema):
     id_invt = ma.auto_field()
     data_invt = ma.auto_field()
     id_mp = ma.auto_field()
+    nome_mp = ma.auto_field()
     quantidade_invtdados = ma.auto_field()   
+    quantidade_estq = ma.auto_field()   
 
 class ComprasSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -545,7 +547,19 @@ def inventario():
    
     inventario = Inventario.query.filter_by(user_id=current_user.id).all()
     inventario_schema = InventarioSchema(many=True)
-    serialized_data_invt = inventario_schema.dump(inventario)
+    
+
+    # Separate compras into two lists based on estado_compras
+    inventario_aberto = [invt for invt in inventario if invt.estado_invt == "Aberto"]
+    inventario_fechado = [invt for invt in inventario if invt.estado_invt == "Fechado"]
+
+    serialized_data_invtAberto = inventario_schema.dump(inventario_aberto)
+    serialized_data_invtFechado = inventario_schema.dump(inventario_fechado)
+
+
+    inventariodados = InventarioDados.query.filter_by(user_id=current_user.id).all()
+    inventariodados_schema = InventarioDadosSchema(many=True)
+    serialized_data_invtDados = inventariodados_schema.dump(inventariodados)
     
     
 
@@ -556,10 +570,13 @@ def inventario():
                             materiasprimas=serialized_data_mp,
                             datetime=datetime,
                             available_months=available_months,
-                            inventario=serialized_data_invt,
+                            inventarioAberto=serialized_data_invtAberto,
+                            inventarioFechado=serialized_data_invtFechado,
+                            inventarioDados=serialized_data_invtDados,
                             current_month=current_month
                             )
 
+#########################################################################################################################################
 # Translation dictionaries for months and days in Portuguese
 MONTHS_PT = {
     1: "janeiro",
@@ -602,6 +619,9 @@ def custom_datetime_format(value):
     return formatted_date
 app.jinja_env.filters['custom_datetime_format'] = custom_datetime_format
 
+
+###########################################################################################################################################
+
 @app.route('/salvar_inventario', methods=['POST'])
 def salvar_inventario():
     date_str = request.form['datePicker']
@@ -617,11 +637,27 @@ def salvar_inventario():
 
     selected_items = request.form.getlist('selected_items')
     for item_id in selected_items:
+        
+
+        item = MateriasPrimas.query.filter_by(id_mp=item_id).first()
+        # Check if the item exists
+        if item:
+        # If the item exists, access its attributes
+            nome_mp = item.nome_mp
+        else:
+        # Handle the case where the item does not exist
+        # You can log a message, skip this item, or handle it in any other appropriate way
+            print(f"Item with nome_mp '{item_id}' does not exist in the database.")
+        
+        quantidade_estq = Estoque.query.filter_by(id_mp=item_id).first().quantidade_estq
+
         inventariodados = InventarioDados( 
             id_invt=inventario.id_invt,
             data_invt=date_object,
             id_mp=item_id,
+            nome_mp=nome_mp,
             quantidade_invtdados=0.0,
+            quantidade_estq=quantidade_estq,
             user_id=current_user.id
             )
         db.session.add(inventariodados)
@@ -629,6 +665,55 @@ def salvar_inventario():
 
 
     return redirect(url_for('inventario'))
+
+@app.route('/fechar_inventario', methods=['POST'])
+def fechar_inventario():
+    
+    new_quantities = request.form.getlist('quantidade_invtdados')
+    id_mps = request.form.getlist('id_mp')
+
+
+    for new_quantity, id_mp in zip(new_quantities, id_mps):
+        estoque = Estoque.query.filter_by(id_mp=id_mp).first()
+
+        # Check if estoque is found
+        if estoque:
+            nome_mp = estoque.nome_mp
+            old_quantity = estoque.quantidade_estq
+
+            old_quantity_float = float(old_quantity)
+            new_quantity_float = float(new_quantity)
+
+            difference = new_quantity_float - old_quantity_float
+
+        # Add history if there's a difference
+            if difference != 0:
+                current_time = datetime.now().strftime('%Y-%m-%d // %H:%M:%S.%f')[:-3]
+                modo = 'Inventario'
+
+                historico = Historico(
+                date_change=current_time,
+                id_mp=id_mp,
+                nome_mp=nome_mp,
+                ultimaquantidade_hst=old_quantity,
+                novaquantidade_hst=new_quantity,
+                difference_hst=difference,
+                modo_hst=modo,
+                user_id=current_user.id
+                )
+                db.session.add(historico)
+
+        # Update the quantity in estoque
+        estoque.quantidade_estq = new_quantity
+
+# Commit changes to the database
+        db.session.commit()
+    return redirect(url_for('inventario'))
+
+
+
+
+
 
 
 ## PEDIDO DE COMPRAS ###################################################################################################################
@@ -653,8 +738,7 @@ def compras():
     comprasdados_schema = ComprasDadosSchema(many=True)
     
 
-      # Dictionary to store counts of fechado_comprasd for each compras_id
-     # Dictionary to store fechado_comprasd values for each compras_id
+    # Dictionary to store counts of fechado_comprasd for each compras_id
     fechado_comprasd_counts = {}
 
     # Counting fechado_comprasd values for each compras_id
@@ -668,7 +752,10 @@ def compras():
         fechado_comprasd_values = fechado_comprasd_counts.get(compra.id_compras, [])
         if all(value == 1 for value in fechado_comprasd_values):
             compra.estado_compras = "Entregue"
-
+    
+    # Separate compras into two lists based on estado_compras
+    compras_entregue = [compra for compra in compras if compra.estado_compras == "Entregue"]
+    compras_pendente = [compra for compra in compras if compra.estado_compras == "Pendente"]
     
     # Commit the changes to the database
     db.session.commit()
@@ -676,11 +763,13 @@ def compras():
     # Serialize the data for rendering in the template
     serialized_data_f = fornecedores_schema.dump(fornecedores)
     serialized_data_estq = estoque_schema.dump(estoque)
-    serialized_data_compras = compras_schema.dump(compras)
+    serialized_data_compras_entregue = compras_schema.dump(compras_entregue)
+    serialized_data_compras_pendente = compras_schema.dump(compras_pendente)
     serialized_data_comprasdados = comprasdados_schema.dump(comprasdados)
 
     return render_template('compras.html', 
-                           compras=serialized_data_compras,
+                           comprasEntregue=serialized_data_compras_entregue,
+                           comprasPendente=serialized_data_compras_pendente,
                            comprasdados=serialized_data_comprasdados, 
                            estoque=serialized_data_estq,
                            fornecedores=serialized_data_f)
@@ -794,11 +883,6 @@ def fechar_compra():
             )
         
         db.session.add(historico)
-
-        
-
-        # system that knows if all items were closed to close the purchase order
-
         db.session.commit()
 
 

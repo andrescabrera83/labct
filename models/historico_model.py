@@ -17,7 +17,7 @@ class Historico(db.Model):
     ultimaquantidade_hst = db.Column(db.Numeric(10, 3))
     novaquantidade_hst = db.Column(db.Numeric(10, 3))
     difference_hst = db.Column(db.Numeric(10, 3))
-    modo_hst = db.Column(db.Enum('Registro Manual', 'Compra'))
+    modo_hst = db.Column(db.Enum('Registro Manual', 'Compra', 'Inventario'))
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
 
     usuarios = db.relationship("Usuarios", back_populates="historico")

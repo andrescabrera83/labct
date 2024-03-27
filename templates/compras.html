@@ -236,7 +236,7 @@
                                     <th>necessidade</th>
                                     <th>indicador</th>
                                     <th>compra minima</th>
-                                    <th>|</th>
+                                   
                                     <th style="width: 20%;">pedido</th>
 
                                     <th>fornecedor</th>
@@ -269,7 +269,7 @@
                                         {% endif %}
                                     </td>
                                     <td>{{ estq.pedidomin_mp }}</td>
-                                    <td>|</td>
+                                    
                                     <td>
                                         <span class="quantity">{{ estq.gms_mp - estq.quantidade_estq }}</span>
                                         <input type="number" step="0.001" name="pedido_comprasd_{{ estq.nome_mp }}"
@@ -309,7 +309,7 @@
                     </div>
                 </form>
 
-<script>
+                    <script>
                     $(document).ready(function () {
                         // Select all checkbox functionality
                         $('#select-all').change(function () {
@@ -373,22 +373,22 @@
                         </tr>
                     </thead>
                     <tbody class="tbody-parent">
-                        {% if not compras %}
+                        {% if not comprasPendente %}
                         <tr class="semCompras">
                             <td colspan="3">
                                 <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">Sem compras
-                                    pendentas</h3>
+                                    Pendentes</h3>
                             </td>
                         </tr>
                         {% endif %}
 
-                        {% for compras in compras %}
+                        {% for comprasPendente in comprasPendente %}
 
                         <tr class="view">
 
-                            <td>{{compras.id_compras}}</td>
-                            <td>{{compras.data_compras | datetimeformat}}</td>
-                            <td>{{compras.estado_compras}}</td>
+                            <td>{{comprasPendente.id_compras}}</td>
+                            <td>{{comprasPendente.data_compras | datetimeformat}}</td>
+                            <td>{{comprasPendente.estado_compras}}</td>
 
 
                         </tr>
@@ -397,12 +397,12 @@
                                 <div class="fold-content">
                                     <div class="global_ferramentas" style="display: flex; flex-direction: row;
                                     gap: 15px;">
-                                        <div class="ferramentas_{{compras.id_compras}}">
+                                        <div class="ferramentas_{{comprasPendente.id_compras}}">
                                         </div>
 
                                         <button class="btn-ferramenta"> Imprimir</button>
 
-                                        <button class="btn-ferramenta" id="notaFiscal_{{compras.id_compras}}" hidden>
+                                        <button class="btn-ferramenta" id="notaFiscal_{{comprasPendente.id_compras}}" hidden>
                                             Digitar
                                             Nota Fiscal </button>
 
@@ -417,7 +417,7 @@
                                             var selectElement = $("<select></select>");
 
                                             // Reference to the table
-                                            var tableId = "#tabelaCompras_{{compras.id_compras}}";
+                                            var tableId = "#tabelaComprasPendente_{{comprasPendente.id_compras}}";
 
                                             // Array to store unique values from the first column
                                             var uniqueValues = [];
@@ -439,13 +439,13 @@
                                             });
 
                                             // Appending the select element to the ferramentas div
-                                            $(".ferramentas_{{compras.id_compras}}").append(selectElement);
+                                            $(".ferramentas_{{comprasPendente.id_compras}}").append(selectElement);
 
                                             // Add event listener to the select element to filter the table
                                             selectElement.change(function () {
                                                 var selectedValue = $(this).val();
                                                 $(tableId + " tbody tr").each(function () {
-                                                    var firstColumnValue = $(this).find("td:first").text().trim();
+                                                    var firstColumnValue = $(this).find("td:eq(1)").text().trim();
                                                     if (selectedValue === "" || firstColumnValue === selectedValue) {
                                                         $(this).show();
                                                     } else {
@@ -458,12 +458,12 @@
 
                                     <form id="myForm" action="/fechar_compra" method="POST">
 
-                                        <table id="tabelaCompras_{{compras.id_compras}}" style="margin-top: 12px;">
+                                        <table id="tabelaComprasPendente_{{comprasPendente.id_compras}}" style="margin-top: 12px;">
                                             <thead>
                                                 <tr>
                                                     
                                                     <th><input type="checkbox"
-                                                            id="select-alldados_{{compras.id_compras}}"></th>
+                                                            id="select-alldados_{{comprasPendente.id_compras}}"></th>
                                                     <th>Fornecedor</th>
                                                     <th>Departamento</th>
                                                     <th>Produto</th>
@@ -482,7 +482,7 @@
                                                 <tr class="listaDado {% if comprasdados.fechado_comprasd == 1 %}fechado{% endif %}" >
                                                     
                                                     <td><input type="checkbox"
-                                                            class="select-rowdados_{{compras.id_compras}}"
+                                                            class="select-rowdados_{{comprasPendente.id_compras}}"
                                                             name="selected_dados[]" value="{{ comprasdados.id_comprasd }}" {% if
                                                     comprasdados.fechado_comprasd==1 %} checked disabled {% endif %}>
                                                     </td>
@@ -496,7 +496,7 @@
                                                     <td>{{comprasdados.previsao_comprasd | datetimeformat}}</td>
                                                     <td>{{comprasdados.vencimento_comprasd | datetimeformat}}</td>
                                                     <td>
-                                                        <span class="notafiscal_{{compras.id_compras}}" style="text-decoration: underline;">
+                                                        <span class="notafiscal_{{comprasPendente.id_compras}}" style="text-decoration: underline;">
                                                             {% if comprasdados.fechado_comprasd == 1 %}      
                                                             Fechado
                                                             {% else %}
@@ -506,7 +506,7 @@
                                                           
                                                         </span>
 
-                                                        <input style="width: 65%;" type="number" name="notafiscalinput_{{compras.id_compras}}"
+                                                        <input style="width: 65%;" type="number" name="notafiscalinput_{{comprasPendente.id_compras}}"
                                                             placeholder=" DIGITAR NOTA FISCAL" {% if comprasdados.fechado_comprasd==1 %} hidden
                                                             disabled {% endif %}>
                                                     </td>
@@ -516,46 +516,46 @@
                                                     $(document).ready(function () {
                                                         // Function to toggle submit button state based on selected rows
                                                         function toggleSubmitButtonDadosState() {
-                                                            var selectedCount = $('.select-rowdados_{{compras.id_compras}}:checked').not(':disabled').length;
-                                    var rowCount = $("#tabelaCompras_{{compras.id_compras}} tbody tr").length;
-                                                            $("#submitButton_{{compras.id_compras}}").text("Fechar Pedido De Compras " + selectedCount + "/" + rowCount);
+                                                            var selectedCount = $('.select-rowdados_{{comprasPendente.id_compras}}:checked').not(':disabled').length;
+                                                             var rowCount = $("#tabelaComprasPendente_{{comprasPendente.id_compras}} tbody tr").length;
+                                                            $("#submitButton_{{comprasPendente.id_compras}}").text("Fechar Pedido De Compras " + selectedCount + "/" + rowCount);
 
                                                             if (selectedCount > 0) {
-                                                                $('#submitButton_{{compras.id_compras}}').removeClass('disabled').prop('disabled', false);
-$('#submitButton_{{compras.id_compras}}').css({ 'opacity': '', 'cursor': '', 'background-color': 'black', 'color': 'white' }); // Remove disabled styles
+                                                                $('#submitButton_{{comprasPendente.id_compras}}').removeClass('disabled').prop('disabled', false);
+                                                            $('#submitButton_{{comprasPendente.id_compras}}').css({ 'opacity': '', 'cursor': '', 'background-color': 'black', 'color': 'white' }); // Remove disabled styles
                                                             } else {
-                                                                $('#submitButton_{{compras.id_compras}}').addClass('disabled').prop('disabled', true);
-$('#submitButton_{{compras.id_compras}}').css({ 'opacity': '0.5', 'cursor': 'not-allowed', 'background-color': '#ddd', 'color': '#888' });
+                                                                $('#submitButton_{{comprasPendente.id_compras}}').addClass('disabled').prop('disabled', true);
+                                                            $('#submitButton_{{comprasPendente.id_compras}}').css({ 'opacity': '0.5', 'cursor': 'not-allowed', 'background-color': '#ddd', 'color': '#888' });
                                                             }
                                                         }
 
                                                         // Select all checkbox functionality
-                                                        $('#select-alldados_{{compras.id_compras}}').change(function () {
-                                                            $('.select-rowdados_{{compras.id_compras}}:visible').prop('checked', $(this).prop('checked'));
+                                                        $('#select-alldados_{{comprasPendente.id_compras}}').change(function () {
+                                                            $('.select-rowdados_{{comprasPendente.id_compras}}:visible').prop('checked', $(this).prop('checked'));
                                                             toggleSubmitButtonDadosState();
 
                                                             // Add or remove 'required' attribute for all rows based on select all checkbox state
                                                             if ($(this).prop('checked')) {
-                                                                $('input[name^="notafiscalinput_{{compras.id_compras}}"]').prop('required', true);
+                                                                $('input[name^="notafiscalinput_{{comprasPendente.id_compras}}"]').prop('required', true);
                                                             } else {
-                                                                $('input[name^="notafiscalinput_{{compras.id_compras}}"]').prop('required', false);
+                                                                $('input[name^="notafiscalinput_{{comprasPendente.id_compras}}"]').prop('required', false);
                                                             }
                                                         });
 
                                                         // Individual row checkbox functionality
-                                                        $('.select-rowdados_{{compras.id_compras}}').change(function () {
+                                                        $('.select-rowdados_{{comprasPendente.id_compras}}').change(function () {
                                                             toggleSubmitButtonDadosState();
 
                                                             // Recalculate selectedCount whenever a checkbox is changed
-                                                            var selectedCount = $('.select-rowdados_{{compras.id_compras}}:checked').not(':disabled').length;
-                                    var rowCount = $("#tabelaCompras_{{compras.id_compras}} tbody tr").length;
-                                                            $("#submitButton_{{compras.id_compras}}").text("Fechar Pedido De Compras " + selectedCount + "/" + rowCount);
+                                                            var selectedCount = $('.select-rowdados_{{comprasPendente.id_compras}}:checked').not(':disabled').length;
+                                                        var rowCount = $("#tabelaComprasPendente_{{comprasPendente.id_compras}} tbody tr").length;
+                                                            $("#submitButton_{{comprasPendente.id_compras}}").text("Fechar Pedido De Compras " + selectedCount + "/" + rowCount);
 
                                                             // Add or remove 'required' attribute based on checkbox state
                                                             if ($(this).is(':checked')) {
-                                                                $(this).closest('tr').find('input[name^="notafiscalinput_{{compras.id_compras}}"]').prop('required', true);
+                                                                $(this).closest('tr').find('input[name^="notafiscalinput_{{comprasPendente.id_compras}}"]').prop('required', true);
                                                             } else {
-                                                                $(this).closest('tr').find('input[name^="notafiscalinput_{{compras.id_compras}}"]').prop('required', false);
+                                                                $(this).closest('tr').find('input[name^="notafiscalinput_{{comprasPendente.id_compras}}"]').prop('required', false);
                                                             }
                                                         });
 
@@ -567,8 +567,8 @@ $('#submitButton_{{compras.id_compras}}').css({ 'opacity': '0.5', 'cursor': 'not
 
                                                 <script>
                                                     document.addEventListener('DOMContentLoaded', function () {
-                                                        document.getElementById('notaFiscal_{{compras.id_compras}}').addEventListener('click', function () {
-                                                            var compraId = "{{compras.id_compras}}";
+                                                        document.getElementById('notaFiscal_{{comprasPendente.id_compras}}').addEventListener('click', function () {
+                                                            var compraId = "{{comprasPendente.id_compras}}";
                                                             var spans = document.querySelectorAll('.notafiscal_' + compraId);
                                                             var inputs = document.querySelectorAll('input[type="number"][name="notafiscalinput_' + compraId + '"]');
                                                             for (var i = 0; i < spans.length; i++) {
@@ -595,9 +595,230 @@ $('#submitButton_{{compras.id_compras}}').css({ 'opacity': '0.5', 'cursor': 'not
                                                 margin-block: 24px;
                                                 margin-inline: 3px;
                                                 height: 35px !important;">
-                                            <button type="submit" id="submitButton_{{compras.id_compras}}"
+                                            <button type="submit" id="submitButton_{{comprasPendente.id_compras}}"
                                                 class="btn btn-dark disabled"></button>
                                         </div>
+
+                                    </form>
+
+
+
+
+
+
+                                </div>
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+
+            <hr>
+
+            <div class="listaCompras">
+
+                <h4>Compras Entregue</h4>
+
+                <table id="myTable" class="fold-table parent-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 8%;">codigo do pedido</th>
+                            <th>data do pedido</th>
+                            <th style="width: 8%;">Situação</th>
+
+                        </tr>
+                    </thead>
+                    <tbody class="tbody-parent">
+                        {% if not comprasEntregue %}
+                        <tr class="semCompras">
+                            <td colspan="3">
+                                <h3 style="font-weight: 300; color: rgb(189, 189, 189); margin-block: 28px;">Sem compras
+                                    Fechadas</h3>
+                            </td>
+                        </tr>
+                        {% endif %}
+
+                        {% for comprasEntregue in comprasEntregue %}
+
+                        <tr class="view">
+
+                            <td>{{comprasEntregue.id_compras}}</td>
+                            <td>{{comprasEntregue.data_compras | datetimeformat}}</td>
+                            <td>{{comprasEntregue.estado_compras}}</td>
+
+
+                        </tr>
+                        <tr class="fold">
+                            <td colspan="3">
+                                <div class="fold-content">
+                                    <div class="global_ferramentas" style="display: flex; flex-direction: row;
+                                    gap: 15px;">
+                                        <div class="ferramentasFechados_{{comprasEntregue.id_compras}}">
+                                        </div>
+
+                                        <button class="btn-ferramenta"> Imprimir</button>
+
+
+
+                                    </div>
+
+
+
+                                    <script>
+                                        $(document).ready(function () {
+                                            // Creating a select element
+                                            var selectElement = $("<select></select>");
+
+                                            // Reference to the table
+                                            var tableId = "#tabelaComprasFechadas_{{comprasEntregue.id_compras}}";
+
+                                            // Array to store unique values from the first column
+                                            var uniqueValues = [];
+
+                                            // Iterate over the table rows to extract unique values from the first column
+                                            $(tableId + " tbody tr").each(function () {
+                                                var firstColumnValue = $(this).find("td:eq(1)").text().trim();
+                                                if (firstColumnValue && !uniqueValues.includes(firstColumnValue)) {
+                                                    uniqueValues.push(firstColumnValue);
+                                                }
+                                            });
+
+                                            // Append "All" option to the select element
+                                            selectElement.append("<option value=''>Todos</option>");
+
+                                            // Append options for unique values to the select element
+                                            uniqueValues.forEach(function (value) {
+                                                selectElement.append("<option value='" + value + "'>" + value + "</option>");
+                                            });
+
+                                            // Appending the select element to the ferramentas div
+                                            $(".ferramentasFechados_{{comprasEntregue.id_compras}}").append(selectElement);
+
+                                            // Add event listener to the select element to filter the table
+                                            selectElement.change(function () {
+                                                var selectedValue = $(this).val();
+                                                $(tableId + " tbody tr").each(function () {
+                                                    var firstColumnValue = $(this).find("td:eq(1)").text().trim();
+                                                    if (selectedValue === "" || firstColumnValue === selectedValue) {
+                                                        $(this).show();
+                                                    } else {
+                                                        $(this).hide();
+                                                    }
+                                                });
+                                            });
+                                        });
+                                    </script>
+
+                                    <form id="myForm" action="/fechar_compra" method="POST">
+
+                                        <table id="tabelaComprasFechadas_{{comprasEntregue.id_compras}}" style="margin-top: 12px;">
+                                            <thead>
+                                                <tr>
+                                                    
+                                                    <th><input type="checkbox"
+                                                            id="select-alldados_{{comprasEntregue.id_compras}}"></th>
+                                                    <th>Fornecedor</th>
+                                                    <th>Departamento</th>
+                                                    <th>Produto</th>
+                                                    <th>Pedido</th>
+                                                    <th>Unidade</th>
+                                                    <th>Valor Do Pedido</th>
+                                                    <th>Previsao de entrega</th>
+                                                    <th>Data De Vencimento</th>
+                                                    <th>Conferencia Manual</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+                                                {% for comprasdados in comprasdados %}
+                                                {% if comprasdados.id_compras == comprasEntregue.id_compras %}
+                                                <tr class="listaDado {% if comprasdados.fechado_comprasd == 1 %}fechado{% endif %}" >
+                                                    
+                                                    <td><input type="checkbox"
+                                                            class="select-rowdados_{{comprasEntregue.id_compras}}"
+                                                            name="selected_dados[]" value="{{ comprasdados.id_comprasd }}" {% if
+                                                    comprasdados.fechado_comprasd==1 %} checked disabled {% endif %}>
+                                                    </td>
+                                                    <td>{{comprasdados.fornecedor_comprasd}}</td>
+                                                    <td>{{comprasdados.departamento_comprasd}}</td>
+                                                    <td style="font-weight: 600;">{{comprasdados.nome_mp}}</td>
+                                                    <td  class="pedido_comprasd {% if comprasdados.fechado_comprasd == 1 %}fechado{% endif %}" >{{comprasdados.pedido_comprasd}}</td>
+                                                    <td>{{comprasdados.unidade_mp}}</td>
+                                                    <td  class="valorpedido_comprasd {% if comprasdados.fechado_comprasd == 1 %}fechado{% endif %}" >
+                                                        R${{comprasdados.valorpedido_comprasd}}</td>
+                                                    <td>{{comprasdados.previsao_comprasd | datetimeformat}}</td>
+                                                    <td>{{comprasdados.vencimento_comprasd | datetimeformat}}</td>
+                                                    <td>
+                                                        <span class="notafiscal_{{comprasEntregue.id_compras}}" style="text-decoration: underline;">
+                                                            {% if comprasdados.fechado_comprasd == 1 %}      
+                                                            Fechado
+                                                            {% else %}
+                                                            Conferencia Manual
+                                                            {% endif %}
+
+                                                          
+                                                        </span>
+
+                                                        
+                                                    </td>
+                                                </tr>
+                                                
+                                                <script>
+                                                    $(document).ready(function () {
+                                                        // Function to toggle submit button state based on selected rows
+                                                        
+
+                                                        // Select all checkbox functionality
+                                                        $('#select-alldados_{{comprasEntregue.id_compras}}').change(function () {
+                                                            $('.select-rowdados_{{comprasEntregue.id_compras}}:visible').prop('checked', $(this).prop('checked'));
+                                                            toggleSubmitButtonDadosState();
+
+                                                        
+                                                        });
+
+                                                        // Individual row checkbox functionality
+                                                        $('.select-rowdados_{{comprasEntregue.id_compras}}').change(function () {
+                                                            toggleSubmitButtonDadosState();
+
+                                                            // Recalculate selectedCount whenever a checkbox is changed
+                                                            var selectedCount = $('.select-rowdados_{{comprasEntregue.id_compras}}:checked').not(':disabled').length;
+                                                            var rowCount = $("#tabelaComprasFechadas_{{comprasEntregue.id_compras}} tbody tr").length;
+                                                          
+
+                                                        });
+
+                                                        // Initial calculation of rowCount and selectedCount
+                                                        toggleSubmitButtonDadosState();
+                                                    });
+
+                                                </script>
+
+                                                <script>
+                                                    document.addEventListener('DOMContentLoaded', function () {
+                                                        document.getElementById('notaFiscal_{{comprasEntregue.id_compras}}').addEventListener('click', function () {
+                                                            var compraId = "{{comprasEntregue.id_compras}}";
+                                                            var spans = document.querySelectorAll('.notafiscal_' + compraId);
+                                                            var inputs = document.querySelectorAll('input[type="number"][name="notafiscalinput_' + compraId + '"]');
+                                                            for (var i = 0; i < spans.length; i++) {
+                                                                spans[i].classList.toggle('hidden');
+                                                            }
+                                                            for (var i = 0; i < inputs.length; i++) {
+                                                                inputs[i].classList.toggle('hidden');
+                                                            }
+                                                        });
+                                                    });
+                                                </script>
+
+
+                                                {% endif %}
+                                                {% endfor %}
+
+                                            </tbody>
+                                        </table>
+
 
                                     </form>
 

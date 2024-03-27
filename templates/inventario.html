@@ -59,6 +59,7 @@
 <body>
 
     <div class="container">
+
         <div class="tabela">
 
             <div class="header">
@@ -66,10 +67,8 @@
                 <div class="InventarioTitulo">
                     <h3>Inventário </h3>
                 </div>
-
-
-
             </div>
+
 
             <div class="titulo">
                 <div>
@@ -135,8 +134,8 @@
                     </tbody>
                 </table>
                 <div style="display: flex;
-                            justify-content: end;
-                            margin-top: 24px;">
+                                        justify-content: end;
+                                        margin-top: 24px;">
                     <button type="submit" id="submitButton" class="btn btn-dark hidden">Salvar Registro</button>
                 </div>
             </form>
@@ -154,12 +153,15 @@
                         </div>
                         <div class="modal-body" style="margin-top: -22px !important;">
 
+
+
                             <hr>
 
                             <div class="topForm">
                                 <form action="/salvar_inventario" method="post" style="min-width: 100%;">
-                                    <label for="datePicker">Data do Inventário:</label>
+                                    <label for="datePicker">Seleccione a data do inventário:</label>
                                     <input type="date" id="datePicker" name="datePicker" required>
+                                    <h6>Seleccione as materias primas que vao neste inventário.</h6>
                                     <table style="min-width: 100% !important;">
                                         <thead>
                                             <tr>
@@ -185,7 +187,11 @@
                                             {% endfor %}
                                         </tbody>
                                     </table>
-                                    <button type="submit">Save</button>
+                                    <div style="display: flex; width: 100%; justify-content: end; padding-block:18px ;">
+                                        <button class="btn btn-dark" type="submit">Salvar</button>
+                                    </div>
+
+
                                 </form>
 
                             </div>
@@ -196,9 +202,12 @@
                 </div>
             </div>
 
+           
+
+
             <div class="listaInventario">
                 <br>
-                <h3>Lista de Inventários</h3>
+                <h3>Lista de Inventários Abertos</h3>
                 <div
                     style="display: flex; width: 100%; flex-direction: row; justify-content: start; margin-block: 18px; gap: 12px;">
                     <div class="ferramentas">
@@ -206,7 +215,7 @@
                     </div>
 
                     <button class="btn-cadastrar" type="button" data-toggle="modal"
-                        data-target="#fazerInventarioModal">Criar Novo Inventário</button>
+                        data-target="#fazerInventarioModal"> + Criar Novo Inventário</button>
                 </div>
 
                 <script>
@@ -274,24 +283,93 @@
                 </script>
 
 
-                <table id="tabelaInventarios">
-                    <thead>
-                        <tr>
-                            <th>Codigo</th>
-                            <th>Data Inventário</th>
-                            <th>Estado</th>
+<table id="tabelaInventarios">
+    <thead>
+        <tr>
+            <th>Codigo</th>
+            <th>Data Inventário</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if not inventarioAberto %}
+                        <tr class="semCompras">
+                            <td colspan="3">
+                                <h3 style="font-weight: 300; color: rgb(189, 189, 189); margin-block: 28px;">Sem Inventarios
+                                    Abertos</h3>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {% for invt in inventario %}
-                        <tr>
-                            <td>{{ invt.id_invt }}</td>
-                            <td>{{ invt.data_invt | datetimeformat }}</td>
-                            <td>{{ invt.estado_invt }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        {% endif %}
+        {% for invtAberto in inventarioAberto %}
+        <tr data-toggle="modal" data-target="#inventarioDadosModal{{ invtAberto.id_invt }}">
+            <td>{{ invtAberto.id_invt }}</td>
+            <td>{{ invtAberto.data_invt | datetimeformat }}</td>
+            <td>{{ invtAberto.estado_invt }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% for invtAberto in inventarioAberto %}
+<!-- InventarioDados Modal -->
+<div class="modal fade" id="inventarioDadosModal{{ invtAberto.id_invt }}" role="dialog" aria-labelledby="editModalLabel" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inventarioDadosModalLabel">Inventario</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="margin-top: -22px !important;">
+                <hr>
+                
+                <h4>{{ invtAberto.data_invt | datetimeformat }}</h4>
+                <div class="topForm">
+                    <form action="fechar_inventario" method="post" style="min-width: 100%;">
+                        <table style="min-width: 100% !important;">
+                            <thead>
+                                <tr>
+                                    
+                                    <th style="width: 5%;">Codigo Materia Prima</th>
+                                    <th>Materia Prima</th>
+                                    <th>Estoque Atual</th>
+                                    <th>Nova Quantidade</th>
+                                    <th style="width: 10%;">Unidade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invtDados in inventarioDados %}
+                                {% if invtDados.id_invt == invtAberto.id_invt %}
+                                <tr>
+                                    
+                                    <td>{{invtDados.id_mp}}</td>
+                                    <td>{{invtDados.nome_mp}}</td>
+                                    <td>{{invtDados.quantidade_estq}}</td>
+                                    <td>
+                                        <input min="0.001" type="number" step="0.001" name="quantidade_invtdados" id="quantidade_invtdados"
+                                        value="{{invtDados.quantidade_invtdados}}" required >
+                                        <!-- Add a hidden input field for the ID associated with the quantity -->
+                    <input type="hidden" name="id_mp" value="{{invtDados.id_mp}}">
+                                    </td>
+                                    <td>Unidade</td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div style="display: flex; width: 100%; justify-content: end; padding-block: 12px;">
+                            <button class="btn btn-dark" type="submit">Salvar</button>     
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
 
                 <br>
                 <hr>
@@ -379,16 +457,16 @@
                             var year = date.getFullYear();
                             return month + " " + year;
                         }
-                    
+
                         // Create the select element
                         var selectElement = $("<select id='selectMonthYear'></select>");
-                    
+
                         // Reference to the table
                         var tableId = "#tabelaHistorico";
-                    
+
                         // Array to store unique month/year values
                         var uniqueValues = [];
-                    
+
                         // Iterate over the table rows to extract unique month/year values
                         $(tableId + " tbody tr").each(function () {
                             var dateValue = $(this).find("td:eq(3)").text().trim();
@@ -397,36 +475,36 @@
                                 uniqueValues.push(monthYear);
                             }
                         });
-                    
+
                         // Append "All" option to the select element
                         selectElement.append("<option value=''>Todos</option>");
-                    
+
                         // Append options for unique month/year values to the select element
                         uniqueValues.forEach(function (value) {
                             selectElement.append("<option value='" + value + "'>" + value + "</option>");
                         });
-                    
+
                         // Appending the select element to the ferramentas div
                         $(".ferramentasHistorico").append(selectElement);
-                    
+
                         // Add event listener for form changes
                         $('#filterForm input[type="radio"], #selectMonthYear').change(filterTable);
-                    
+
                         // Function to filter the table rows
                         function filterTable() {
                             var selectedOption = $('#filterForm input[name="filterOption"]:checked').val().toLowerCase();
                             var selectedMonthYear = $('#selectMonthYear').val();
-                    
+
                             // Get the table rows
                             var rows = $('#tabelaHistorico tbody tr');
-                    
+
                             // Loop through all table rows
                             rows.each(function () {
                                 var cell = $(this).find('td:eq(4)');
                                 var indicatorText = cell.text().trim().toLowerCase();
                                 var dateValue = $(this).find("td:eq(3)").text().trim();
                                 var monthYear = formatDateToMonthYear(dateValue);
-                    
+
                                 // Show or hide rows based on the selected filter option and month/year
                                 if ((selectedOption === 'all' || indicatorText === selectedOption) &&
                                     (selectedMonthYear === '' || monthYear === selectedMonthYear)) {
@@ -434,24 +512,21 @@
                                 } else {
                                     $(this).hide();
                                 }
+
+                                // Function to scroll to the last visible row
+
+
+
                             });
                         }
-                    
-                        // Function to scroll to the last visible row
-                        function scrollToLastRow() {
-                            var lastVisibleRow = $('#tabelaHistorico tbody tr:visible:last');
-                            if (lastVisibleRow.length > 0) {
-                                $('html, body, container').animate({
-                                    scrollTop: lastVisibleRow.offset().top
-                                }, 1000); // Adjust scroll speed as needed
-                            }
-                        }
-                    
+
+
+
                         // Trigger initial filtering and scrolling
-                        filterTable();
-                        scrollToLastRow();
+
+
                     });
-                    </script>
+                </script>
 
 
 
@@ -520,8 +595,8 @@
                     </div>
 
 
-                    
-                    
+
+
 
 
                 </div>

@@ -13,3 +13,4 @@ class Inventario(db.Model):
 
 
     usuarios = db.relationship("Usuarios", back_populates="inventario")
+    inventariosdados = db.relationship("InventarioDados", back_populates="inventario")

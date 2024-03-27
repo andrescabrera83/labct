@@ -24,6 +24,7 @@ class Estoque(db.Model):
 
     materias_primas = relationship("MateriasPrimas", back_populates="estoque")
     usuarios = db.relationship("Usuarios", back_populates="estoque")
+    inventariosdados = db.relationship("InventarioDados", back_populates="estoque")
 
     def __init__(self, id_mp, nome_mp, unidade_mp, gms_mp, pedidomin_mp, quantidade_estq, user_id):
         self.id_mp = id_mp
