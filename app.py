@@ -7,10 +7,14 @@ from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import relationship
 import pymysql
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
+from datetime import timedelta
+#from datetime import datetime, timedelta, timezone
 from babel.dates import format_date
 from flask import abort  # Import abort function from Flask to handle HTTP errors
 from sqlalchemy.exc import IntegrityError
+
+from sqlalchemy import func
 
 
 from decimal import Decimal
@@ -225,7 +229,7 @@ def user_loader(user_id):
 
 @app.route('/')
 def index():
-     
+    
     if 'username' in session:
         return render_template('home.html', username=session['username'])
     return redirect(url_for('login'))
@@ -288,6 +292,7 @@ def cleanupMP():
 @app.route('/fornecedores', methods=['GET', 'POST'])
 @login_required
 def fornecedores():
+    print(dir(datetime))
     if request.method == 'POST':
         nome_fornecedor = request.form.get('nome_fornecedor')
         tempo_entrega = request.form.get('tempo_entrega')
@@ -496,7 +501,8 @@ def editMateriaPrima(id):
 @app.route('/inventario', methods=['GET', 'POST'])
 def inventario():
 
-    today_date = datetime.today()
+
+    today_date = datetime.now()
     formatted_date = format_date(today_date, format='full', locale='pt')
 
     estoque = Estoque.query.filter_by(user_id=current_user.id).all()
@@ -557,8 +563,11 @@ def inventario():
     historico_schema = HistoricoSchema(many=True)
     serialized_data_hst = historico_schema.dump(historico)
 
-    available_months = db.session.query(func.DATE_FORMAT(Inventario.data_invt, '%Y-%m')).distinct().all()
-    available_months = [date[0] for date in available_months]
+    # Assuming 'Inventario' is your SQLAlchemy model
+    available_months = db.session.query(func.strftime('%Y-%m', Inventario.data_invt)).distinct().all()
+
+    # Extract the formatted months from the result
+    available_months = [result[0] for result in available_months]
 
     current_month = datetime.now().strftime('%Y-%m')
 
