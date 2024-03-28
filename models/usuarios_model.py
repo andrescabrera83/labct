@@ -19,3 +19,5 @@ class Usuarios(UserMixin,db.Model):
     inventariosdados = db.relationship('InventarioDados', back_populates="usuarios", lazy=True)
     compras = db.relationship('Compras', back_populates="usuarios", lazy=True)
     comprasdados = db.relationship('ComprasDados', back_populates="usuarios", lazy=True)
+    receitas = db.relationship('Receitas', back_populates="usuarios", lazy=True)
+    receitasmateriasprimas = db.relationship('ReceitaMateriasPrimas', back_populates="usuarios", lazy=True)

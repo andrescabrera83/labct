@@ -9,6 +9,8 @@ import pymysql
 import os
 from datetime import datetime, timedelta, timezone
 from babel.dates import format_date
+from flask import abort  # Import abort function from Flask to handle HTTP errors
+from sqlalchemy.exc import IntegrityError
 
 import pdfkit
 from decimal import Decimal
@@ -26,6 +28,8 @@ from models.compras_model import Compras
 from models.comprasdados_model import ComprasDados
 from models.usuarios_model import Usuarios
 from models.config_model import Config
+from models.receitas_model import Receitas
+from models.receitasmateriaprimas_model import ReceitaMateriasPrimas
 from db import db, ma, app
 
 # Specify path to wkhtmltopdf executable
@@ -143,7 +147,24 @@ class ComprasDadosSchema(ma.SQLAlchemySchema):
     vencimento_comprasd = ma.auto_field()
     fechado_comprasd = ma.auto_field()
 
+class ReceitasSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Receitas
 
+    id_rct = ma.auto_field()
+    nome_rct = ma.auto_field()
+    descricao_rct = ma.auto_field()
+    preparo_rct = ma.auto_field()
+
+class ReceitasMateriasPrimasSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = ReceitaMateriasPrimas
+
+    id_rct = ma.auto_field()
+    id_mp = ma.auto_field()
+    nome_mp = ma.auto_field()
+    quantidade = ma.auto_field()
+    unidade = ma.auto_field()
 
 ####################################################################### APP ###################################################################################################
     
@@ -907,6 +928,120 @@ def historico():
     serialized_data_hst = historico_schema.dump(historico)
 
     return render_template('historico.html', historico=serialized_data_hst)
+
+
+
+# RECEITAS #####################################################
+    
+
+@app.route('/receitas', methods=['GET', 'POST'])
+@login_required
+def receitas():
+
+    materiasprimas = MateriasPrimas.query.all()
+    materiasprimas_schema = MateriasPrimasSchema(many=True)
+    serialized_data_mp = materiasprimas_schema.dump(materiasprimas)
+
+
+
+    #if request
+    if request.method == 'POST':
+        nome_rct = request.form.get('nome_rct')
+        id_clt = request.form.get('id_clt')
+        descricao_rct = request.form.get('descricao_rct')
+        preparo_rct = request.form.get('preparo_rct')
+
+        
+
+        receitas = Receitas(
+            nome_rct=nome_rct,
+            id_clt=id_clt,
+            descricao_rct=descricao_rct,
+            preparo_rct=preparo_rct
+        )
+
+        db.session.add(receitas)
+        db.session.commit()
+
+        # Handle ingredients insertion
+        ingredient_count = int(request.form.get('ingredient_count'))
+
+        for i in range(ingredient_count):
+            id_mp = request.form.get(f'id_mp_{i}')
+            quantidade = request.form.get(f'quantidade_{i}')
+            unidade = request.form.get(f'unidade_{i}')
+
+            #print(quantidade)
+
+             # Fetch the nome_mp corresponding to the id_mp from the MP table
+            materiaprima = MateriasPrimas.query.filter_by(id_mp=id_mp).first()
+            nome_mp = materiaprima.nome_mp if materiaprima else None
+
+            receita_mp = ReceitaMateriasPrimas(
+                id_rct=receitas.id_rct,
+                id_mp=id_mp,
+                nome_mp=nome_mp,
+                quantidade=quantidade,
+                unidade=unidade
+            )
+        
+            db.session.add(receita_mp)
+            db.session.commit()
+        
+        return redirect(url_for('receitas')) 
+    
+    receitas = Receitas.query.all()
+    receitas_schema = ReceitasSchema(many=True)
+    serialized_data_rct = receitas_schema.dump(receitas)
+
+    receitasmp = ReceitaMateriasPrimas.query.all()
+    receitasmp_schema = ReceitasMateriasPrimasSchema(many=True)
+    serialized_data_rctmp = receitasmp_schema.dump(receitasmp)
+    
+
+
+
+    return render_template('receitas.html', 
+    materiasprimas=serialized_data_mp, 
+    receitas=serialized_data_rct,
+    receitasmp=serialized_data_rctmp)
+
+
+#EDIT
+@app.route('/edit-receita/<int:id>', methods=['POST'])
+def editReceita(id):
+    if request.method == 'POST':
+        receitas = Receitas.query.get_or_404(id)
+        receitas.nome_rct = request.form.get('nome_rct')
+        receitas.descricao_rct = request.form.get('descricao_rct')
+        receitas.preparo_rct = request.form.get('preparo_rct')
+        #receitas.id_clt = request.form.get('id_clt')
+        
+        
+        
+        db.session.commit()
+        return redirect(url_for('receitas', id=id))
+    
+#DELETE
+@app.route('/delete-receita/<int:id>', methods=['POST'])
+def deleteReceita(id):
+    
+     # Fetch the receitas record
+    receitas = Receitas.query.get_or_404(id)
+    
+    try:
+        # Delete child records from ReceitaMateriasPrimas table
+        ReceitaMateriasPrimas.query.filter_by(id_rct=id).delete()
+        
+        # Delete the parent record from Receitas table
+        db.session.delete(receitas)
+        db.session.commit()
+    except IntegrityError:
+        # If there's an integrity error, rollback changes and abort with error message
+        db.session.rollback()
+        abort(500, "Cannot delete or update a parent row: a foreign key constraint fails")
+    
+    return redirect(url_for('receitas', id=id) )
    
 
 
