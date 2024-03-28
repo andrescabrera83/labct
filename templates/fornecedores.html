@@ -41,7 +41,7 @@
                 <table id="fornecedoresTable">
                     <thead>
                         <tr>
-                            <th> </th>
+                            
                             <th >ID</th>
                             <th >Fornecedor</th>
                             <th style="width: 10%;">Tempo de entrega do produto (em dias)</th>
@@ -54,13 +54,17 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% if not fornecedores %}
+                            <tr class="semCompras">
+                                <td colspan="11">
+                                    <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">
+                                        Sem Fornecedores Cadastrados</h3>
+                                </td>
+                            </tr>
+                            {% endif %}
                         {% for fornecedor in fornecedores %}
                         <tr>
-                            <td class="hide">
-                                <span class="checkboxContainer">
-                                    <input type="checkbox" class="checkbox">
-                                </span>
-                            </td>
+                            
                             <td >{{ fornecedor.id_fornecedor }}</td>
                             <td >{{ fornecedor.nome_fornecedor }}
                             </td>

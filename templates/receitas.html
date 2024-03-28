@@ -151,6 +151,15 @@
           </thead>
           <tbody>
 
+            {% if not receitas %}
+                <tr class="semCompras">
+                    <td colspan="6">
+                        <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">
+                            Sem Receitas Cadastradas</h3>
+                    </td>
+                </tr>
+              {% endif %}
+
             {% for rct in receitas %}
 
             <tr class="view">

@@ -11,9 +11,17 @@ body {
     
     margin-top: 18px !important;
     max-width: 65%;
+    display: flex;
+    flex-direction: column;
     
 
 
+}
+
+.semCompras:hover {
+    background-color: white;
+    text-decoration: none;
+    cursor: default;
 }
 
 .forma,

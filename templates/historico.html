@@ -149,6 +149,14 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% if not historico %}
+                            <tr class="semCompras">
+                                <td colspan="7">
+                                    <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">
+                                        Sem Historicos</h3>
+                                </td>
+                            </tr>
+                            {% endif %}
                             {% for hst in historico %}
                             <tr>
                                 <td>

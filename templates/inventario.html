@@ -109,6 +109,14 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% if not estoque %}
+                            <tr class="semCompras">
+                                <td colspan="6">
+                                    <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">
+                                        Sem Materias Primas Cadastradas</h3>
+                                </td>
+                            </tr>
+                            {% endif %}
                         {% for estq in estoque %}
                         <tr>
                             <td>

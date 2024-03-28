@@ -117,7 +117,7 @@
                 <table id="materiasprimasTable">
                     <thead>
                         <tr>
-                            <th class="hide"> </th>
+                            
                             <th class="hide" onclick="toggleSort(0)" style="width: 2%;">ID</th>
                             <th onclick="toggleSort(1)" style="width: 21%;">Matéria Prima</th>
                             <th class="hide" onclick="toggleSort(2)">Unidade</th>
@@ -133,13 +133,17 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% if not materiasprimas %}
+                            <tr class="semCompras">
+                                <td colspan="15">
+                                    <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">
+                                        Sem Materias Primas Cadastradas</h3>
+                                </td>
+                            </tr>
+                            {% endif %}
                         {% for materiaprima in materiasprimas %}
                         <tr>
-                            <td class="hide">
-                                <span class="checkboxContainer">
-                                    <input type="checkbox" class="checkbox">
-                                </span>
-                            </td>
+                            
                             <td class="hide">{{ materiaprima.id_mp }}</td>
                             <td class="tdmp">{{ materiaprima.nome_mp }}</td>
                             <td class="hide">{{ materiaprima.unidade_mp }}</td>
