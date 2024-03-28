@@ -947,7 +947,7 @@ def receitas():
     #if request
     if request.method == 'POST':
         nome_rct = request.form.get('nome_rct')
-        id_clt = request.form.get('id_clt')
+        
         descricao_rct = request.form.get('descricao_rct')
         preparo_rct = request.form.get('preparo_rct')
 
@@ -955,9 +955,10 @@ def receitas():
 
         receitas = Receitas(
             nome_rct=nome_rct,
-            id_clt=id_clt,
+            
             descricao_rct=descricao_rct,
-            preparo_rct=preparo_rct
+            preparo_rct=preparo_rct,
+            user_id=current_user.id
         )
 
         db.session.add(receitas)
@@ -982,7 +983,8 @@ def receitas():
                 id_mp=id_mp,
                 nome_mp=nome_mp,
                 quantidade=quantidade,
-                unidade=unidade
+                unidade=unidade,
+                user_id=current_user.id
             )
         
             db.session.add(receita_mp)

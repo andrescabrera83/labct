@@ -478,7 +478,7 @@
                                             <tbody>
 
                                                 {% for comprasdados in comprasdados %}
-                                                {% if comprasdados.id_compras == compras.id_compras %}
+                                                {% if comprasdados.id_compras == comprasPendente.id_compras %}
                                                 <tr class="listaDado {% if comprasdados.fechado_comprasd == 1 %}fechado{% endif %}" >
                                                     
                                                     <td><input type="checkbox"
