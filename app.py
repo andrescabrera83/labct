@@ -12,7 +12,7 @@ from babel.dates import format_date
 from flask import abort  # Import abort function from Flask to handle HTTP errors
 from sqlalchemy.exc import IntegrityError
 
-import pdfkit
+
 from decimal import Decimal
 
 #from models.materiasprimas import MateriasPrimas
@@ -31,10 +31,6 @@ from models.config_model import Config
 from models.receitas_model import Receitas
 from models.receitasmateriaprimas_model import ReceitaMateriasPrimas
 from db import db, ma, app
-
-# Specify path to wkhtmltopdf executable
-path_wkthmltopdf = 'C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'
-config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
 
 
 from flask_login import UserMixin,current_user, login_required, LoginManager, login_user
