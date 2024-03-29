@@ -174,7 +174,7 @@
                             <div class="topForm">
                                 <form action="/salvar_inventario" method="post" style="min-width: 100%;">
                                     
-                                    <h6>Seleccione as materias primas que vao neste inventário.</h6>
+                                    <h6>Selecione as matérias primas que deseja criar o inventário.</h6>
                                     <table style="min-width: 100% !important;">
                                         <thead>
                                             <tr>
@@ -201,7 +201,7 @@
                                         </tbody>
                                     </table>
                                     <div style="padding-block: 12px; display: flex; flex-direction: column; width: 100%; justify-content: end;">
-                                        <label for="datePicker">Seleccione a data do inventário:</label>
+                                        <label for="datePicker">Selecione a data do inventário:</label>
                                         <input type="date" id="datePicker" name="datePicker" required>
                                     </div>
                                     
@@ -316,16 +316,16 @@
 <table id="tabelaInventarios">
     <thead>
         <tr>
-            <th>Codigo</th>
+            <th>Código</th>
             <th>Data Inventário</th>
-            <th>Estado</th>
+            <th>Situação</th>
         </tr>
     </thead>
     <tbody>
         {% if not inventarioAberto %}
                         <tr class="semCompras">
                             <td colspan="3">
-                                <h3 style="font-weight: 300; color: rgb(189, 189, 189); margin-block: 28px;">Sem Inventarios
+                                <h3 style="font-weight: 300; color: rgb(189, 189, 189); margin-block: 28px;">Sem Inventários em
                                     Abertos</h3>
                             </td>
                         </tr>
@@ -346,7 +346,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="inventarioDadosModalLabel">Inventario</h5>
+                <h5 class="modal-title" id="inventarioDadosModalLabel">Inventário</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -361,8 +361,8 @@
                             <thead>
                                 <tr>
                                     
-                                    <th style="width: 5%;">Codigo Materia Prima</th>
-                                    <th>Materia Prima</th>
+                                    <th style="width: 5%;">Codigo Matéria Prima</th>
+                                    <th>Matéria Prima</th>
                                     <th>Estoque Atual</th>
                                     <th>Nova Quantidade</th>
                                     <th style="width: 10%;">Unidade</th>
@@ -423,7 +423,7 @@
                             <tr>
                                 <th style="width: 5%;">Inventario #</th>
                                 <th>Data</th>
-                                <th>Materia Prima</th>
+                                <th>Matéria Prima</th>
                                 <th>Quantidade</th>
                             </tr>
 

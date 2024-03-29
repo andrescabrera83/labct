@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Materias Primas{% endblock %}
+{% block title %}Matérias Primas{% endblock %}
 
 {% block content %}
 
@@ -98,7 +98,7 @@
 
                 <div class="searchContainer">
                     <input class="searchInput" type="text" id="searchInput" onkeyup="searchTable()"
-                        placeholder="🔍 Procurar Em Materias Primas... ">
+                        placeholder="🔍 Procurar Matéria Prima... ">
                 </div>
 
             </div>
@@ -129,7 +129,7 @@
                             <th class="hide" onclick="toggleSort(8)">Compra Mínima</th>
                             <th class="hide" onclick="toggleSort(9)">GM/D</th>
                             <th class="hide" onclick="toggleSort(10)">Giro Médio</th>
-                            <th>Action</th>
+                            <th>Ação</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -137,7 +137,7 @@
                             <tr class="semCompras">
                                 <td colspan="15">
                                     <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">
-                                        Sem Materias Primas Cadastradas</h3>
+                                        Sem Matérias Primas Cadastradas</h3>
                                 </td>
                             </tr>
                             {% endif %}
@@ -376,7 +376,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Cadastrar Materia Prima</h5>
+                    <h5 class="modal-title" id="editModalLabel">Cadastrar Matéria Prima</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -385,7 +385,7 @@
                     <form action="/materiasprimas" method="post">
 
                         <div class="cadastroTitle">
-                            <h5>Detalhes da Materia Prima</h5>
+                            <h5>Detalhes da Matéria Prima</h5>
                         </div>
 
                         <div style="display: grid;
@@ -393,7 +393,7 @@
                         align-items: end;">
 
                             <div class="form-group" style="width: 96%;">
-                                <label style="margin-bottom: 1px;" for="nome_mp">Materia Prima</label>
+                                <label style="margin-bottom: 1px;" for="nome_mp">Matéria Prima</label>
                                 <input type="text" class="form-control" id="nome_mp" name="nome_mp" required>
                             </div>
 

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Clientes{% endblock %}
+{% block title %}Receitas{% endblock %}
 
 {% block content %}
 <style>
@@ -141,11 +141,11 @@
           <thead>
             <tr>
               <th>&nbsp&nbsp&nbsp&nbsp&nbspID</th>
-              <th>Nome Da Receita</th>
+              <th>Nome da Receita</th>
               
               <th>Descrição</th>
-              <th>Modo De Preparo</th>
-              <th style="text-align: center;">Acçao</th>
+              <th>Modo de Preparo</th>
+              <th style="text-align: center;">Ação</th>
 
             </tr>
           </thead>
@@ -203,7 +203,7 @@
                     <thead>
                       <tr>
                         <th style="width: 5%;">Id Da MP</th>
-                        <th>Materia Prima</th>
+                        <th>Matéria Prima</th>
                         <th>Quantidade</th>
                         <th>Unidade</th>
                         <th>Leitura</th>
@@ -226,7 +226,7 @@
                     </tbody>
                   </table>
                   <hr>
-                  <h5>Modo De Preparo:</h5>
+                  <h5>Modo de Preparo:</h5>
                   <p>{{ rct.preparo_rct }}</p>
                   <hr>
                 </div>
@@ -248,7 +248,7 @@
   <div class="modal-dialog" role="document">
       <div class="modal-content">
           <div class="modal-header">
-              <h5 class="modal-title" id="editModalLabel">Cadastrar Materia Prima</h5>
+              <h5 class="modal-title" id="editModalLabel">Cadastrar Matéria Prima</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
               </button>
@@ -257,7 +257,7 @@
 
             <form method="POST">
                 <div class="form-group">
-                  <label for="nome_rct">Nome Da receita:</label><br>
+                  <label for="nome_rct">Nome da Receita:</label><br>
                   <input type="text" class="form-control" id="nome_rct" name="nome_rct" required>
                 </div>
       
@@ -269,17 +269,17 @@
       
                 <hr>
       
-                <h5 style="margin-bottom: 19px;">Lista De Ingredientes:</h5>
+                <h5 style="margin-bottom: 19px;">Lista de Ingredientes:</h5>
                 <div id="ingredients">
                   <!-- Ingredient table will be added here dynamically -->
                 </div>
       
-                <button type="button" id="add_ingredient">+ Agregar Ingrediente</button>
+                <button type="button" id="add_ingredient">+ Agregar Ingredientes</button>
       
                 <hr>
       
                 <div class="form-group">
-                  <label for="preparo_rct">Modo De Preparo:</label><br>
+                  <label for="preparo_rct">Modo de Preparo:</label><br>
                   <textarea id="preparo_rct" class="form-control" name="preparo_rct" rows="4"></textarea>
                 </div>
       
@@ -325,7 +325,7 @@
                                   </div>
       
                                   <div class="form-group">
-                                  <label for="id_mp_${ingredientCount}">Materia Prima:</label>
+                                  <label for="id_mp_${ingredientCount}">Matéria Prima:</label>
                                   <select class="form-control" id="id_mp_${ingredientCount}" name="id_mp_${ingredientCount}" required>
                                   {% for mp in materiasprimas %}
                                   <option value="{{ mp.id_mp }}">{{ mp.nome_mp }}</option>
