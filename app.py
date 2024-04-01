@@ -857,8 +857,7 @@ def salvar_compra():
         previsao_comprasd = today + timedelta(days=previsao)        
         vencimento_comprasd = today + timedelta(days=vencimento)  
 
-        formatted_previsao = previsao_comprasd.strftime('%Y-%m-%dT%H:%M:%S')
-        formatted_vencimento = vencimento_comprasd.strftime('%Y-%m-%dT%H:%M:%S')      
+             
 
         #Calculate purchase order value
         valorpedido_comprasd = pedido_comprasd * cost_per_unit
@@ -871,8 +870,8 @@ def salvar_compra():
             fornecedor_comprasd = fornecedor_comprasd,
             valorpedido_comprasd =  valorpedido_comprasd,
             departamento_comprasd=departamento_comprasd,
-            previsao_comprasd = formatted_previsao,
-            vencimento_comprasd = formatted_vencimento,
+            previsao_comprasd = previsao_comprasd,
+            vencimento_comprasd = vencimento_comprasd,
             fechado_comprasd = False,
             user_id=current_user.id
             )
@@ -908,7 +907,7 @@ def fechar_compra():
         id_materiaprima = materiap.id_mp if materiap else None
 
         # Get current timestamp with microseconds
-        current_time = datetime.now().strftime('%Y-%m-%d // %H:%M:%S.%f')[:-3]
+        current_time = datetime.now()
 
         modo = 'Compra'
 

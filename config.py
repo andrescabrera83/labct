@@ -7,4 +7,4 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     PERMANENT_SESSION_LIFETIME = timedelta(days=62)
     SECRET_KEY = os.environ.get('SECRET_KEY')
-    DEBUG = False
+    DEBUG = True
