@@ -187,6 +187,14 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            {% if not materiasprimas %}
+                                            <tr class="semCompras">
+                                                <td colspan="15">
+                                                    <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">
+                                                        Sem Matérias Primas Cadastradas</h3>
+                                                </td>
+                                            </tr>
+                                            {% endif %}
                                             {% for mp in materiasprimas %}
                                             <tr>
                                                 <td><input type="checkbox" name="selected_items" value="{{ mp.id_mp }}">

@@ -170,6 +170,7 @@ class ReceitasMateriasPrimasSchema(ma.SQLAlchemySchema):
     
 with app.app_context():
     db.create_all()
+    
 
 # FUNCOES DO GIRO MEDIO ########################################################################################################
 
@@ -182,7 +183,7 @@ def update_config(new_value):
     if config:
         config.giro_medio = new_value
     else:
-        config = Config(giro_medio=new_value)
+        config = Config(giro_medio=new_value,user_id=current_user.id)
         db.session.add(config)
     db.session.commit()
     
@@ -351,9 +352,9 @@ def editFornecedor(id):
 def materiasPrimas():
 
     
-    # Fetch the nome_fornecedor corresponding to the id_fornecedor from the Fornecedor table
-    config = Config.query.first()
-    giromedio = config.giro_medio if config else None
+    #giro medio
+    config = Config.query.filter_by(user_id=current_user.id).first()
+    giromedio = config.giro_medio if config else 6
 
     print(giromedio)
 
@@ -372,10 +373,10 @@ def materiasPrimas():
 
         
         # Convert to floats
-        custo_mp_float = float(custo_mp)
-        pesototal_mp_float = float(pesototal_mp)
-        gastomedio_mp_float = float(gastomedio_mp)
-        giromedio_float = float(giromedio)
+        custo_mp_float = Decimal(custo_mp)
+        pesototal_mp_float =Decimal(pesototal_mp)
+        gastomedio_mp_float = Decimal(gastomedio_mp)
+        giromedio_float =Decimal(giromedio)
 
         
 
@@ -427,8 +428,7 @@ def materiasPrimas():
     materiaprima_schema = MateriasPrimasSchema(many=True)
     serialized_data_mp = materiaprima_schema.dump(materiasprimas)
 
-    #GIRO MEDIO####
-
+    
     config = Config.query.first()
     if config:
         giro_medio = config.giro_medio
@@ -563,11 +563,7 @@ def inventario():
     historico_schema = HistoricoSchema(many=True)
     serialized_data_hst = historico_schema.dump(historico)
 
-    # Assuming 'Inventario' is your SQLAlchemy model
-    available_months = db.session.query(func.strftime('%Y-%m', Inventario.data_invt)).distinct().all()
-
-    # Extract the formatted months from the result
-    available_months = [result[0] for result in available_months]
+   
 
     current_month = datetime.now().strftime('%Y-%m')
 
@@ -596,7 +592,6 @@ def inventario():
                            today_date=formatted_date,
                             materiasprimas=serialized_data_mp,
                             datetime=datetime,
-                            available_months=available_months,
                             inventarioAberto=serialized_data_invtAberto,
                             inventarioFechado=serialized_data_invtFechado,
                             inventarioDados=serialized_data_invtDados,
@@ -638,6 +633,16 @@ def datetimeformat(value):
     day_of_week = DAYS_PT[value.weekday()]  # Get the day of the week in Portuguese
     return f"{formatted_date} ({day_of_week})"
 app.jinja_env.filters['datetimeformat'] = datetimeformat
+
+
+def datetimeformat2(value):
+    if isinstance(value, str):
+        # Adjust format string to match the datetime string format
+        value = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f')  
+    formatted_date = value.strftime("%d/%m/%Y")
+    day_of_week = DAYS_PT[value.weekday()]  # Get the day of the week in Portuguese
+    return f"{formatted_date} ({day_of_week})"
+app.jinja_env.filters['datetimeformat2'] = datetimeformat2
 
 def custom_datetime_format(value):
     if isinstance(value, str):
@@ -815,7 +820,7 @@ def compras():
 def salvar_compra():
     
     print('salvando')
-    current_time = datetime.now().strftime('%Y-%m-%d // %H:%M:%S.%f')[:-3]
+    current_time = datetime.now()
 
     compras = Compras(
         data_compras=current_time,
