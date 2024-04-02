@@ -530,7 +530,7 @@ def inventario():
             difference = new_quantity_float - old_quantity_float
 
             # Get current timestamp with microseconds
-            current_time = datetime.now().strftime('%Y-%m-%d // %H:%M:%S.%f')[:-3]
+            current_time = datetime.now()
 
             modo = 'Registro Manual'
 
@@ -564,10 +564,6 @@ def inventario():
     serialized_data_hst = historico_schema.dump(historico)
 
    
-
-    current_month = datetime.now().strftime('%Y-%m')
-
-   
     inventario = Inventario.query.filter_by(user_id=current_user.id).all()
     inventario_schema = InventarioSchema(many=True)
     
@@ -595,7 +591,7 @@ def inventario():
                             inventarioAberto=serialized_data_invtAberto,
                             inventarioFechado=serialized_data_invtFechado,
                             inventarioDados=serialized_data_invtDados,
-                            current_month=current_month
+
                             )
 
 #########################################################################################################################################
@@ -726,7 +722,7 @@ def fechar_inventario():
 
         # Add history if there's a difference
             if difference != 0:
-                current_time = datetime.now().strftime('%Y-%m-%d // %H:%M:%S.%f')[:-3]
+                current_time = datetime.now()
                 modo = 'Inventario'
 
                 historico = Historico(
