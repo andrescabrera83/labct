@@ -647,6 +647,13 @@ def custom_datetime_format(value):
     return formatted_date
 app.jinja_env.filters['custom_datetime_format'] = custom_datetime_format
 
+def custom_datetime_format2(value):
+    if isinstance(value, str):
+        value = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')
+    formatted_date = value.strftime("%Y-%m-%d (%H:%M)")
+    return formatted_date
+app.jinja_env.filters['custom_datetime_format2'] = custom_datetime_format2
+
 
 ###########################################################################################################################################
 
