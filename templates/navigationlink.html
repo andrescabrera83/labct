@@ -31,11 +31,12 @@
         %}>Matérias Primas</a> /
     <a href="{{ url_for('inventario')}}" {% if request.path==url_for('inventario') %}class="active" {% endif
         %}>Inventário</a> /
-    <a href="{{ url_for('compras')}}" {% if request.path==url_for('compras') %}class="active" {% endif
-        %}>Compras</a> /
+    <a href="{{ url_for('compras')}}" {% if request.path==url_for('compras') %}class="active" {% endif %}>Compras</a> /
     <a href="{{ url_for('historico')}}" {% if request.path==url_for('historico') %}class="active" {% endif
         %}>Histórico</a> /
-        <a href="{{ url_for('receitas')}}" {% if request.path==url_for('receitas') %}class="active" {% endif
-        %}>Receitas</a> /
+    <a href="{{ url_for('receitas')}}" {% if request.path==url_for('receitas') %}class="active" {% endif %}>Receitas</a>
+    /
+    <a href="{{ url_for('produccao')}}" {% if request.path==url_for('produccao') %}class="active" {% endif %}>Producção</a>
+    /
 
 </span>

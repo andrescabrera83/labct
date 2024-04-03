@@ -22,3 +22,5 @@ class Usuarios(UserMixin,db.Model):
     receitas = db.relationship('Receitas', back_populates="usuarios", lazy=True)
     receitasmateriasprimas = db.relationship('ReceitaMateriasPrimas', back_populates="usuarios", lazy=True)
     config = db.relationship('Config', back_populates="usuarios", lazy=True)
+    produc = db.relationship('Produc', back_populates="usuarios", lazy=True)
+    producdados = db.relationship('ProducDados', back_populates="usuarios", lazy=True)

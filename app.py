@@ -34,6 +34,8 @@ from models.usuarios_model import Usuarios
 from models.config_model import Config
 from models.receitas_model import Receitas
 from models.receitasmateriaprimas_model import ReceitaMateriasPrimas
+from models.produc_model import Produc
+from models.producdados_model import ProducDados
 from db import db, ma, app
 
 
@@ -166,6 +168,25 @@ class ReceitasMateriasPrimasSchema(ma.SQLAlchemySchema):
     quantidade = ma.auto_field()
     unidade = ma.auto_field()
 
+class ProducSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Produc
+
+    id_pdc = ma.auto_field()
+    data_pdc = ma.auto_field()
+    estado_pdc = ma.auto_field()
+    
+class ProducDadosSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = ProducDados
+
+    id_pdcd = ma.auto_field()
+    id_pdc = ma.auto_field()
+    id_rct = ma.auto_field()
+    id_mp = ma.auto_field()
+    nome_mp = ma.auto_field()
+    quantidade_pdcd = ma.auto_field()
+    unidade_pdcd = ma.auto_field()
 ####################################################################### APP ###################################################################################################
     
 with app.app_context():
@@ -240,8 +261,12 @@ def signup():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        gm = request.form['giro_medio']
         user = Usuarios(username=username, password=password)
         db.session.add(user)
+        db.session.commit()
+        config = Config(giro_medio=gm, user_id=user.id)
+        db.session.add(config)
         db.session.commit()
         return redirect(url_for('login'))
     return render_template('signup.html')
@@ -293,7 +318,7 @@ def cleanupMP():
 @app.route('/fornecedores', methods=['GET', 'POST'])
 @login_required
 def fornecedores():
-    print(dir(datetime))
+    
     if request.method == 'POST':
         nome_fornecedor = request.form.get('nome_fornecedor')
         tempo_entrega = request.form.get('tempo_entrega')
@@ -950,7 +975,7 @@ def historico():
 @login_required
 def receitas():
 
-    materiasprimas = MateriasPrimas.query.all()
+    materiasprimas = MateriasPrimas.query.filter_by(user_id=current_user.id).all()
     materiasprimas_schema = MateriasPrimasSchema(many=True)
     serialized_data_mp = materiasprimas_schema.dump(materiasprimas)
 
@@ -967,7 +992,6 @@ def receitas():
 
         receitas = Receitas(
             nome_rct=nome_rct,
-            
             descricao_rct=descricao_rct,
             preparo_rct=preparo_rct,
             user_id=current_user.id
@@ -975,6 +999,8 @@ def receitas():
 
         db.session.add(receitas)
         db.session.commit()
+
+        id_rct = receitas.id_rct
 
         # Handle ingredients insertion
         ingredient_count = int(request.form.get('ingredient_count'))
@@ -991,7 +1017,7 @@ def receitas():
             nome_mp = materiaprima.nome_mp if materiaprima else None
 
             receita_mp = ReceitaMateriasPrimas(
-                id_rct=receitas.id_rct,
+                id_rct=id_rct,
                 id_mp=id_mp,
                 nome_mp=nome_mp,
                 quantidade=quantidade,
@@ -1004,37 +1030,23 @@ def receitas():
         
         return redirect(url_for('receitas')) 
     
-    receitas = Receitas.query.all()
+    receitas = Receitas.query.filter_by(user_id=current_user.id).all()
     receitas_schema = ReceitasSchema(many=True)
     serialized_data_rct = receitas_schema.dump(receitas)
 
-    receitasmp = ReceitaMateriasPrimas.query.all()
+    receitasmp = ReceitaMateriasPrimas.query.filter_by(user_id=current_user.id).all()
     receitasmp_schema = ReceitasMateriasPrimasSchema(many=True)
     serialized_data_rctmp = receitasmp_schema.dump(receitasmp)
     
 
 
 
-    return render_template('receitas.html', 
+    return render_template('receitas2.html', 
     materiasprimas=serialized_data_mp, 
     receitas=serialized_data_rct,
     receitasmp=serialized_data_rctmp)
 
 
-#EDIT
-@app.route('/edit-receita/<int:id>', methods=['POST'])
-def editReceita(id):
-    if request.method == 'POST':
-        receitas = Receitas.query.get_or_404(id)
-        receitas.nome_rct = request.form.get('nome_rct')
-        receitas.descricao_rct = request.form.get('descricao_rct')
-        receitas.preparo_rct = request.form.get('preparo_rct')
-        #receitas.id_clt = request.form.get('id_clt')
-        
-        
-        
-        db.session.commit()
-        return redirect(url_for('receitas', id=id))
     
 #DELETE
 @app.route('/delete-receita/<int:id>', methods=['POST'])
@@ -1057,6 +1069,90 @@ def deleteReceita(id):
     
     return redirect(url_for('receitas', id=id) )
    
+
+@app.route('/produccao', methods=['GET', 'POST'])
+def produccao():
+
+    receitas = Receitas.query.filter_by(user_id=current_user.id).all()
+    receitas_schema = ReceitasSchema(many=True)
+    serialized_data_rct = receitas_schema.dump(receitas)
+
+    produc = Produc.query.filter_by(user_id=current_user.id).all()
+    produc_schema = ProducSchema(many=True)
+
+    producdados = ProducDados.query.filter_by(user_id=current_user.id).all()
+    producdados_schema = ProducDadosSchema(many=True)
+
+    produc_pendente = [pdc for pdc in produc if pdc.estado_pdc == "Pendente"]
+    produc_fechado = [pdc for pdc in produc if pdc.estado_pdc == "Fechado"]
+
+    serialized_data_produc_pendente = produc_schema.dump(produc_pendente)
+    serialized_data_produc_fechado = produc_schema.dump(produc_fechado)
+    serialized_data_produc_dados = producdados_schema.dump(producdados)
+
+    return render_template('produccao.html', 
+                           receitas=serialized_data_rct,
+                           producPendente=serialized_data_produc_pendente,
+                           producFechado=serialized_data_produc_fechado,
+                           producDados=serialized_data_produc_dados)
+
+
+@app.route('/salvar_pdc', methods=['POST'])
+def salvar_pdc():
+    current_time = datetime.now()
+
+    produccao = Produc(
+        data_pdc=current_time,
+        estado_pdc='Pendente',
+        user_id=current_user.id
+        )
+    db.session.add(produccao)
+    db.session.commit()
+    # Retrieve the selected value from the form
+    selected_value = request.form.get('receita')
+
+    receita = Receitas.query.filter_by(id_rct=selected_value).first()
+
+    if receita:
+        receita_id = receita.id_rct  # Access the id attribute of the receita object
+    # Now you have the id associated with the selected value
+    # Do something with receita_id, such as saving it to the database
+        #print("Receita ID:", receita_id)
+    else:
+        print("No receita found for the selected value:", selected_value)
+
+    print(receita_id)
+
+    receita_mps = ReceitaMateriasPrimas.query.filter_by(id_rct=receita_id).all()
+
+    # Now `receita_mps` contains a list of ReceitasMateriasPrimas associated with the receita_id
+    # You can iterate over this list to access individual ReceitasMateriasPrimas objects
+    for receita_mp in receita_mps:
+    # Access attributes of each ReceitasMateriasPrimas object as needed
+        id_rct =  receita_mp.id_rct
+        id_mp =  receita_mp.id_mp
+        nome_mp =  receita_mp.nome_mp
+        quantidade =  receita_mp.quantidade
+        unidade =  receita_mp.unidade
+
+        producdados = ProducDados(
+            id_pdc = produccao.id_pdc,
+            id_rct = id_rct,
+            id_mp = id_mp,
+            nome_mp = nome_mp,
+            quantidade_pdcd = quantidade,
+            unidade_pdcd = unidade,
+            user_id=current_user.id
+        )
+        db.session.add(producdados)
+    
+    db.session.commit()
+
+    return redirect(url_for('produccao'))
+
+    # Check if the item exists
+    
+    
 
 
 if __name__ == '__main__':

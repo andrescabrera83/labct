@@ -13,4 +13,5 @@ class Receitas(db.Model):
 
     usuarios = db.relationship("Usuarios", back_populates="receitas")
     receitasmateriasprimas = db.relationship("ReceitaMateriasPrimas", back_populates="receitas")
+    producdados = db.relationship("ProducDados", back_populates="receitas")
     

@@ -8,8 +8,8 @@ class ReceitaMateriasPrimas(db.Model):
     id_rct = db.Column(db.Integer, db.ForeignKey('receitas.id_rct'), primary_key=True)
     id_mp = db.Column(db.Integer, db.ForeignKey('materiasprimas.id_mp'), primary_key=True)
     nome_mp = db.Column(db.String(75))
-    quantidade = db.Column(db.Numeric(10,2))
-    unidade = db.Column(db.Enum('Unidade(s)', 'Grama(s)', 'Kilogramo(s)', 'Colher(es)', 'Xícara(s)'))
+    quantidade = db.Column(db.Numeric(10,3))
+    unidade = db.Column(db.Enum('KG', 'UN'))
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
 
     usuarios = db.relationship("Usuarios", back_populates="receitasmateriasprimas")

@@ -1,0 +1,437 @@
+{% extends "base.html" %}
+{% block title %}Receitas{% endblock %}
+
+{% block content %}
+
+<style>
+  
+
+    @import url("https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css");
+  
+  
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+  
+    table th {
+      text-align: left;
+      border-bottom: 1px solid #ccc;
+    }
+  
+    table th,
+    table td {
+      padding: 0.4em;
+    }
+  
+    table.fold-table>tbody>tr.view td,
+    table.fold-table>tbody>tr.view th {
+      cursor: pointer;
+    }
+  
+    table.fold-table>tbody>tr.view td:first-child,
+    table.fold-table>tbody>tr.view th:first-child {
+      position: relative;
+      padding-left: 20px;
+    }
+  
+    table.fold-table>tbody>tr.view td:first-child:before,
+    table.fold-table>tbody>tr.view th:first-child:before {
+      position: absolute;
+      top: 50%;
+      left: 20px;
+      width: 9px;
+      height: 16px;
+      margin-top: -8px;
+      font: 16px fontawesome;
+      color: #999;
+      content: "▼";
+  
+      transition: all 0.3s ease;
+    }
+  
+    table.fold-table>tbody>tr.view:hover {
+      background: #eeeeee;
+      text-decoration: underline;
+    }
+  
+    table.fold-table>tbody>tr.view.open {
+      background: rgb(234, 203, 79);
+      color: rgb(0, 0, 0);
+    }
+  
+  
+  
+    table.fold-table>tbody>tr.view.open td:first-child:before,
+    table.fold-table>tbody>tr.view.open th:first-child:before {
+      transform-origin: right;
+      transform: rotate(180deg);
+      color: #000000;
+  
+  
+    }
+  
+    table.fold-table>tbody>tr.fold {
+      display: none;
+    }
+  
+    table.fold-table>tbody>tr.fold.open {
+      display: table-row;
+    }
+    table.fold-table>tbody>tr.fold.open:hover {
+      display: table-row;
+      background-color: rgb(255, 255, 255);
+      text-decoration: none;
+    }
+  
+    .fold-content {
+      padding: 0.5em;
+      text-align: left;
+      padding: 0.5px;
+  
+    }
+  
+    .fold-content h3 {
+      margin-top: 0;
+    }
+  
+    .fold-content>table {
+      border: 2px solid #ccc;
+    }
+  
+    .inside-table {
+      padding: 0.4em;
+      
+    border: 1px solid #4f4f4f !important;
+
+    }
+
+    .inside-table tr:hover{
+        background-color: #fafafa !important;
+        text-decoration: none;
+        cursor: default;
+    }
+
+    .semCompras:hover {
+        background-color: white;
+        text-decoration: none;
+        cursor: default;
+    }
+  
+   
+  </style>
+
+<body>
+
+    <div class="container">
+        <div class="tabela">
+            <h3 style="margin-bottom: 25px;"> Receitas </h3>
+            <button style="margin-bottom: 15px;" data-toggle="modal" data-target="#cadastrarReceitaModal" class="btn-cadastrar"> 
+                + Fazer Nova Receita</button>
+
+            <!-- Cadastrar Modal -->
+            <div class="modal fade" id="cadastrarReceitaModal" role="dialog" aria-labelledby="editModalLabel"
+                tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editModalLabel">Cadastrar Matéria Prima</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+
+                            <form method="POST">
+                                <div class="form-group">
+                                    <label for="nome_rct">Nome da Receita:</label><br>
+                                    <input type="text" class="form-control" id="nome_rct" name="nome_rct" required>
+                                </div>
+
+
+                                <div class="form-group" style="margin-bottom: 32px;">
+                                    <label for="descricao_rct">Descrição:</label><br>
+                                    <textarea id="descricao_rct" class="form-control" name="descricao_rct"
+                                        rows="2"></textarea>
+                                </div>
+
+                                <hr>
+
+                                <h5 style="margin-bottom: 19px;">Lista de Ingredientes:</h5>
+                                <div id="ingredients">
+                                    <!-- Ingredient table will be added here dynamically -->
+                                </div>
+
+                                <button type="button" id="add_ingredient" class="btn-cadastrar">+ Agregar Ingredientes</button>
+
+                                <hr>
+
+                                <div class="form-group">
+                                    <label for="preparo_rct">Modo de Preparo:</label><br>
+                                    <textarea id="preparo_rct" class="form-control" name="preparo_rct"
+                                        rows="4"></textarea>
+                                </div>
+
+                                <input type="hidden" id="ingredient_count" name="ingredient_count" value="0">
+
+
+
+
+                                <div style="display: flex; width: 100%; margin-top: 43px;">
+                                    <button style="width: 100%;" type="submit" class="btn btn-dark">Cadastrar</button>
+                                </div>
+                            </form>
+
+
+
+                            <script>
+                                let ingredientCount = 0;
+
+                                document.getElementById('add_ingredient').onclick = function () {
+                                    var ingredientsDiv = document.getElementById('ingredients');
+                                    var newIngredientDiv = document.createElement('div');
+
+                                    newIngredientDiv.innerHTML = `
+                              <div class="ingredient">
+                                  <div style="display: grid;
+                                  grid-template-columns: 25% 25% 50%;
+                                  align-items: end;">
+      
+                                  <div class="form-group" style="width: 95%;">
+                                  <label for="quantidade_${ingredientCount}">Quantitade:</label>
+                                  <input type="number" step="0.1" min="0" class="form-control" id="quantidade_${ingredientCount}" name="quantidade_${ingredientCount}" required>
+                                  </div>
+      
+                                  <div class="form-group" style="width: 95%;">
+                                  <label for="unidade_${ingredientCount}">Unidade:</label>
+                                  <select class="form-control" id="unidade_${ingredientCount}" name="unidade_${ingredientCount}" required>
+                                    <option value="KG">Kilogramo(s)</option>  
+                                    <option value="UN">Unidade(s)</option>
+                                      
+                                  </select>
+                                  </div>
+      
+                                  <div class="form-group">
+                                  <label for="id_mp_${ingredientCount}">Matéria Prima:</label>
+                                  <select class="form-control" id="id_mp_${ingredientCount}" name="id_mp_${ingredientCount}" required>
+                                  {% for mp in materiasprimas %}
+                                  <option value="{{ mp.id_mp }}">{{ mp.nome_mp }}</option>
+                                  {% endfor %}
+                                  </select>
+                                  </div>
+      
+                                  </div>
+       
+                              </div>
+                          `;
+
+                                    ingredientsDiv.appendChild(newIngredientDiv);
+                                    ingredientCount++;  // Increment the ingredient count
+
+                                    // Update the ingredient count
+                                    document.getElementById('ingredient_count').value = ingredientCount;
+                                };
+                            </script>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="listaInventario">
+
+                <table class="fold-table parent-table" id="myTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Receita</th>
+                            <th>Descrição</th>
+                            <th>Modo de Preparo</th>
+                            <th>Acções</th>
+                        </tr>
+                    </thead>
+                    <tbody class="tbody-parent">
+                        {% if not receitas %}
+                        <tr class="semCompras">
+                            <td colspan="6">
+                                <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">
+                                    Sem Receitas Cadastradas</h3>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% for rct in receitas %}
+
+                        <tr class="view">
+                            <td style="margin-left: 10px; text-align: center;"> &nbsp &nbsp{{ rct.id_rct }}</td>
+                            <td>{{ rct.nome_rct }}</td>
+
+                            <td>{{ rct.descricao_rct }}</td>
+                            <td>{{ rct.preparo_rct }}</td>
+                            <td style="width: 5%;">
+                                <div
+                                    style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
+
+                                    <button type="button" style="margin: 3px; display: none; " class="btn btn-outline-dark btn-sm"
+                                        data-toggle="modal" data-target="#editModal{{ rct.id_rct }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                            fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                                            <path
+                                                d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
+                                        </svg>
+                                    </button>
+
+                                    <button type="button" style="margin: 3px; " class="btn btn-danger btn-sm"
+                                        data-toggle="modal" data-target="#deleteModal{{ rct.id_rct }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                            fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                            <path
+                                                d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
+                                        </svg>
+                                    </button>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Delete Modal -->
+                        <div class="modal fade" id="deleteModal{{ rct.id_rct }}" role="dialog"
+                            aria-labelledby="deleteModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered custom-modal-dialog"
+                                 role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <span
+                                            style="display: flex; flex-direction: row; align-items: center; justify-content: center; margin-left: 5px;">
+                                            <svg style="margin-right: 8px;" xmlns="http://www.w3.org/2000/svg"
+                                                width="24" height="24" fill="currentColor"
+                                                class="bi bi-exclamation-triangle" viewBox="0 0 16 16">
+                                                <path
+                                                    d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z" />
+                                                <path
+                                                    d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z" />
+                                            </svg>
+                                            <h5 class="modal-title" id="deleteModalLabel">Apagar Receita</h5>
+                                        </span>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p style="font-size: large;">Tem certeza que deseja apagar a Receita? <span style="font-weight: 500; text-decoration: underline;">{{ rct.nome_rct }}</span>?</p>
+                                        <form action="{{ url_for('deleteReceita', id= rct.id_rct) }}"
+                                            method="post">
+                                            <div style="display: flex; width: 100%; justify-content: end;">
+                                                <button type="submit" class="btn btn-danger">Apagar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <tr class="fold">
+                            <td colspan="7">
+                                <div class="fold-content" style="padding: 10px; margin-top: 5px;">
+                                    <h4 class="target-component">{{ rct.nome_rct }} </h4>
+                                    <p>{{ rct.descricao_rct }}</p>
+                                    <hr>
+                                    <h5>Ingredientes</h5>
+                                    <table class="inside-table" style="margin-top: 20px !important;">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 5%;">Id Da MP</th>
+                                                <th style="text-align: center;">Matéria Prima</th>
+                                                <th style="text-align: center;">Quantidade</th>
+                                                <th style="text-align: center;">Unidade</th>
+                                                <th style="text-align: center;">Leitura</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for rctmp in receitasmp %}
+                                            {% if rctmp.id_rct == rct.id_rct %}
+                                            <tr>
+
+                                                <td>{{rctmp.id_mp}}</td>
+                                                <td>{{rctmp.nome_mp}}</td>
+                                                <td>{{rctmp.quantidade}}</td>
+                                                <td>{{rctmp.unidade}}</td>
+                                                <td>{{rctmp.quantidade }} {{rctmp.unidade}} de {{rctmp.nome_mp}}
+                                                </td>
+                                            </tr>
+                                            {% endif %}
+                                            {% endfor %}
+
+                                        </tbody>
+                                    </table>
+                                    <hr>
+                                    <h5>Modo de Preparo:</h5>
+                                    <p>{{ rct.preparo_rct }}</p>
+                                    <hr>
+                                </div>
+
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+    
+
+        $(function () {
+          $(".fold-table tr.view").on("click", function () {
+            $(this).toggleClass("open").next(".fold").toggleClass("open");
+            // Get the target component relative to the clicked row
+            const targetElement = $(this).next(".fold").find(".target-component");
+    
+            // Scroll to the target component
+            scrollToComponent(targetElement);
+          });
+        });
+    
+        function scrollToComponent(targetElement) {
+          // Calculate the target scroll position
+          // Adjust this value to set the space at the top
+          const offset = 40;
+          const targetScrollPosition = targetElement.offset().top - offset;
+    
+          // Scroll to the target position
+          window.scrollTo({
+            top: targetScrollPosition,
+            behavior: 'smooth' // Optional: Use smooth scrolling
+          });
+        }
+    
+    
+        function searchTable() {
+          var input, filter, table, tr, td, i, txtValue;
+          input = document.getElementById("searchInput");
+          filter = input.value.toUpperCase();
+          table = document.getElementById("receitasTable");
+          tr = table.getElementsByTagName("tr");
+          for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td");
+            for (var j = 0; j < td.length; j++) {
+              if (td[j]) {
+                txtValue = td[j].textContent || td[j].innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                  tr[i].style.display = "";
+                  break;
+                } else {
+                  tr[i].style.display = "none";
+                }
+              }
+            }
+          }
+        }
+      </script>
+    
+</body>
+
+
+{% endblock %}

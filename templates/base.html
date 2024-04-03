@@ -80,6 +80,10 @@
         /* Change the color on hover */
         cursor: pointer;
     }
+
+    @media screen and (max-width: 600px){
+        
+    }
 </style>
 
 <body>
@@ -91,12 +95,14 @@
 			</a>
 
    
-        <div class="nav-cont">
-            {% include 'navigationlink.html' %}
-            <span class="user-icon">
-                <i class="fa-solid fa-circle-user"></i>
-            </span>
-        </div>
+            <div class="nav-cont">
+                {% include 'navigationlink.html' %}
+                <span class="user-icon">
+                    <i class="fa-solid fa-circle-user"></i>
+                </span>
+            </div>
+
+      
         </div>
     </nav>
 

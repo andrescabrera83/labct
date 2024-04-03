@@ -1,0 +1,397 @@
+{% extends "base.html" %}
+{% block title %}Producção{% endblock %}
+
+{% block content %}
+
+<style>
+   
+    @import url("https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css");
+
+.hidden {
+    display: none;
+}
+
+#tableContainer {
+    transition: max-height 0.5s ease;
+    overflow: hidden;
+    max-height: 0;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.ferramentas {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-block: 9px;
+
+}
+
+.ativarManual {
+    margin-left: 18px;
+    align-self: center;
+    margin-bottom: 12px;
+}
+
+#submitButton[disabled] {
+    background-color: #ddd;
+    /* Change background color */
+    color: #888;
+    /* Change text color */
+    cursor: not-allowed;
+    /* Change cursor to indicate unclickable */
+    opacity: 0.6;
+    /* Reduce opacity */
+}
+
+
+
+#filterForm input[type="radio"]:checked+label {
+    text-decoration: underline;
+    /* Add underline text decoration */
+}
+
+/* Hover style for enabled button */
+.btn-dark:not(.disabled):hover {
+    /* Define the hover style here */
+    /* For example, change background color */
+    background-color: #555 !important;
+}
+
+
+
+
+table {
+    width: 100%;
+}
+
+
+table th,
+table td {
+    padding: 0.4em;
+}
+
+table.fold-table>tbody>tr.view td,
+table.fold-table>tbody>tr.view th {
+    cursor: default;
+
+
+}
+
+table.fold-table>tbody>tr.view td:first-child,
+table.fold-table>tbody>tr.view th:first-child {
+    position: relative;
+    padding-left: 20px;
+}
+
+table.fold-table>tbody>tr.view td:first-child:before,
+table.fold-table>tbody>tr.view th:first-child:before {
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    width: 9px;
+    height: 16px;
+    margin-top: -8px;
+    font: 16px fontawesome;
+    color: #999;
+    content: "▼";
+
+    transition: all 0.3s ease;
+}
+
+table.fold-table>tbody>tr.view:hover {
+    background: #eeeeee;
+    text-decoration: underline;
+}
+
+table.fold-table>tbody>tr.view.open {
+
+    background: rgb(255, 230, 129);
+    color: rgb(0, 0, 0);
+
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+
+
+table.fold-table>tbody>tr.view.open td:first-child:before,
+table.fold-table>tbody>tr.view.open th:first-child:before {
+    transform-origin: right;
+    transform: rotate(180deg);
+    color: #000000;
+
+
+}
+
+table.fold-table>tbody>tr.fold {
+    display: none;
+}
+
+table.fold-table>tbody>tr.fold.open {
+    display: table-row;
+    background: rgb(255, 255, 255);
+}
+
+table.fold-table>tbody>tr.fold.open:hover {
+    background-color: rgb(255, 255, 255);
+    text-decoration: none;
+}
+
+
+.fold-content {
+    padding-block: 18px;
+    padding-inline: 18px;
+
+}
+</style>
+
+<body>
+
+    <div class="container">
+        <div class="tabela">
+            <h3 style="margin-bottom: 25px;"> Producção </h3>
+            <button id="expandBtn" class="btn-cadastrar"> + Fazer Novo Pedido De Producção</button>
+            <div id="tableContainer" class="hidden">
+
+                <form id="myForm" action="/salvar_pdc" method="POST">
+                    <div id="tableFilter">
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%;">Seleccionar</th>
+                                    <th style="width: 5%;">código</th>
+                                    <th>Receita</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if not receitas %}
+                                <tr class="semCompras view">
+                                    <td colspan="6">
+                                        <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">
+                                            Sem Receitas Cadastradas</h3>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% for receita in receitas %}
+                                <tr>
+                                    <td><input type="checkbox" name="receita" value="{{ receita.id_rct }}" required>
+                                    </td>
+                                    <td>{{ receita.id_rct }}</td>
+                                    <td>{{ receita.nome_rct }}</td>
+
+                                </tr>
+                                {% endfor %}
+
+                            </tbody>
+                        </table>
+
+
+                        <div style="display: flex;
+                            justify-content: end;
+                            margin-block: 24px;
+                            margin-inline: 3px;
+                            height: 50px !important;">
+                            <button type="submit" id="submitButton" class="btn btn-dark disabled" disabled>Fazer
+                                Pedido De Producção</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+
+            <div class="listaPedidos" style="margin-top: 12px;">
+                <h4> Pedidos De Producção Pendentes</h4>
+                <table  id="myTable" class="fold-table parent-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">código</th>
+                            <th>Data</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if not producPendente %}
+                        <tr class="semCompras">
+                            <td colspan="3">
+                                <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">Sem Pedidos De
+                                    Producção
+                                    Pendentes</h3>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% for produc in producPendente %}
+                        <tr class="view">
+                            <td>{{ produc.id_pdc }}</td>
+                            <td>{{ produc.data_pdc | datetimeformat2 }}</td>
+                            <td>{{ produc.estado_pdc }}</td>
+                        </tr>
+
+                        <tr class="fold">
+                            <td colspan="3">
+                                <div class="fold-content">
+
+                                    <form id="myForm" action="/fechar_pdc" method="POST">
+
+                                        <table id="tabelaProducPendente_{{ produc.id_pdc }}" style="margin-top: 12px;">
+                                            <thead>
+                                                <tr>
+                                                    
+                                                    <th style="width: 5%;">Codigo</th>
+                                                    <th style="width: 5%;">Codigo Da Receita</th>
+                                                    <th>Materia Prima</th>
+                                                    <th>Quantidade</th>
+                                                    <th>Unidade</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+                                                {% for pdcd in producDados %}
+                                                {% if pdcd.id_pdc == produc.id_pdc %}
+                                                <tr>
+                                                    <td>{{ pdcd.id_pdc }}</td>
+                                                    <td>{{ pdcd.id_rct }}</td>
+                                                    <td>{{ pdcd.nome_mp }}</td>
+                                                    <td>{{ pdcd.quantidade_pdcd }}</td>
+                                                    <td>{{ pdcd.unidade_pdcd }}</td>
+                                                </tr>
+
+
+                                                {% endif %}
+                                                {% endfor %}
+
+                                            </tbody>
+                                        </table>
+
+
+
+                                        <div style="display: flex;
+                                                justify-content: end;
+                                                margin-block: 24px;
+                                                margin-inline: 3px;
+                                                height: 35px !important;">
+                                            <button type="submit" id="submitButton_{{ produc.id_pdc }}"
+                                                class="btn btn-dark disabled"></button>
+                                        </div>
+
+                                    </form>
+
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="listaPedidos" style="margin-top: 44px;">
+                <h4> Pedidos De Producção Fechados</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">código</th>
+                            <th>Data</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if not producFechado %}
+                        <tr class="semCompras">
+                            <td colspan="3">
+                                <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">Sem Pedidos De
+                                    Producção
+                                    Fechados</h3>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% for produc in producFechado %}
+                        <tr>
+                            <td>{{ produc.id_pdc }}</td>
+                            <td>{{ produc.data_pdc | datetimeformat2 }}</td>
+                            <td>{{ produc.estado_pdc }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        $(document).ready(function () {
+            $('input[type="checkbox"]').click(function () {
+                var anyChecked = $('input[type="checkbox"]:checked').length > 0;
+                if (anyChecked) {
+                    $('#submitButton').prop("disabled", false).removeClass("disabled");
+                } else {
+                    $('#submitButton').prop("disabled", true).addClass("disabled");
+                }
+
+                // Ensure only one checkbox is selected
+                var checked = $(this).prop("checked");
+                if (checked) {
+                    $('input[type="checkbox"]').prop("checked", false);
+                    $(this).prop("checked", true);
+                }
+            });
+        });
+    </script>
+
+    <script>
+        document.getElementById("expandBtn").addEventListener("click", function () {
+            var tableContainer = document.getElementById("tableContainer");
+            if (tableContainer.classList.contains("hidden")) {
+                tableContainer.classList.remove("hidden");
+                setTimeout(function () {
+                    tableContainer.style.maxHeight = tableContainer.scrollHeight + "px";
+                }, 10);
+            } else {
+                tableContainer.style.maxHeight = null;
+                tableContainer.classList.add("hidden");
+            }
+        });
+    </script>
+
+<script>
+    $(function () {
+        $(".fold-table tr.view").on("click", function () {
+            // Close all other open rows
+            $(".fold-table tr.view").not(this).removeClass("open");
+            $(".fold-table tr.fold.open").not($(this).next(".fold")).removeClass("open");
+
+            // Toggle the class for the clicked row and its corresponding fold
+            $(this).toggleClass("open");
+            $(this).next(".fold").toggleClass("open");
+
+            // Get the target component relative to the clicked row
+            const targetElement = $(this).next(".fold").find(".target-component");
+
+            // Scroll to the target component
+            scrollToComponent(targetElement);
+        });
+    });
+
+    function scrollToComponent(targetElement) {
+        // Calculate the target scroll position
+        // Adjust this value to set the space at the top
+        const offset = 40;
+        const targetScrollPosition = targetElement.offset().top - offset;
+
+        // Scroll to the target position
+        window.scrollTo({
+            top: targetScrollPosition,
+            behavior: 'smooth' // Optional: Use smooth scrolling
+        });
+    }
+</script>
+
+</body>
+
+
+{% endblock %}
