@@ -1152,7 +1152,51 @@ def salvar_pdc():
 
     # Check if the item exists
     
-    
+@app.route('/fechar_pdc', methods=['POST'])
+def fechar_pdc():
+
+    selected_items = request.form.getlist('nome_mp[]')
+
+    for item_id in selected_items:
+
+        
+
+        producd = ProducDados.query.filter_by(nome_mp=item_id).first()
+
+        estoque = Estoque.query.filter_by(nome_mp=item_id).first()
+        estoquenome = estoque.nome_mp
+        estoquequantidade = estoque.quantidade_estq
+
+        pedidoFloat = Decimal(producd.quantidade_pdcd)
+
+        current_time = datetime.now()
+
+        modo = 'Produção'
+
+        produc = Produc.query.filter_by(id_pdc=producd.id_pdc).first()
+        produc.estado_pdc = 'Fechado'
+
+        historico = Historico(
+            date_change=current_time,
+            id_mp=producd.id_mp,
+            nome_mp=producd.nome_mp,
+            ultimaquantidade_hst=estoquequantidade,
+            novaquantidade_hst=estoquequantidade - pedidoFloat,
+            difference_hst=-pedidoFloat,
+            modo_hst=modo,
+            user_id=current_user.id
+            )
+        
+        db.session.add(historico)
+        db.session.commit()
+
+        
+
+
+
+        print(estoquenome)
+
+    return redirect(url_for('produccao'))
 
 
 if __name__ == '__main__':

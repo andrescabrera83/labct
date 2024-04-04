@@ -252,11 +252,13 @@ table.fold-table>tbody>tr.fold.open:hover {
                                                 {% for pdcd in producDados %}
                                                 {% if pdcd.id_pdc == produc.id_pdc %}
                                                 <tr>
+                                                    
                                                     <td>{{ pdcd.id_pdc }}</td>
                                                     <td>{{ pdcd.id_rct }}</td>
                                                     <td>{{ pdcd.nome_mp }}</td>
                                                     <td>{{ pdcd.quantidade_pdcd }}</td>
                                                     <td>{{ pdcd.unidade_pdcd }}</td>
+                                                    <input type="hidden" name="nome_mp[]" value="{{ pdcd.nome_mp }}">
                                                 </tr>
 
 
@@ -274,7 +276,7 @@ table.fold-table>tbody>tr.fold.open:hover {
                                                 margin-inline: 3px;
                                                 height: 35px !important;">
                                             <button type="submit" id="submitButton_{{ produc.id_pdc }}"
-                                                class="btn btn-dark disabled"></button>
+                                                class="btn btn-dark"> Fechar Pedido De Producção</button>
                                         </div>
 
                                     </form>
