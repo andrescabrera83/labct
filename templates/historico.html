@@ -4,7 +4,7 @@
 {% block content %}
 
 <body>
-    
+
     <div class="container">
         <div class="tabela">
             <div class="historico">
@@ -33,6 +33,10 @@
                         <input style="margin-left: 12px;" type="radio" name="filterOption" value="compra"
                             id="comprasOption">
                         <label for="comprasOption">Compra</label>
+
+                        <input style="margin-left: 12px;" type="radio" name="filterOption" value="produção"
+                            id="producaoOption">
+                        <label for="producaoOption">Produção</label>
                     </form>
 
                 </div>
@@ -91,7 +95,7 @@
                             var rows = $('#tabelaHistorico tbody tr');
 
                             // Loop through all table rows
-                            rows.each(function () {
+                            rows.each(function (index) {
                                 var cell = $(this).find('td:eq(4)');
                                 var indicatorText = cell.text().trim().toLowerCase();
                                 var dateValue = $(this).find("td:eq(3)").text().trim();
@@ -100,29 +104,75 @@
                                 // Show or hide rows based on the selected filter option and month/year
                                 if ((selectedOption === 'all' || indicatorText === selectedOption) &&
                                     (selectedMonthYear === '' || monthYear === selectedMonthYear)) {
-                                    $(this).show();
+                                    // Calculate row index based on pagination
+                                    var rowIndex = index + 1;
+                                    var start = (currentPage - 1) * rowsPerPage + 1;
+                                    var end = currentPage * rowsPerPage;
+                                    if (rowIndex >= start && rowIndex <= end) {
+                                        $(this).show();
+                                    } else {
+                                        $(this).hide();
+                                    }
                                 } else {
                                     $(this).hide();
                                 }
 
                                 // Function to scroll to the last visible row
-
-
-
                             });
                         }
 
-
-
                         // Trigger initial filtering and scrolling
-
-
+                        var currentPage = 1;
+                        var rowsPerPage = 20;
+                        filterTable();
                     });
+
                 </script>
 
 
 
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                <script>
+                    $(document).ready(function () {
+                        var rowsPerPage = 20;
+                        var $table = $('#tabelaHistorico');
+                        var $tbody = $table.find('tbody');
+                        var $rows = $tbody.find('tr');
+                        var numRows = $rows.length;
+                        var numPages = Math.ceil(numRows / rowsPerPage);
+                        var currentPage = 1;
 
+                        function showPage(page) {
+                            var start = (page - 1) * rowsPerPage;
+                            var end = start + rowsPerPage;
+
+                            $rows.hide().slice(start, end).show();
+
+                            
+
+                            // Enable/disable previous and next buttons based on current page
+                            $('#prev').prop('disabled', page === 1);
+                            $('#next').prop('disabled', page === numPages);
+                        }
+
+                        showPage(currentPage);
+
+                        $('#prev').on('click', function () {
+                            if (currentPage > 1) {
+                                currentPage--;
+                                showPage(currentPage);
+                            }
+                        });
+
+                        $('#next').on('click', function () {
+                            if (currentPage < numPages) {
+                                currentPage++;
+                                showPage(currentPage);
+                            }
+                        });
+                    });
+
+                </script>
 
                 <div>
                     <table id="tabelaHistorico">
@@ -185,15 +235,11 @@
                     </table>
 
                     <br>
-                    <div style="display: none; width: 100%; justify-content: end; ">
-                        <div class="pagination">
-                            <button class="pageBtn" id="prevPage">Anterior</button>
-                            <span style="margin-inline: 15px; text-decoration: underline; font-weight: 500;"
-                                id="pageNumber">1</span>
-                            <button class="pageBtn" id="nextPage">Próximo</button>
-                        </div>
-                    </div>
 
+                    <div id="pagination">
+                        <button id="prev">Anterior</button>
+                        <button id="next">Siguiente</button>
+                    </div>
 
 
 

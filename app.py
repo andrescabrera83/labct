@@ -1,6 +1,6 @@
 ## IMPORTS AND CONFIGURATION ###############################
 
-from flask import Flask, render_template, request, redirect, url_for, session, g, make_response
+from flask import Flask, render_template, request, redirect, url_for, session, g, make_response, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from sqlalchemy import ForeignKey, func
@@ -157,6 +157,7 @@ class ReceitasSchema(ma.SQLAlchemySchema):
     nome_rct = ma.auto_field()
     descricao_rct = ma.auto_field()
     preparo_rct = ma.auto_field()
+    rendimento_rct = ma.auto_field()
 
 class ReceitasMateriasPrimasSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -987,6 +988,7 @@ def receitas():
         
         descricao_rct = request.form.get('descricao_rct')
         preparo_rct = request.form.get('preparo_rct')
+        rendimento_rct = request.form.get('rendimento_rct')
 
         
 
@@ -994,6 +996,7 @@ def receitas():
             nome_rct=nome_rct,
             descricao_rct=descricao_rct,
             preparo_rct=preparo_rct,
+            rendimento_rct=rendimento_rct,
             user_id=current_user.id
         )
 
@@ -1156,16 +1159,23 @@ def salvar_pdc():
 def fechar_pdc():
 
     selected_items = request.form.getlist('nome_mp[]')
+    selected_id = request.form.getlist('id_pdc[]')
 
-    for item_id in selected_items:
+
+    for mp,id_pdc in zip(selected_items,selected_id):
 
         
+        print(mp,id_pdc)
 
-        producd = ProducDados.query.filter_by(nome_mp=item_id).first()
+        produc = Produc.query.get_or_404(id_pdc)
+        produc.estado_pdc = 'Fechado'
+        
 
-        estoque = Estoque.query.filter_by(nome_mp=item_id).first()
-        estoquenome = estoque.nome_mp
+        producd = ProducDados.query.filter_by(nome_mp=mp, id_pdc=id_pdc).first()
+        
+        estoque = Estoque.query.filter_by(nome_mp=mp).first()
         estoquequantidade = estoque.quantidade_estq
+
 
         pedidoFloat = Decimal(producd.quantidade_pdcd)
 
@@ -1173,9 +1183,8 @@ def fechar_pdc():
 
         modo = 'Produção'
 
-        produc = Produc.query.filter_by(id_pdc=producd.id_pdc).first()
-        produc.estado_pdc = 'Fechado'
-
+        
+        
         historico = Historico(
             date_change=current_time,
             id_mp=producd.id_mp,
@@ -1188,15 +1197,61 @@ def fechar_pdc():
             )
         
         db.session.add(historico)
+        
+        estoque.quantidade_estq = estoquequantidade - pedidoFloat
+    
         db.session.commit()
-
         
 
-
-
-        print(estoquenome)
-
     return redirect(url_for('produccao'))
+
+@app.route('/get_recipe_info', methods=['POST'])
+def get_recipe_info():
+    selected_recipe_name = request.json.get('selected_recipe')
+    # Query the database for the recipe with the selected name
+    receita = Receitas.query.filter_by(id_rct=selected_recipe_name).first()
+    receitamps = ReceitaMateriasPrimas.query.filter_by(id_rct=selected_recipe_name).all()
+    estoque = Estoque.query.filter_by(user_id=current_user.id).all()
+    
+
+    if receita:
+        # If the recipe is found, return its information
+        recipe_info = {
+            'nome': receita.nome_rct,
+            'rendimento': receita.rendimento_rct,
+            'receitamps_info': [],  # Initialize the list outside the loop
+            'estoque_info': []
+        }
+
+          # Create a set to store the id_mp values from receitamps
+        receitamp_ids = set(receitamp.id_mp for receitamp in receitamps)
+
+        for receitamp in receitamps:
+            receitamp_info = {
+                'id_mp': receitamp.id_mp,
+                'nome_mp': receitamp.nome_mp,
+                'quantidade': receitamp.quantidade,
+                'unidade': receitamp.unidade
+            }
+            recipe_info['receitamps_info'].append(receitamp_info)
+            
+        for estq in estoque:
+
+            if estq.id_mp in receitamp_ids:
+
+                estq_info = {
+                    'id_mp': estq.id_mp,
+                    'nome_mp': estq.nome_mp,
+                    'quantidade_estq': estq.quantidade_estq,
+                }
+                recipe_info['estoque_info'].append(estq_info)
+
+        return jsonify(recipe_info)
+    else:
+        # If the recipe is not found, return an empty response or an error message
+        return jsonify({}), 404
+    
+
 
 
 if __name__ == '__main__':
