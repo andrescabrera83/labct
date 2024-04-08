@@ -8,6 +8,7 @@ class Produc(db.Model):
     id_pdc = db.Column(db.Integer, primary_key=True, autoincrement=True)
     data_pdc = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     estado_pdc = db.Column(db.Enum('Pendente', 'Fechado'))
+    nome_rct = db.Column(db.String(75))   
 
     
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)

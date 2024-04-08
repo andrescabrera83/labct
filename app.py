@@ -2,6 +2,7 @@
 
 from flask import Flask, render_template, request, redirect, url_for, session, g, make_response, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import extract
 from flask_marshmallow import Marshmallow
 from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import relationship
@@ -176,6 +177,7 @@ class ProducSchema(ma.SQLAlchemySchema):
     id_pdc = ma.auto_field()
     data_pdc = ma.auto_field()
     estado_pdc = ma.auto_field()
+    nome_rct = ma.auto_field()
     
 class ProducDadosSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -958,16 +960,24 @@ def fechar_compra():
     return redirect(url_for('compras'))
 ############################################################################### RUN APP ################################################
 
-@app.route('/historico')
+@app.route('/historico', methods=['GET'])
 @login_required
 def historico():
-    historico = Historico.query.filter_by(user_id=current_user.id).all()
-    historico_schema = HistoricoSchema(many=True)
-    serialized_data_hst = historico_schema.dump(historico)
-
-    return render_template('historico.html', historico=serialized_data_hst)
 
 
+
+
+    filter_option = request.args.get('filterOption', 'all')
+    
+    if filter_option == 'all':
+        # Retrieve all data if filter_option is 'all'
+        historico = Historico.query.filter_by(user_id=current_user.id).all()
+    else:
+        # Retrieve data based on the selected mode
+        historico = Historico.query.filter_by(user_id=current_user.id, modo_hst=filter_option).all()
+
+    # Render the template with the filtered data
+    return render_template('historico.html', historico=historico)
 
 # RECEITAS #####################################################
     
@@ -1011,20 +1021,21 @@ def receitas():
         for i in range(ingredient_count):
             id_mp = request.form.get(f'id_mp_{i}')
             quantidade = request.form.get(f'quantidade_{i}')
-            unidade = request.form.get(f'unidade_{i}')
+            
 
             #print(quantidade)
 
              # Fetch the nome_mp corresponding to the id_mp from the MP table
             materiaprima = MateriasPrimas.query.filter_by(id_mp=id_mp).first()
             nome_mp = materiaprima.nome_mp if materiaprima else None
+            unidade_mp = materiaprima.unidade_mp if materiaprima else None
 
             receita_mp = ReceitaMateriasPrimas(
                 id_rct=id_rct,
                 id_mp=id_mp,
                 nome_mp=nome_mp,
                 quantidade=quantidade,
-                unidade=unidade,
+                unidade=unidade_mp,
                 user_id=current_user.id
             )
         
@@ -1104,56 +1115,55 @@ def produccao():
 def salvar_pdc():
     current_time = datetime.now()
 
+     # Extract the data from the request body
+    request_data = request.get_json()
+
+    # Access the rows data sent from the frontend
+    rct_id = request_data.get('rct_id')
+    rows = request_data.get('rows', [])
+
+    receitas = Receitas.query.filter_by(id_rct=rct_id).first()
+    nome_rct = receitas.nome_rct
+
     produccao = Produc(
         data_pdc=current_time,
         estado_pdc='Pendente',
+        nome_rct=nome_rct,
         user_id=current_user.id
         )
     db.session.add(produccao)
     db.session.commit()
-    # Retrieve the selected value from the form
-    selected_value = request.form.get('receita')
+    
 
-    receita = Receitas.query.filter_by(id_rct=selected_value).first()
+     # Process the received data as needed
+    for row in rows:
+        id_mp = row.get('id_mp')
+        nome_mp = row.get('nome_mp')
+        quantidade = row.get('quantidade')
+        multiplied_value = row.get('multiplied_value')
+        unidade = row.get('unidade')
 
-    if receita:
-        receita_id = receita.id_rct  # Access the id attribute of the receita object
-    # Now you have the id associated with the selected value
-    # Do something with receita_id, such as saving it to the database
-        #print("Receita ID:", receita_id)
-    else:
-        print("No receita found for the selected value:", selected_value)
-
-    print(receita_id)
-
-    receita_mps = ReceitaMateriasPrimas.query.filter_by(id_rct=receita_id).all()
-
-    # Now `receita_mps` contains a list of ReceitasMateriasPrimas associated with the receita_id
-    # You can iterate over this list to access individual ReceitasMateriasPrimas objects
-    for receita_mp in receita_mps:
-    # Access attributes of each ReceitasMateriasPrimas object as needed
-        id_rct =  receita_mp.id_rct
-        id_mp =  receita_mp.id_mp
-        nome_mp =  receita_mp.nome_mp
-        quantidade =  receita_mp.quantidade
-        unidade =  receita_mp.unidade
-
+        #print(rct_id,id_mp, nome_mp, quantidade, multiplied_value, unidade)
+        
+            
         producdados = ProducDados(
             id_pdc = produccao.id_pdc,
-            id_rct = id_rct,
+            id_rct = rct_id,
             id_mp = id_mp,
             nome_mp = nome_mp,
-            quantidade_pdcd = quantidade,
+            quantidade_pdcd = multiplied_value,
             unidade_pdcd = unidade,
             user_id=current_user.id
         )
         db.session.add(producdados)
     
-    db.session.commit()
+        db.session.commit()
+      
+    # Assuming 'produccao_url' is the URL to which you want to redirect
+    produccao_url = url_for('produccao')
 
-    return redirect(url_for('produccao'))
-
-    # Check if the item exists
+    # Return a JSON response with the redirect URL
+    return jsonify({'redirect_url': produccao_url})
     
 @app.route('/fechar_pdc', methods=['POST'])
 def fechar_pdc():

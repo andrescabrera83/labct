@@ -147,16 +147,23 @@
 
     /* Style for the disabled button */
     #fazerPedido[disabled] {
-        background-color: #cccccc; /* Gray background */
-        color: #999999; /* Light gray text color */
-        cursor: not-allowed; /* Show disabled cursor */
+        background-color: #cccccc;
+        /* Gray background */
+        color: #999999;
+        /* Light gray text color */
+        cursor: not-allowed;
+        /* Show disabled cursor */
         /* Add any other styles as needed */
     }
+
     /* Style for the disabled button hover*/
     #fazerPedido[disabled]:hover {
-        background-color: #cccccc !important; /* Gray background */
-        color: #999999; /* Light gray text color */
-        cursor: not-allowed; /* Show disabled cursor */
+        background-color: #cccccc !important;
+        /* Gray background */
+        color: #999999;
+        /* Light gray text color */
+        cursor: not-allowed;
+        /* Show disabled cursor */
         /* Add any other styles as needed */
     }
 </style>
@@ -169,15 +176,14 @@
             <button id="expandBtn" class="btn-cadastrar"> + Fazer Novo Pedido De Produção</button>
             <div id="tableContainer" class="hidden">
 
-                <div
-                    class="wholeContainer"
+                <div class="wholeContainer"
                     style="display:flex; flex-direction: column; justify-content: flex-start; width: 100%; align-items: start; vertical-align: middle; border: 1px solid #aeaeae; padding: 38px; border-radius: 12px;">
-                   
+
                     <div style="display:flex; flex-direction: row; width: 100%;">
 
-                    
-                        <div style="min-width: fit-content; display: flex; flex-direction: column;" >
-                            <label style="margin-right: 12px; font-size: large;" for="receitas"> Seleccione Uma Receita:
+
+                        <div style="min-width: fit-content; display: flex; flex-direction: column;">
+                            <label style="margin-right: 12px; font-size: large;" for="receitas"> Selecione Uma Receita:
                             </label>
                             <select name="receitas" id="receitas-select" style="padding: 8px 15px; /* Add padding to the select input */
                             font-size: 16px; /* Set font size */
@@ -186,34 +192,41 @@
                             background-color: #f7f7f7; /* Set background color */
                             color: #333; /* Set text color */
                             cursor: pointer; /* Change cursor on hover */">
-                                <option value="" selected disabled>--seleccione una receta: </option>
+                              
                                 {% for receita in receitas %}
                                 <option value="{{ receita.id_rct }}">{{ receita.nome_rct }}</option>
                                 {% endfor %}
                             </select>
                         </div>
 
-                        <div class="ReceitaInfo" style="display: grid; grid-template-columns:  20% 55% 25% ; width: 90%;  gap: 15px; margin-left: 21px; border-left: 1px solid #aeaeae; padding-inline: 25px;">
+                        <div class="ReceitaInfo"
+                            style="display: flex; flex-direction: column; width: 90%;  gap: 15px; margin-left: 21px; border-left: 1px solid #aeaeae; padding-inline: 25px;">
                             <div style="display: none;">
-                                <h1 class="receitaId"></h1>
+                                <h1 id="rctId" class="receitaId"></h1>
                             </div>
-                            
 
-                            <div style="display: flex; flex-direction: column;">
-                                <h2 class="receitaName"></h2>
-                                <h3 style="font-size: medium;" class="receitaRendimento"></h3>
-                                <div id="multContainer" style="display: none; flex-direction: column;">
-                                    <label for="multiplicador">Quantidade:</label>
-                                    <input name="multiplicador" type="number" value="1" id="mult-Select">
+
+                            <div style="display: flex; flex-direction: row;">
+
+                                <div>
+                                    <h2 class="receitaName"></h2>
+                                    <h3 style="font-size: large; text-align: center; text-decoration: underline;" class="receitaRendimento"></h3>
+                                </div>
+                                
+
+                                <div id="multContainer" style="display: none;  flex-direction: column; margin-left: 21px;">
+                                    <label style="font-size: large;" for="multiplicador">Qtde Receita/Produção:</label>
+                                    <input name="multiplicador" type="number" value="1" min="0" id="mult-Select"
+                                    style="height: max-content;">
                                     <button style="margin-top: 12px;" onclick="showReceitaInfo()"
                                         class="btn-ferramenta">Atualizar Quantidade</button>
                                 </div>
 
                             </div>
 
+                            <div style="display: flex; flex-direction: row; gap: 22px;">
 
-
-                            <div style="display: none; flex-direction: column; margin-top: 8px; border-left: 1px solid #aeaeae; padding-left: 25px;"
+                                <div style="display: none; flex-direction: column; margin-top: 8px; border-left: 1px solid #aeaeae; padding-left: 25px; width: 75%;"
                                 id="rctInfoContainer">
 
 
@@ -223,10 +236,12 @@
                                         <tr>
                                             <th>ID</th>
                                             <th>Nome</th>
-                                            <th>Quantidade/Receita</th>
+                                            <th >Quantidade/Receita</th>
                                             <th>Quantidade/Total</th>
                                             <th>Unidade</th>
                                             <th>Estoque</th>
+                                            
+
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -235,7 +250,7 @@
 
                             </div>
 
-                            <div style="display: none; flex-direction: column; margin-top: 8px; border-left: 1px solid #aeaeae; padding-left: 15px; width: 100%;"
+                            <div style="display: none; flex-direction: column; margin-top: 8px; border-left: 1px solid #aeaeae; padding-left: 15px; width: 25%;"
                                 id="estoqueInfoContainer">
 
 
@@ -252,6 +267,12 @@
 
 
                             </div>
+
+                            </div>
+
+
+
+                            
 
                             <script>
                                 function showReceitaInfo() {
@@ -309,11 +330,11 @@
                                             var receitaRendimento = document.querySelector("h3.receitaRendimento");
                                             var nomeReceita = data.nome;
                                             var rendimentoReceita = data.rendimento;
-                                            receitaRendimento.innerHTML = "Rendimento: " + rendimentoReceita; // Display recipe yield
+                                            receitaRendimento.innerHTML = "Rendimento: " + rendimentoReceita + " Unidades"; // Display recipe yield
                                             receitaName.innerHTML = ">> " + nomeReceita; // Display recipe name
                                             console.log(nomeReceita);
 
-                                            
+
 
                                             data.receitamps_info.forEach(receitamp => {
                                                 // Find the corresponding item in estoque_info array
@@ -323,37 +344,44 @@
                                                 if (correspondingEstoque && correspondingEstoque.quantidade_estq > receitamp.quantidade * multValue) {
                                                     console.log(`ID_MP: ${receitamp.id_mp} - Quantidade: ${receitamp.quantidade * multValue} is less than Estoque: ${correspondingEstoque.quantidade_estq}`);
                                                     iconHtml = "<i class='fas fa-check-circle'></i>";
-                                                    
 
-                                                }else{
-                                                    
+
+                                                } else {
+
                                                 }
                                             });
 
 
-                                            
+                                            var containsFalse = false;
+
                                             // Populate the receitamps table
                                             var receitampsTableBody = document.querySelector("#receitampsTable tbody");
                                             receitampsTableBody.innerHTML = ''; // Clear existing rows
+
+
                                             data.receitamps_info.forEach(receitamp => {
                                                 var correspondingEstoque = data.estoque_info.find(estq => estq.id_mp === receitamp.id_mp);
                                                 // Define a variable to hold the HTML for the icon
                                                 var iconHtml = "";
                                                 var iconColor = ""; // Add a variable to hold the color of the icon
 
+                                                
+
                                                 // If correspondingEstoque exists and its quantidade_estq is greater than receitamp.quantidade
                                                 if (correspondingEstoque && correspondingEstoque.quantidade_estq > receitamp.quantidade * multValue) {
                                                     // Set the iconHtml to display the "ok" icon
                                                     iconHtml = "<i class='fas fa-check-circle'></i>"; // Adjust this to your icon's class or image
                                                     iconColor = "green"; // Set color to green
-                                                    button.disabled = false;
+                                                     // Enable the button
                                                     
+
                                                 } else {
                                                     // Set the iconHtml to display the "x" icon
                                                     iconHtml = "<i class='fas fa-times-circle'></i>"; // Adjust this to your icon's class or image
                                                     iconColor = "red"; // Set color to red
-                                                    button.disabled = true;
+                                                    containsFalse = true; // Disable the button
                                                     
+
                                                 }
                                                 var multipliedValue = (receitamp.quantidade * multValue).toFixed(3);
                                                 var row = `
@@ -364,10 +392,19 @@
                                                                 <td style="color: blue; text-decoration: underline;">${multipliedValue}</td>
                                                                 <td>${receitamp.unidade}</td>
                                                                 <td style="color: ${iconColor};">${iconHtml}</td> <!-- Add color to the icon -->
+                                                                
                                                             </tr>
                                                         `;
                                                 receitampsTableBody.innerHTML += row;
                                             });
+
+                                           
+                                            if (containsFalse) {
+                                                button.disabled = true;
+                                            } else {
+                                                button.disabled = false;
+                                            }
+                                           
 
                                             // Populate the estoque table
                                             var estoqueTableBody = document.querySelector("#estoqueTable tbody");
@@ -400,18 +437,95 @@
 
                     </div>
 
-                    
 
-                    <div style="display: flex; width: 100%;  justify-content: end; border-top: 1px solid #aeaeae; margin-top: 35px;">
-                        <button style="width: 160px; margin-top: 18px; display: none;" class="btn btn-dark" disabled id="fazerPedido">Fazer Pedido</button>
+
+                    <div
+                        style="display: flex; width: 100%;  justify-content: end; border-top: 1px solid #aeaeae; margin-top: 35px;">
+                        <button style="width: 160px; margin-top: 18px; display: none;" class="btn btn-dark" disabled
+                            id="fazerPedido">Fazer Pedido</button>
+
+                        <script>
+                            function sendValuesToBackend() {
+
+                                var rctId = document.getElementById("rctId").textContent;
+
+                                console.log(rctId);
+
+                                // Prepare an array to store the data for each dynamically created row
+                                var rowData = [];
+
+                                // Loop through each dynamically created row
+                                document.querySelectorAll("#receitampsTable tbody tr").forEach(row => {
+                                    // Retrieve values from the <td> elements within the row
+                                    var idMp = row.querySelector("td:nth-child(1)").textContent;
+                                    var nomeMp = row.querySelector("td:nth-child(2)").textContent;
+                                    var quantidade = row.querySelector("td:nth-child(3)").textContent;
+                                    var multipliedValue = row.querySelector("td:nth-child(4)").textContent;
+                                    var unidade = row.querySelector("td:nth-child(5)").textContent;
+                                    var iconColor = row.querySelector("td:nth-child(6)").style.color; // Assuming the color is set via style attribute
+
+                                    // Create an object with the retrieved values
+                                    var rowDataItem = {
+                                        id_mp: idMp,
+                                        nome_mp: nomeMp,
+                                        quantidade: quantidade,
+                                        multiplied_value: multipliedValue,
+                                        unidade: unidade,
+                                        icon_color: iconColor
+                                    };
+
+                                    // Add the object to the rowData array
+                                    rowData.push(rowDataItem);
+                                });
+
+                                // Prepare the data to send in the request body
+                                var data = {
+                                    rct_id: rctId,
+                                    rows: rowData
+                                };
+
+                                console.log(data);
+
+                                // Send a POST request to your Flask backend endpoint
+                                fetch('/salvar_pdc', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify(data)
+                                })
+                                    .then(response => {
+                                        // Handle the response from the backend, if necessary
+                                        if (!response.ok) {
+                                            throw new Error('Network response was not ok');
+                                        }
+                                        // Process the response
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        // Extract redirect URL from JSON response
+                                        const redirectUrl = data.redirect_url;
+                                        // Redirect user to the specified URL
+                                        window.location.href = redirectUrl;
+                                    })
+                                    .catch(error => {
+                                        console.error('Fetch error:', error);
+                                    });
+                            }
+
+
+                            document.getElementById("fazerPedido").addEventListener("click", sendValuesToBackend);
+                        </script>
                     </div>
 
+
+
                 </div>
-                
+
             </div>
 
             <hr>
-            <hr>
+           
 
             <div class="listaPedidos" style="margin-top: 12px;">
                 <h4> Pedidos De Produção Pendentes</h4>
@@ -443,7 +557,9 @@
 
                         <tr class="fold">
                             <td colspan="3">
-                                <div class="fold-content">
+                                <div class="fold-content" style="display: flex; justify-content: start; flex-direction: column;">
+
+                                    <h4 style="text-align: start; font-weight: 300;">>> Ingredientes da Receita: <span style="text-decoration: underline; font-weight: 500;">{{produc.nome_rct}}</span>  </h4>
 
                                     <form id="myForm" action="/fechar_pdc" method="POST">
 
@@ -500,6 +616,24 @@
                         {% endfor %}
                     </tbody>
                 </table>
+
+                <script>
+                    //Script that reverses the table order
+                    // Get the table body element
+                    const tbody = document.querySelector("#myTable tbody");
+                
+                    // Convert the NodeList of rows to an array and reverse the order
+                    const rowsArray = Array.from(tbody.rows).reverse();
+                
+                    // Clear the existing rows in the table body
+                    tbody.innerHTML = '';
+                
+                    // Append the reversed rows to the table body
+                    rowsArray.forEach(row => {
+                        tbody.appendChild(row);
+                    });
+                </script>
+
             </div>
 
             <div class="listaPedidos" style="margin-top: 44px;">

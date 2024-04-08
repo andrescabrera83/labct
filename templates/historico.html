@@ -14,10 +14,7 @@
 
                 <div
                     style="display: flex; width: 100%; flex-direction: row; justify-content: start; margin-block: 18px; gap: 12px;">
-                    <div class="ferramentasHistorico"
-                        style="display: flex; flex-direction: row; gap: 12px; align-items: center;">
-                        <label style="margin-top: 6px;">Filtrar Por Mes:</label>
-                    </div>
+
 
                     <form id="filterForm" style="margin-top: 6px;">
 
@@ -26,153 +23,58 @@
                         <input type="radio" name="filterOption" value="all" id="allOption" checked>
                         <label for="allOption">Todos</label>
 
-                        <input style="margin-left: 12px;" type="radio" name="filterOption" value="registro manual"
+                        <input style="margin-left: 12px;" type="radio" name="filterOption" value="Registro Manual"
                             id="registromanualOption">
                         <label for="registromanualOption">Registro Manual</label>
 
-                        <input style="margin-left: 12px;" type="radio" name="filterOption" value="compra"
+                        <input style="margin-left: 12px;" type="radio" name="filterOption" value="Inventario"
+                            id="registromanualOption">
+                        <label for="registromanualOption">Inventario</label>
+
+                        <input style="margin-left: 12px;" type="radio" name="filterOption" value="Compra"
                             id="comprasOption">
                         <label for="comprasOption">Compra</label>
 
-                        <input style="margin-left: 12px;" type="radio" name="filterOption" value="produção"
+                        <input style="margin-left: 12px;" type="radio" name="filterOption" value="Produção"
                             id="producaoOption">
                         <label for="producaoOption">Produção</label>
                     </form>
+
+                    <div style="display: none;">
+                        <label for="filterMonthYear">Filtrar Por Mês/Ano:</label>
+                        <select id="filterMonthYear">
+                            <option value="all" selected>Todos</option>
+                            <!-- Months/years options will be populated dynamically -->
+                        </select>
+                    </div>
+
+
 
                 </div>
 
                 <script>
                     $(document).ready(function () {
-                        // Function to format date to month/year
-                        function formatDateToMonthYear(dateString) {
-                            var date = new Date(dateString);
-                            var monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-                                "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-                            ];
-                            var month = monthNames[date.getMonth()];
-                            var year = date.getFullYear();
-                            return month + " " + year;
-                        }
 
-                        // Create the select element
-                        var selectElement = $("<select id='selectMonthYear'></select>");
 
-                        // Reference to the table
-                        var tableId = "#tabelaHistorico";
+                        // Get the value of filterOption from the URL query parameter
+                        var filterOption = "{{ request.args.get('filterOption', 'all') }}";
+                        // Set the radio input based on the filterOption value
+                        $('input[type=radio][name=filterOption]').filter('[value="' + filterOption + '"]').prop('checked', true);
 
-                        // Array to store unique month/year values
-                        var uniqueValues = [];
-
-                        // Iterate over the table rows to extract unique month/year values
-                        $(tableId + " tbody tr").each(function () {
-                            var dateValue = $(this).find("td:eq(3)").text().trim();
-                            var monthYear = formatDateToMonthYear(dateValue);
-                            if (monthYear && !uniqueValues.includes(monthYear)) {
-                                uniqueValues.push(monthYear);
-                            }
+                        // Add event listener to radio inputs
+                        $('input[type=radio][name=filterOption]').change(function () {
+                            // Get the selected filter option
+                            var filterOption = $(this).val();
+                            // Redirect to the same page with the selected filter option as a query parameter
+                            window.location.href = "/historico?filterOption=" + filterOption;
                         });
-
-                        // Append "All" option to the select element
-                        selectElement.append("<option value=''>Todos</option>");
-
-                        // Append options for unique month/year values to the select element
-                        uniqueValues.forEach(function (value) {
-                            selectElement.append("<option value='" + value + "'>" + value + "</option>");
-                        });
-
-                        // Appending the select element to the ferramentas div
-                        $(".ferramentasHistorico").append(selectElement);
-
-                        // Add event listener for form changes
-                        $('#filterForm input[type="radio"], #selectMonthYear').change(filterTable);
-
-                        // Function to filter the table rows
-                        function filterTable() {
-                            var selectedOption = $('#filterForm input[name="filterOption"]:checked').val().toLowerCase();
-                            var selectedMonthYear = $('#selectMonthYear').val();
-
-                            // Get the table rows
-                            var rows = $('#tabelaHistorico tbody tr');
-
-                            // Loop through all table rows
-                            rows.each(function (index) {
-                                var cell = $(this).find('td:eq(4)');
-                                var indicatorText = cell.text().trim().toLowerCase();
-                                var dateValue = $(this).find("td:eq(3)").text().trim();
-                                var monthYear = formatDateToMonthYear(dateValue);
-
-                                // Show or hide rows based on the selected filter option and month/year
-                                if ((selectedOption === 'all' || indicatorText === selectedOption) &&
-                                    (selectedMonthYear === '' || monthYear === selectedMonthYear)) {
-                                    // Calculate row index based on pagination
-                                    var rowIndex = index + 1;
-                                    var start = (currentPage - 1) * rowsPerPage + 1;
-                                    var end = currentPage * rowsPerPage;
-                                    if (rowIndex >= start && rowIndex <= end) {
-                                        $(this).show();
-                                    } else {
-                                        $(this).hide();
-                                    }
-                                } else {
-                                    $(this).hide();
-                                }
-
-                                // Function to scroll to the last visible row
-                            });
-                        }
-
-                        // Trigger initial filtering and scrolling
-                        var currentPage = 1;
-                        var rowsPerPage = 20;
-                        filterTable();
                     });
-
                 </script>
 
 
 
-                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-                <script>
-                    $(document).ready(function () {
-                        var rowsPerPage = 20;
-                        var $table = $('#tabelaHistorico');
-                        var $tbody = $table.find('tbody');
-                        var $rows = $tbody.find('tr');
-                        var numRows = $rows.length;
-                        var numPages = Math.ceil(numRows / rowsPerPage);
-                        var currentPage = 1;
 
-                        function showPage(page) {
-                            var start = (page - 1) * rowsPerPage;
-                            var end = start + rowsPerPage;
 
-                            $rows.hide().slice(start, end).show();
-
-                            
-
-                            // Enable/disable previous and next buttons based on current page
-                            $('#prev').prop('disabled', page === 1);
-                            $('#next').prop('disabled', page === numPages);
-                        }
-
-                        showPage(currentPage);
-
-                        $('#prev').on('click', function () {
-                            if (currentPage > 1) {
-                                currentPage--;
-                                showPage(currentPage);
-                            }
-                        });
-
-                        $('#next').on('click', function () {
-                            if (currentPage < numPages) {
-                                currentPage++;
-                                showPage(currentPage);
-                            }
-                        });
-                    });
-
-                </script>
 
                 <div>
                     <table id="tabelaHistorico">
@@ -215,7 +117,7 @@
                                 <td>
                                     {{hst.id_mp}}
                                 </td>
-                                <td>
+                                <td style="text-align: start; padding-left: 11px;">
                                     {{hst.nome_mp}}
                                 </td>
                                 <td>
@@ -236,11 +138,60 @@
 
                     <br>
 
-                    <div id="pagination">
-                        <button id="prev">Anterior</button>
-                        <button id="next">Siguiente</button>
+
+                    <div id="pagination" style="display: flex; width: 100%; justify-content: end;">
+                        <button class="btn-ferramentas" id="prev">Anterior</button>
+                        <span style="margin-inline: 12px;" id="page"></span>
+                        <button class="btn-ferramentas" id="next">Próximo</button>
                     </div>
 
+
+
+                    <script>
+                        const table = document.getElementById('tabelaHistorico');
+                        const tbody = table.querySelector('tbody');
+                        const rowsPerPage = 20;
+                        let currentPage = 1;
+                        let rows = tbody.querySelectorAll('tr'); // Initialize rows here
+
+                        function showPage(page) {
+                            const startIndex = (page - 1) * rowsPerPage;
+                            const endIndex = Math.min(startIndex + rowsPerPage, rows.length);
+
+                            for (let i = 0; i < rows.length; i++) {
+                                if (i >= startIndex && i < endIndex) {
+                                    rows[i].style.display = '';
+                                } else {
+                                    rows[i].style.display = 'none';
+                                }
+                            }
+
+                            document.getElementById('page').textContent = `Pág ${page}`;
+
+                            // Disable/enable buttons based on current page
+                            document.getElementById('prev').disabled = (page === 1);
+                            document.getElementById('next').disabled = (page === Math.ceil(rows.length / rowsPerPage));
+                        }
+
+                        function nextPage() {
+                            if (currentPage < Math.ceil(rows.length / rowsPerPage)) {
+                                currentPage++;
+                                showPage(currentPage);
+                            }
+                        }
+
+                        function prevPage() {
+                            if (currentPage > 1) {
+                                currentPage--;
+                                showPage(currentPage);
+                            }
+                        }
+
+                        showPage(currentPage);
+
+                        document.getElementById('next').addEventListener('click', nextPage);
+                        document.getElementById('prev').addEventListener('click', prevPage);
+                    </script>
 
 
 

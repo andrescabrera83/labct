@@ -86,7 +86,7 @@
   
     .fold-content {
       padding: 0.5em;
-      text-align: left;
+      text-align: center;
       padding: 0.5px;
   
     }
@@ -166,8 +166,8 @@
 
                                 <hr>
 
-                                <div class="form-group">
-                                  <label for="rendimento_rct">Rendimento da Receita:</label><br>
+                                <div class="form-group" style="width: 35%;">
+                                  <label for="rendimento_rct">Rendimento da Receita em Unidades:</label><br>
                                   <input type="number" class="form-control" id="rendimento_rct" name="rendimento_rct" required>
                               </div>
 
@@ -207,20 +207,12 @@
                                   <input type="number" step="0.1" min="0" class="form-control" id="quantidade_${ingredientCount}" name="quantidade_${ingredientCount}" required>
                                   </div>
       
-                                  <div class="form-group" style="width: 95%;">
-                                  <label for="unidade_${ingredientCount}">Unidade:</label>
-                                  <select class="form-control" id="unidade_${ingredientCount}" name="unidade_${ingredientCount}" required>
-                                    <option value="KG">Kilogramo(s)</option>  
-                                    <option value="UN">Unidade(s)</option>
-                                      
-                                  </select>
-                                  </div>
       
                                   <div class="form-group">
                                   <label for="id_mp_${ingredientCount}">Matéria Prima:</label>
                                   <select class="form-control" id="id_mp_${ingredientCount}" name="id_mp_${ingredientCount}" required>
                                   {% for mp in materiasprimas %}
-                                  <option value="{{ mp.id_mp }}">{{ mp.nome_mp }}</option>
+                                  <option value="{{ mp.id_mp }}">{{ mp.nome_mp }} ({{mp.unidade_mp}})</option>
                                   {% endfor %}
                                   </select>
                                   </div>
@@ -337,15 +329,15 @@
                         </div>
                         <tr class="fold">
                             <td colspan="7">
-                                <div class="fold-content" style="padding: 10px; margin-top: 5px;">
+                                <div class="fold-content" style="padding: 32px; margin-top: 5px;">
                                     <h4 class="target-component">{{ rct.nome_rct }} </h4>
                                     <p>{{ rct.descricao_rct }}</p>
                                     <hr>
-                                    <h5>Ingredientes</h5>
+                                    <h5>Ingredientes da Receita:</h5>
                                     <table class="inside-table" style="margin-top: 20px !important;">
                                         <thead>
                                             <tr>
-                                                <th style="width: 5%;">Id Da MP</th>
+                                                <th style="width: 5%; text-align: center;">Id Da MP</th>
                                                 <th style="text-align: center;">Matéria Prima</th>
                                                 <th style="text-align: center;">Quantidade</th>
                                                 <th style="text-align: center;">Unidade</th>
