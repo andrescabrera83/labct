@@ -10,6 +10,9 @@ class Receitas(db.Model):
     descricao_rct = db.Column(db.Text)
     preparo_rct = db.Column(db.Text)
     rendimento_rct = db.Column(db.Integer)
+    class_rct = db.Column(db.String(45))
+    departamento_rct = db.Column(db.String(45))
+    validade_rct = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
 
     usuarios = db.relationship("Usuarios", back_populates="receitas")

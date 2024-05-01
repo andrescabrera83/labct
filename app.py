@@ -168,6 +168,7 @@ class ReceitasMateriasPrimasSchema(ma.SQLAlchemySchema):
     id_mp = ma.auto_field()
     nome_mp = ma.auto_field()
     quantidade = ma.auto_field()
+    tipo_rctmp = ma.auto_field()
     unidade = ma.auto_field()
 
 class ProducSchema(ma.SQLAlchemySchema):
@@ -256,7 +257,7 @@ def user_loader(user_id):
 def index():
     
     if 'username' in session:
-        return render_template('home.html', username=session['username'])
+        return render_template('inventario.html', username=session['username'])
     return redirect(url_for('login'))
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -999,6 +1000,10 @@ def receitas():
         descricao_rct = request.form.get('descricao_rct')
         preparo_rct = request.form.get('preparo_rct')
         rendimento_rct = request.form.get('rendimento_rct')
+        class_rct = request.form.get('class_rct')
+        departamento_rct = request.form.get('departamento_rct')
+        validade_rct = request.form.get('validade_rct')
+        
 
         
 
@@ -1007,6 +1012,9 @@ def receitas():
             descricao_rct=descricao_rct,
             preparo_rct=preparo_rct,
             rendimento_rct=rendimento_rct,
+            class_rct=class_rct,
+            departamento_rct=departamento_rct,
+            validade_rct=validade_rct,
             user_id=current_user.id
         )
 
@@ -1021,6 +1029,7 @@ def receitas():
         for i in range(ingredient_count):
             id_mp = request.form.get(f'id_mp_{i}')
             quantidade = request.form.get(f'quantidade_{i}')
+            tipo = request.form.get(f'tipo_rctmp_{i}')
             
 
             #print(quantidade)
@@ -1029,12 +1038,14 @@ def receitas():
             materiaprima = MateriasPrimas.query.filter_by(id_mp=id_mp).first()
             nome_mp = materiaprima.nome_mp if materiaprima else None
             unidade_mp = materiaprima.unidade_mp if materiaprima else None
+            print('############## ', unidade_mp)
 
             receita_mp = ReceitaMateriasPrimas(
                 id_rct=id_rct,
                 id_mp=id_mp,
                 nome_mp=nome_mp,
                 quantidade=quantidade,
+                tipo_rctmp=tipo,
                 unidade=unidade_mp,
                 user_id=current_user.id
             )

@@ -10,6 +10,8 @@ class ReceitaMateriasPrimas(db.Model):
     nome_mp = db.Column(db.String(75))
     quantidade = db.Column(db.Numeric(10,3))
     unidade = db.Column(db.Enum('KG', 'UN'))
+    tipo_rctmp = db.Column(db.Enum('Ingrediente', 'Embalagem'))
+    
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
 
     usuarios = db.relationship("Usuarios", back_populates="receitasmateriasprimas")

@@ -387,7 +387,7 @@
                         <tr class="view">
 
                             <td>{{comprasPendente.id_compras}}</td>
-                            <td>{{comprasPendente.data_compras | datetimeformat2}}</td>
+                            <td>{{comprasPendente.data_compras }}</td>
                             <td>{{comprasPendente.estado_compras}}</td>
 
 
@@ -493,8 +493,8 @@
                                                     <td>{{comprasdados.unidade_mp}}</td>
                                                     <td  class="valorpedido_comprasd {% if comprasdados.fechado_comprasd == 1 %}fechado{% endif %}" >
                                                         R${{comprasdados.valorpedido_comprasd}}</td>
-                                                    <td>{{comprasdados.previsao_comprasd | datetimeformat2}}</td>
-                                                    <td>{{comprasdados.vencimento_comprasd | datetimeformat2}}</td>
+                                                    <td>{{comprasdados.previsao_comprasd}}</td>
+                                                    <td>{{comprasdados.vencimento_comprasd }}</td>
                                                     <td>
                                                         <span class="notafiscal_{{comprasPendente.id_compras}}" style="text-decoration: underline;">
                                                             {% if comprasdados.fechado_comprasd == 1 %}      
@@ -646,7 +646,7 @@
                         <tr class="view">
 
                             <td>{{comprasEntregue.id_compras}}</td>
-                            <td>{{comprasEntregue.data_compras | datetimeformat2}}</td>
+                            <td>{{comprasEntregue.data_compras}}</td>
                             <td>{{comprasEntregue.estado_compras}}</td>
 
 
@@ -749,8 +749,8 @@
                                                     <td>{{comprasdados.unidade_mp}}</td>
                                                     <td  class="valorpedido_comprasd {% if comprasdados.fechado_comprasd == 1 %}fechado{% endif %}" >
                                                         R${{comprasdados.valorpedido_comprasd}}</td>
-                                                    <td>{{comprasdados.previsao_comprasd | datetimeformat2}}</td>
-                                                    <td>{{comprasdados.vencimento_comprasd | datetimeformat2}}</td>
+                                                    <td>{{comprasdados.previsao_comprasd }}</td>
+                                                    <td>{{comprasdados.vencimento_comprasd }}</td>
                                                     <td>
                                                         <span class="notafiscal_{{comprasEntregue.id_compras}}" style="text-decoration: underline;">
                                                             {% if comprasdados.fechado_comprasd == 1 %}      

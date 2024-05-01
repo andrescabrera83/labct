@@ -1,0 +1,122 @@
+/*********************************************************/
+html {
+    height: 100vh;
+    width: 100vw;
+  }
+  
+  body {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    font-family: "DM Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+  }
+  
+  .mainContainer {
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    background-size: cover;
+    background-position: center;
+    padding-block: 4rem;
+    display: flex;
+    justify-content: center;
+    position: relative;
+  }
+  .mainContainer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Darken the background image with a semi-transparent black overlay */
+  }
+  .mainContainer .loginContainer {
+    display: flex;
+    flex-direction: row;
+    box-sizing: border-box;
+    justify-content: start;
+    align-items: center;
+    padding-bottom: 3rem;
+    padding-top: 2rem;
+    padding-inline: 4%;
+    gap: 2em;
+    width: 38%;
+    height: fit-content;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 12px;
+    position: relative;
+    /* Ensure the child element stays on top of the overlay */
+    z-index: 1;
+    /* Make the child element appear above the overlay */
+  }
+  .mainContainer .loginContainer .loginBox {
+    width: 100%;
+    padding-inline: 6%;
+  }
+  .mainContainer .loginContainer .loginBox h1 {
+    font-weight: 800;
+  }
+  .mainContainer .loginContainer .loginBox form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .mainContainer .loginContainer .loginBox form > * {
+    margin-block: 0.7em;
+  }
+  .mainContainer .loginContainer .loginBox form .loginInput {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .mainContainer .loginContainer .loginBox form .loginInput label {
+    align-self: start;
+    text-align: start;
+  }
+  .mainContainer .loginContainer .loginBox form .loginInput input {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: "DM Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+    height: 3em;
+    padding: 1em;
+    border-radius: 6px;
+    border: 1px solid gray;
+  }
+  .mainContainer .loginContainer .loginBox form button {
+    width: 100%;
+    border: none;
+    background-color: #000000;
+    color: white;
+    padding: 0.8em;
+    border-radius: 6px;
+    font-weight: 700;
+    /* Add transition for smooth animation */
+    transition: background-color 0.2s ease-in-out;
+    /* Hover state */
+    /* Active state */
+  }
+  .mainContainer .loginContainer .loginBox form button:hover {
+    background-color: #4d4d4d;
+    /* Darken the background color by 10% on hover */
+    cursor: pointer;
+    /* Change cursor to pointer on hover */
+  }
+  .mainContainer .loginContainer .loginBox form button:active {
+    background-color: #999999;
+    /* Darken the background color by 20% on active */
+  }
