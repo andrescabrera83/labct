@@ -10,6 +10,7 @@ class Usuarios(UserMixin,db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
+    role = db.Column(db.Enum('admin','master'), nullable=False)
 
     materias_primas = db.relationship('MateriasPrimas', back_populates="usuarios" , lazy=True)
     fornecedores = db.relationship('Fornecedores', back_populates="usuarios" , lazy=True)

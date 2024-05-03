@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Usuarios{% endblock %}
+
+{% block content %}
+
+<body>
+    <div class="container">
+        <div class="tabela">
+          
+            
+            <div>
+                <h3>Usuarios</h3>
+                <div class="titleandbtn">
+                    
+                    <button style="margin-left: 12px ;" type="button" data-toggle="modal" data-target="#cadastrarFModal"
+                        class="btn-cadastrar"> +
+                        Cadastrar Novo Usuario</button>
+                </div>
+
+            </div>
+
+            <div class="table-responsive">
+                <table style="margin-top: 25px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">Código</th>
+                            <th style="width: 45%;">Usuario</th>
+
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios%}
+                        <tr>
+                            <td>{{usuario.id}}</td>
+                            <td>{{usuario.username}}</td>
+                            
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+{% endblock %}

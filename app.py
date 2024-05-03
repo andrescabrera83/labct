@@ -37,6 +37,7 @@ from models.receitas_model import Receitas
 from models.receitasmateriaprimas_model import ReceitaMateriasPrimas
 from models.produc_model import Produc
 from models.producdados_model import ProducDados
+from models.fabrica_model import Fabrica
 from db import db, ma, app
 
 
@@ -50,6 +51,15 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 ## MODELS AND SCHEMAS ###########################################################################################################################
+
+class UsuariosSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Usuarios
+        
+    id = ma.auto_field()
+    username = ma.auto_field()
+    password = ma.auto_field()
+    role = ma.auto_field()
 
 class FornecedorSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -191,6 +201,26 @@ class ProducDadosSchema(ma.SQLAlchemySchema):
     nome_mp = ma.auto_field()
     quantidade_pdcd = ma.auto_field()
     unidade_pdcd = ma.auto_field()
+    
+class FabricaSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Fabrica
+        
+    id_fab = ma.auto_field()
+    nome_fab = ma.auto_field()
+    endereco_fab = ma.auto_field()
+    bairro_fab = ma.auto_field()
+    cidade_fab = ma.auto_field()
+    estado_fab = ma.auto_field()
+    telefone_fab = ma.auto_field()
+    email_fab = ma.auto_field()
+    responsavel_fab = ma.auto_field()
+    wpp_fab = ma.auto_field()
+    cnpj_fab = ma.auto_field()
+    status_fab = ma.auto_field()
+    cadastrado_em_fab = ma.auto_field()
+    atualizado_em_fab = ma.auto_field()
+
 ####################################################################### APP ###################################################################################################
     
 with app.app_context():
@@ -316,6 +346,128 @@ def cleanupMP():
         db.session.query(MateriasPrimas).delete()  # Delete all entries from the Entry table
         db.session.commit()
     return redirect(url_for('materiasprimas'))
+
+# Define a function to provide global context variables
+def global_context():
+    # Check if 'username' is in the session
+    if 'username' in session:
+        # Retrieve the username from the session
+        username_in_session = session.get('username')
+
+        # Query the database for the user
+        user = Usuarios.query.filter_by(username=username_in_session).first()
+        if user:
+            role = user.role
+
+
+
+            # Return the variables to be available globally
+            return {
+                'username': username_in_session,
+                'role': role,
+            }
+    # Return empty if 'username' is not in session or user not found
+    return {}
+
+# Register the global context processor
+@app.context_processor
+def inject_global_context():
+    return global_context()
+
+## PERFIL ###########################################################################
+
+@app.route('/perfil')
+@login_required
+def perfil():
+    
+    return render_template('perfil.html')
+
+## Usuarios #############################################################
+
+@app.route('/usuarios')
+@login_required
+def usuarios():
+    usuarios = Usuarios.query.all()
+    usuarios_schema = UsuariosSchema(many=True)
+    usuarios_serialized = usuarios_schema.dump(usuarios)
+    return render_template('usuarios.html', usuarios=usuarios_serialized)
+
+
+## FABRICAS ############################################################################
+
+@app.route('/fabricas', methods=['GET', 'POST'])
+@login_required
+def fabricas():
+    if request.method == 'POST':
+        
+        nome_fab = request.form.get('nome_fab')
+        cnpj_fab = request.form.get('cnpj_fab')
+        endereco_fab = request.form.get('endereco_fab')
+        bairro_fab = request.form.get('bairro_fab')
+        cidade_fab = request.form.get('cidade_fab')
+        estado_fab = request.form.get('estado_fab')
+        telefone_fab = request.form.get('telefone_fab')
+        email_fab = request.form.get('email_fab')
+        responsavel_fab = request.form.get('responsavel_fab')
+        wpp_fab = request.form.get('wpp_fab')
+        
+        
+        status = 1
+        created_at = datetime.now()
+        modified_at = datetime.now()
+        
+        fabrica = Fabrica(
+            nome_fab=nome_fab,
+            endereco_fab=endereco_fab,
+            bairro_fab=bairro_fab,
+            cidade_fab=cidade_fab,
+            estado_fab=estado_fab,
+            telefone_fab=telefone_fab,
+            email_fab=email_fab,
+            responsavel_fab=responsavel_fab,
+            wpp_fab=wpp_fab,
+            cnpj_fab=cnpj_fab,
+            status_fab=status,
+            cadastrado_em_fab=created_at,
+            atualizado_em_fab=modified_at
+        )
+        
+        db.session.add(fabrica)
+        db.session.commit()
+        return redirect(url_for('fabricas'))
+        
+    fabricas = Fabrica.query.all()
+    fabricas_schema = FabricaSchema(many=True)
+    serialized_fabrica = fabricas_schema.dump(fabricas)
+    
+        
+    return render_template('fabricas.html', fabricas=serialized_fabrica)
+
+@app.route('/edit-fabrica/<int:id>', methods=['POST'])
+def editFabrica(id):
+    if request.method == 'POST':
+        fabricas = Fabrica.query.get_or_404(id)
+        fabricas.nome_fab = request.form.get('nome_fab')
+        fabricas.cnpj_fab = request.form.get('cnpj_fab')
+        fabricas.endereco_fab = request.form.get('endereco_fab')
+        fabricas.bairro_fab = request.form.get('bairro_fab')
+        fabricas.cidade_fab = request.form.get('cidade_fab')
+        fabricas.estado_fab = request.form.get('estado_fab')
+        fabricas.telefone_fab = request.form.get('telefone_fab')
+        fabricas.email_fab = request.form.get('email_fab')
+        fabricas.responsavel_fab = request.form.get('responsavel_fab')
+        fabricas.wpp_fab = request.form.get('wpp_fab')
+        
+        db.session.commit()
+        return redirect(url_for('fabricas', id=id))
+
+@app.route('/delete-fabrica/<int:id>', methods=['POST'])
+def deleteFabrica(id):
+    fabricas = Fabrica.query.get_or_404(id)
+    db.session.delete(fabricas)
+    db.session.commit()
+    return redirect(url_for('fabricas', id=id) )
+    
 
 ## FORNECEDORES ##########################################
 

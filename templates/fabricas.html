@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+{% block title %}Fabricas{% endblock %}
+
+{% block content %}
+
+<body>
+    <div class="container">
+        <div class="tabela">
+            <div class="header">
+
+                <div class="titleandbtn">
+                    <h3>Fabricas</h3>
+                    <button style="margin-left: 12px ;" type="button" data-toggle="modal" data-target="#cadastrarFModal"
+                        class="btn-cadastrar"> +
+                        Cadastrar Nova Fabrica</button>
+                </div>
+
+                
+
+                <!-- <div class="searchContainer">
+                    <input class="searchInput" type="text" id="searchInput" onkeyup="searchTable()"
+                        placeholder="🔍 Procurar Em Fornecedores... ">
+                </div> -->
+
+            </div>
+
+            <hr>
+            <!-- Cadastrar Fornecedor -->
+            <div class="modal fade" id="cadastrarFModal" role="dialog" aria-labelledby="cadastrarFModalLabel"
+                aria-hidden="true" tabindex="-10">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+
+                            <span style="display: flex; 
+                                        flex-direction: row; 
+                                        align-items: center; 
+                                        justify-content: center;
+                                        margin-left: 5px;">
+
+
+                                <h3 class="modal-title" id="cadastrarModalLabel">Cadastrar Fabrica</h3>
+
+                            </span>
+
+
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+
+
+
+                            <h3>Detalhes Da Fabrica</h3>
+                            <form style="width: 100%;" action="/fabricas" method="post">
+
+                                <div class="form-group">
+                                    <label style="margin-bottom: 1px;" for="nome_fab">Nome Da Fabrica:</label>
+                                    <input type="text" class="form-control" id="nome_fab" name="nome_fab"
+                                        required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label style="margin-bottom: 1px;" for="cnpj_fab">CNPJ:</label>
+                                    <input type="text" class="form-control" id="cnpj_fab" name="cnpj_fab"
+                                        required>
+                                </div>
+
+                                <div style="display: grid;
+                grid-template-columns: 60% 40%;
+                align-items: end;">
+
+                                    <div class="form-group" style="width: 95%;">
+
+                                        <label style="margin-bottom: 1px;" for="endereco_fab">Endereco:</label>
+                                        <input type="text" class="form-control" id="endereco_fab"
+                                            name="endereco_fab"  required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="margin-bottom: 1px;" for="bairro_fab">Barrio:</label>
+                                        <input type="text" class="form-control" id="bairro_fab"
+                                            name="bairro_fab"  required>
+                                    </div>
+
+                                </div>
+
+                                <div style="display: grid;
+                grid-template-columns: 50% 50%;
+                align-items: end;">
+
+                                    <div class="form-group" style="width: 95%;">
+
+                                        <label style="margin-bottom: 1px;" for="cidade_fab">Cidade:</label>
+                                        <input type="text" class="form-control" id="cidade_fab"
+                                            name="cidade_fab"  required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="margin-bottom: 1px;" for="estado_fab">Estado:</label>
+                                        <input type="text" class="form-control" id="estado_fab"
+                                            name="estado_fab"  required>
+                                    </div>
+
+                                </div>
+
+                                <br>
+
+                                <h3>Contato</h3>
+
+                                <div style="display: grid;
+                grid-template-columns: 50% 50%;
+                align-items: end;">
+
+                                    <div class="form-group" style="width: 95%;">
+
+                                        <label style="margin-bottom: 1px;" for="telefone_fab">Telefone:</label>
+                                        <input type="text" class="form-control" id="telefone_fab"
+                                            name="telefone_fab"  required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="margin-bottom: 1px;" for="wpp_fab">Whatsapp:</label>
+                                        <input type="text" class="form-control" id="wpp_fab"
+                                            name="wpp_fab"  required>
+                                    </div>
+
+                                </div>
+
+                                <div class="form-group">
+                                    <label style="margin-bottom: 1px;" for="email_fab">Email:</label>
+                                    <input type="text" class="form-control" id="email_fab" name="email_fab"
+                                        required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label style="margin-bottom: 1px;" for="responsavel_fab">Responsavel:</label>
+                                    <input type="text" class="form-control" id="responsavel_fab" name="responsavel_fab"
+                                        required>
+                                </div>
+
+                            
+
+                                <div style="display: flex; width: 100%; margin-top: 43px;">
+                                    <button style="width: 100%;" type="submit" class="btn btn-dark">Cadastrar</button>
+                                </div>
+
+                            </form>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="fabricasTable">
+                    <thead>
+                        <tr>
+
+                            <th>Código</th>
+                            <th>Fabrica</th>
+                            <th >CNPJ</th>
+                            <th>Endereço</th>
+                            <th>Telefone</th>
+                            <th>Whatsapp</th>
+                            <th>E-mail</th>
+                            <th>Responsavel</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if not fabricas %}
+                        <tr class="semCompras">
+                            <td colspan="11">
+                                <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">
+                                    Sem Fabricas Cadastradas</h3>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% for fabrica in fabricas %}
+                        <tr>
+
+                            <td>{{ fabrica.id_fab }}</td>
+                            <td>{{ fabrica.nome_fab }} </td>
+                            <td>{{ fabrica.cnpj_fab }}</td>
+                            <td>{{ fabrica.endereco_fab}}, {{fabrica.bairro_fab}} - {{fabrica.cidade_fab}}/{{fabrica.estado_fab}}</td>
+                            <td>{{ fabrica.telefone_fab}}</td>
+                            <td>{{ fabrica.wpp_fab}}</td>
+                            <td>{{ fabrica.email_fab}}</td>
+                            <td>{{ fabrica.responsavel_fab}}</td>
+
+                            <td class="actioncontent">
+                                <div class="actionButtons">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="#85827a"
+                                        class="bi bi-pencil-fill" viewBox="0 0 16 16" type="button" style="margin: 2px;"
+                                        data-toggle="modal" data-target="#editModal{{ fabrica.id_fab }}">
+                                        <path
+                                            d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
+                                    </svg>
+                                    <svg type="button" style="margin: 2px;" data-toggle="modal"
+                                        data-target="#deleteModal{{fabrica.id_fab }}"
+                                        xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#d97373"
+                                        class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                        <path
+                                            d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
+                                    </svg>
+                                </div>
+
+                            </td>
+                        </tr>
+
+                        <!-- Edit Modal -->
+<div class="modal fade" id="editModal{{ fabrica.id_fab }}" role="dialog" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Editar Fábrica</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('editFabrica', id=fabrica.id_fab) }}" method="post">
+                    <h3>Detalhes Da Fabrica</h3>
+                    <div class="form-group">
+                        <label style="margin-bottom: 1px;" for="nome_fab">Nome Da Fábrica:</label>
+                        <input type="text" class="form-control" id="nome_fab" name="nome_fab" value="{{ fabrica.nome_fab }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label style="margin-bottom: 1px;" for="cnpj_fab">CNPJ:</label>
+                        <input type="text" class="form-control" id="cnpj_fab" name="cnpj_fab" value="{{ fabrica.cnpj_fab }}" required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 60% 40%; align-items: end;">
+                        <div class="form-group" style="width: 95%;">
+                            <label style="margin-bottom: 1px;" for="endereco_fab">Endereço:</label>
+                            <input type="text" class="form-control" id="endereco_fab" name="endereco_fab" value="{{ fabrica.endereco_fab }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label style="margin-bottom: 1px;" for="bairro_fab">Bairro:</label>
+                            <input type="text" class="form-control" id="bairro_fab" name="bairro_fab" value="{{ fabrica.bairro_fab }}" required>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 50% 50%; align-items: end;">
+                        <div class="form-group" style="width: 95%;">
+                            <label style="margin-bottom: 1px;" for="cidade_fab">Cidade:</label>
+                            <input type="text" class="form-control" id="cidade_fab" name="cidade_fab" value="{{ fabrica.cidade_fab }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label style="margin-bottom: 1px;" for="estado_fab">Estado:</label>
+                            <input type="text" class="form-control" id="estado_fab" name="estado_fab" value="{{ fabrica.estado_fab }}" required>
+                        </div>
+                    </div>
+                    <br>
+                    <h3>Contato</h3>
+                    <div style="display: grid; grid-template-columns: 50% 50%; align-items: end;">
+                        <div class="form-group" style="width: 95%;">
+                            <label style="margin-bottom: 1px;" for="telefone_fab">Telefone:</label>
+                            <input type="text" class="form-control" id="telefone_fab" name="telefone_fab" value="{{ fabrica.telefone_fab }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label style="margin-bottom: 1px;" for="wpp_fab">WhatsApp:</label>
+                            <input type="text" class="form-control" id="wpp_fab" name="wpp_fab" value="{{ fabrica.wpp_fab }}" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label style="margin-bottom: 1px;" for="email_fab">Email:</label>
+                        <input type="text" class="form-control" id="email_fab" name="email_fab" value="{{ fabrica.email_fab }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label style="margin-bottom: 1px;" for="responsavel_fab">Responsável:</label>
+                        <input type="text" class="form-control" id="responsavel_fab" name="responsavel_fab" value="{{ fabrica.responsavel_fab }}" required>
+                    </div>
+                    <div style="display: flex; width: 100%; margin-top: 43px;">
+                        <button style="width: 100%;" type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+                        <!-- Delete Modal -->
+                        <div class="modal fade" id="deleteModal{{ fabrica.id_fab }}" role="dialog" tabindex="-1"
+                            aria-labelledby="deleteModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" style="min-width: 28%;" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <span style="display: flex; 
+                                        flex-direction: row; 
+                                        align-items: center; 
+                                        justify-content: center;
+                                        margin-left: 5px;">
+
+                                            <svg style="margin-right: 8px;" xmlns="http://www.w3.org/2000/svg"
+                                                width="24" height="24" fill="currentColor"
+                                                class="bi bi-exclamation-triangle" viewBox="0 0 16 16">
+                                                <path
+                                                    d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z" />
+                                                <path
+                                                    d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z" />
+                                            </svg>
+                                            <h5 class="modal-title" id="deleteModalLabel">Apagar Fabrica</h5>
+
+                                        </span>
+
+
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Tem certeza que deseja apagar a fabrica {{ fabrica.nome_fab }}?
+                                        </p>
+                                        <form action="{{ url_for('deleteFabrica', id=fabrica.id_fab) }}"
+                                            method="post">
+                                            <div style="display: flex; width: 100%; justify-content: end;">
+                                                <button type="submit" class="btn btn-danger">Apagar</button>
+                                            </div>
+
+                                        </form>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+</body>
+
+{% endblock %}

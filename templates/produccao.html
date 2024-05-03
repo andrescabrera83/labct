@@ -194,6 +194,7 @@
                             cursor: pointer; /* Change cursor on hover */">
                               
                                 {% for receita in receitas %}
+                                <option value="" selected disabled>Selecionar Receita:</option>
                                 <option value="{{ receita.id_rct }}">{{ receita.nome_rct }}</option>
                                 {% endfor %}
                             </select>
