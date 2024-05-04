@@ -11,6 +11,11 @@ class Usuarios(UserMixin,db.Model):
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     role = db.Column(db.Enum('admin','master'), nullable=False)
+    nomecompleto = db.Column(db.String(100), nullable=False)
+    funcao = db.Column(db.String(50), nullable=False)
+    whatsapp = db.Column(db.String(50), nullable=False)
+    cpf = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(50), nullable=False)
 
     materias_primas = db.relationship('MateriasPrimas', back_populates="usuarios" , lazy=True)
     fornecedores = db.relationship('Fornecedores', back_populates="usuarios" , lazy=True)
@@ -25,3 +30,4 @@ class Usuarios(UserMixin,db.Model):
     config = db.relationship('Config', back_populates="usuarios", lazy=True)
     produc = db.relationship('Produc', back_populates="usuarios", lazy=True)
     producdados = db.relationship('ProducDados', back_populates="usuarios", lazy=True)
+    filiais = db.relationship('Filiais', back_populates="usuarios", lazy=True)

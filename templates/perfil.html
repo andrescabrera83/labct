@@ -7,6 +7,7 @@
     <div class="container">
         <div class="tabela">
             <h3>Meu Perfil</h3>
+            <button class="btn-logout" onclick="window.location.href='{{ url_for('logout') }}'" >Sair Da Conta</button>
             <hr>
             
             <br>
@@ -21,6 +22,64 @@
 
             </div>
 
+            <div class="modal fade" id="cadastrarFModal" role="dialog" aria-labelledby="cadastrarFModalLabel"
+                aria-hidden="true" tabindex="-10">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+
+                            <span style="display: flex; 
+                                        flex-direction: row; 
+                                        align-items: center; 
+                                        justify-content: center;
+                                        margin-left: 5px;">
+
+
+                                <h3 class="modal-title" id="cadastrarModalLabel">Cadastrar Loja</h3>
+
+                            </span>
+
+
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+
+
+
+                            <h3>Detalhes Da Loja</h3>
+                            <form style="width: 100%;" action="/perfil" method="post">
+
+                                <div class="form-group">
+                                    <label style="margin-bottom: 1px;" for="loja_fil">Loja:</label>
+                                    <input type="text" class="form-control" id="loja_fil" name="loja_fil"
+                                        required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label style="margin-bottom: 1px;" for="endereco_fil">Endereco:</label>
+                                    <input type="text" class="form-control" id="endereco_fil" name="endereco_fil"
+                                        required>
+                                </div>
+
+
+                            
+
+                                <div style="display: flex; width: 100%; margin-top: 43px;">
+                                    <button style="width: 100%;" type="submit" class="btn btn-dark">Cadastrar</button>
+                                </div>
+
+                            </form>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
             <div class="table-responsive">
                 <table style="margin-top: 25px;">
                     <thead>
@@ -28,15 +87,45 @@
                             <th style="width: 10%;">Código</th>
                             <th style="width: 45%;">Loja</th>
                             <th>Endereço</th>
+                            <th>Ação</th>
                            
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>000</td>
-                            <td>Loja</td>
-                            <td>Endereço</td>
+                        {% if not filiais %}
+                        <tr class="semCompras">
+                            <td colspan="11">
+                                <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">
+                                    Sem Lojas Cadastradas</h3>
+                            </td>
                         </tr>
+                        {% endif %}
+                        {% for filial in filiais %}
+                        <tr>
+
+                            <td>{{ filial.id_fil }}</td>
+                            <td>{{ filial.loja_fil }} </td>
+                            <td>{{ filial.endereco_fil }} </td>
+                            <td class="actioncontent">
+                                <div class="actionButtons">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="#85827a"
+                                        class="bi bi-pencil-fill" viewBox="0 0 16 16" type="button" style="margin: 2px;"
+                                        data-toggle="modal" data-target="#editModal{{ fabrica.id_fab }}">
+                                        <path
+                                            d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
+                                    </svg>
+                                    <svg type="button" style="margin: 2px;" data-toggle="modal"
+                                        data-target="#deleteModal{{fabrica.id_fab }}"
+                                        xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#d97373"
+                                        class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                        <path
+                                            d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
+                                    </svg>
+                                </div>
+
+                            </td>
+                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>

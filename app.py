@@ -38,6 +38,7 @@ from models.receitasmateriaprimas_model import ReceitaMateriasPrimas
 from models.produc_model import Produc
 from models.producdados_model import ProducDados
 from models.fabrica_model import Fabrica
+from models.filiais_model import Filiais
 from db import db, ma, app
 
 
@@ -60,6 +61,11 @@ class UsuariosSchema(ma.SQLAlchemySchema):
     username = ma.auto_field()
     password = ma.auto_field()
     role = ma.auto_field()
+    nomecompleto = ma.auto_field()
+    funcao = ma.auto_field()
+    whatsapp = ma.auto_field()
+    cpf = ma.auto_field()
+    email = ma.auto_field()
 
 class FornecedorSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -220,6 +226,15 @@ class FabricaSchema(ma.SQLAlchemySchema):
     status_fab = ma.auto_field()
     cadastrado_em_fab = ma.auto_field()
     atualizado_em_fab = ma.auto_field()
+    
+class FiliaisSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Filiais
+        
+        loja_fil = ma.auto_field()
+        endereco_fil = ma.auto_field()
+        
+        
 
 ####################################################################### APP ###################################################################################################
     
@@ -293,20 +308,43 @@ def index():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
+        nomecompleto = request.form['nomecompleto']
+        funcao = request.form['funcao']
+        whatsapp = request.form['whatsapp']
+        email = request.form['email']
+        cpf = request.form['cpf']
+        
         username = request.form['username']
         password = request.form['password']
-        gm = request.form['giro_medio']
-        user = Usuarios(username=username, password=password)
+        
+        gm = 6
+        role = 'admin'
+        
+        user = Usuarios(
+            nomecompleto=nomecompleto,
+            funcao=funcao,
+            whatsapp=whatsapp,
+            email=email,
+            cpf=cpf,
+            role=role,
+            username=username, 
+            password=password)
         db.session.add(user)
         db.session.commit()
+        
         config = Config(giro_medio=gm, user_id=user.id)
         db.session.add(config)
         db.session.commit()
-        return redirect(url_for('login'))
+        
+        return redirect(url_for('usuarios'))
     return render_template('signup.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    
+    if 'username' in session:  # Check if the user is already logged in
+        return redirect(url_for('inventario'))
+    
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -380,7 +418,26 @@ def inject_global_context():
 @login_required
 def perfil():
     
-    return render_template('perfil.html')
+    if request.method == 'POST':
+        loja_fil = request.form.get('loja_fil')
+        endereco_fil = request.form.get('endereco_fil')
+        
+        filiais = Filiais(
+            loja_fil=loja_fil,
+            endereco_fil=endereco_fil,
+            user_id=current_user.id 
+        )
+        
+        
+        db.session.add(filiais)
+        db.session.commit()
+        return redirect(url_for('perfil'))
+    
+    filiais = Filiais.query.all()
+    filiais_schema = FiliaisSchema(many=True)
+    serialized_filiais = filiais_schema.dump(filiais)
+    
+    return render_template('perfil.html', filiais=serialized_filiais)
 
 ## Usuarios #############################################################
 
