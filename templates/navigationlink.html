@@ -43,6 +43,8 @@
         %}class="active" {% endif %}>Usuarios</button>
     <button onclick="window.location.href='{{ url_for('fabricas') }}'" {% if request.path==url_for('fabricas')
         %}class="active" {% endif %}>Fabricas</button>
+    <button onclick="window.location.href='{{ url_for('filiais') }}'" {% if request.path==url_for('filiais')
+        %}class="active" {% endif %}>Filiais</button>
     <button onclick="window.location.href='{{ url_for('fornecedores') }}'" {% if request.path==url_for('fornecedores')
         %}class="active" {% endif %}>Fornecedores</button>
     <button onclick="window.location.href='{{ url_for('materiasPrimas') }}'" {% if

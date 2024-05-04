@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Filial{% endblock %}
+
+{% block content %}
+
+<body>
+    
+    <div class="container">
+
+        <div class="tabela">
+            <div class="header">
+                <div class="titleandbtn">
+                    <h3>Filiais</h3>
+                    <button style="margin-left: 12px ;" type="button" data-toggle="modal" data-target="#cadastrarFModal"
+                        class="btn-cadastrar"> +
+                        Cadastrar Nova Filial
+                    </button>
+
+            
+
+                    <button style="margin-left: 12px;" onclick="window.location.href='{{ url_for('rotas') }}'"  class="btn-cadastrar">+ Rotas</button>
+                </div>
+
+                
+            </div>
+
+            <div class="modal fade" id="cadastrarFModal" role="dialog" aria-labelledby="cadastrarFModalLabel"
+                aria-hidden="true" tabindex="-10">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+
+                            <span style="display: flex; 
+                                        flex-direction: row; 
+                                        align-items: center; 
+                                        justify-content: center;
+                                        margin-left: 5px;">
+
+
+                                <h3 class="modal-title" id="cadastrarModalLabel">Cadastrar Filial</h3>
+
+                            </span>
+
+
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+
+
+
+                            <h3>Detalhes Da Filial</h3>
+                            <form style="width: 100%;" action="/filiais" method="post">
+
+                                <div class="form-group">
+                                    <label style="margin-bottom: 1px;" for="loja_fil">Loja:</label>
+                                    <input type="text" class="form-control" id="loja_fil" name="loja_fil"
+                                        required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label style="margin-bottom: 1px;" for="endereco_fil">Endereco:</label>
+                                    <input type="text" class="form-control" id="endereco_fil" name="endereco_fil"
+                                        required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label style="margin-bottom: 1px;" for="bairro_fil">Bairro:</label>
+                                    <input type="text" class="form-control" id="bairro_fil" name="bairro_fil"
+                                        required>
+                                </div>
+
+                                
+                                <div class="form-group">
+                                    <label style="margin-bottom: 1px;" for="cidade_fil">Cidade:</label>
+                                    <input type="text" class="form-control" id="cidade_fil" name="cidade_fil"
+                                        required>
+                                </div>
+                                
+
+                                <div style="display: flex; width: 100%; margin-top: 43px;">
+                                    <button style="width: 100%;" type="submit" class="btn btn-dark">Cadastrar</button>
+                                </div>
+
+                            </form>
+
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div >
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Codigo</th>
+                            <th>Filial</th>
+                            <th>Endereco</th>
+                            <th>Bairro</th>
+                            <th>Cidade</th>
+                            <th>Rota</th>
+                        </tr>
+                        
+                    </thead>
+                    <tbody>
+                        
+                        {% for f in filiais %}
+                        <tr>
+                            <td>{{f.id_fil}}</td>
+                            <td>{{f.loja_fil}}</td>
+                            <td>{{f.endereco_fil}}</td>
+                            <td>{{f.bairro_fil}}</td>
+                            <td>{{f.cidade_fil}}</td>
+                            <td>{{f.codigorota_fil}}</td>
+                        </tr>
+                        
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+      
+            
+           
+
+           
+        </div>
+    </div>
+</body>
+
+
+{% endblock %}

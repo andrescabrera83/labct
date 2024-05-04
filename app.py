@@ -39,6 +39,7 @@ from models.produc_model import Produc
 from models.producdados_model import ProducDados
 from models.fabrica_model import Fabrica
 from models.filiais_model import Filiais
+from models.rotas_model import Rotas
 from db import db, ma, app
 
 
@@ -230,10 +231,27 @@ class FabricaSchema(ma.SQLAlchemySchema):
 class FiliaisSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Filiais
-        
-        loja_fil = ma.auto_field()
-        endereco_fil = ma.auto_field()
-        
+    
+    id_fil = ma.auto_field()
+    loja_fil = ma.auto_field()
+    endereco_fil = ma.auto_field()
+    bairro_fil = ma.auto_field()
+    cidade_fil = ma.auto_field()
+    codigorota_fil = ma.auto_field()
+    
+    
+class RotasSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Rotas
+    
+    id_rota = ma.auto_field()
+    nome = ma.auto_field()
+    veiculo = ma.auto_field()
+    placa = ma.auto_field()
+    horario = ma.auto_field()
+   # filiais = ma.auto_field()
+    whatsapp = ma.auto_field()
+    
         
 
 ####################################################################### APP ###################################################################################################
@@ -318,7 +336,7 @@ def signup():
         password = request.form['password']
         
         gm = 6
-        role = 'admin'
+        role = 'master'
         
         user = Usuarios(
             nomecompleto=nomecompleto,
@@ -418,26 +436,44 @@ def inject_global_context():
 @login_required
 def perfil():
     
+    return render_template('perfil.html')
+
+
+## FILIAIS ###################################################################
+
+@app.route('/filiais', methods=['GET', 'POST'])
+@login_required
+def filiais():
+    
     if request.method == 'POST':
         loja_fil = request.form.get('loja_fil')
         endereco_fil = request.form.get('endereco_fil')
+        bairro_fil = request.form.get('bairro_fil')
+        cidade_fil = request.form.get('cidade_fil')
+        
+        codigorota = 1
+        
         
         filiais = Filiais(
             loja_fil=loja_fil,
             endereco_fil=endereco_fil,
+            bairro_fil=bairro_fil,
+            cidade_fil=cidade_fil,
+            codigorota_fil=codigorota,
             user_id=current_user.id 
         )
         
         
+        
         db.session.add(filiais)
         db.session.commit()
-        return redirect(url_for('perfil'))
+        return redirect(url_for('filiais'))
     
     filiais = Filiais.query.all()
     filiais_schema = FiliaisSchema(many=True)
     serialized_filiais = filiais_schema.dump(filiais)
     
-    return render_template('perfil.html', filiais=serialized_filiais)
+    return render_template('filiais.html', filiais=serialized_filiais)
 
 ## Usuarios #############################################################
 
@@ -448,6 +484,42 @@ def usuarios():
     usuarios_schema = UsuariosSchema(many=True)
     usuarios_serialized = usuarios_schema.dump(usuarios)
     return render_template('usuarios.html', usuarios=usuarios_serialized)
+
+
+
+
+## Usuarios #############################################################
+
+@app.route('/rotas', methods=['GET', 'POST'])
+@login_required
+def rotas():
+    
+    if request.method == 'POST':
+        nome = request.form.get('nome')
+        veiculo = request.form.get('veiculo')
+        placa = request.form.get('placa')
+        horario = request.form.get('horario')
+        whatsapp = request.form.get('whatsapp')
+        
+        rotas = Rotas(
+            nome=nome,
+            veiculo=veiculo,
+            placa=placa,
+            horario=horario,
+            whatsapp=whatsapp
+        )
+        
+        db.session.add(rotas)
+        db.session.commit()
+        return redirect(url_for('rotas'))
+        
+    
+    rotas = Rotas.query.all()
+    rotas_schema = RotasSchema(many=True)
+    rotas_serialized = rotas_schema.dump(rotas)
+    return render_template('rotas.html', rotas=rotas_serialized)
+
+
 
 
 ## FABRICAS ############################################################################

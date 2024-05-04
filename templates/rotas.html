@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}Rotas{% endblock %}
+
+{% block content %}
+
+<body>
+    <div class="container">
+        <div class="tabela">
+
+
+            <div>
+                <h3>Rotas</h3>
+                <div class="titleandbtn">
+
+                    <button style="margin-left: 12px ;" type="button" data-toggle="modal" data-target="#cadastrarFModal"
+                        class="btn-cadastrar"> +
+                        Cadastrar Nova Rota</button>
+                </div>
+
+            </div>
+
+            <div class="modal fade" id="cadastrarFModal" role="dialog" aria-labelledby="cadastrarFModalLabel"
+                aria-hidden="true" tabindex="-10">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+
+                            <span style="display: flex; 
+                                        flex-direction: row; 
+                                        align-items: center; 
+                                        justify-content: center;
+                                        margin-left: 5px;">
+
+
+                                <h3 class="modal-title" id="cadastrarModalLabel">Cadastrar Nova Rota</h3>
+
+                            </span>
+
+
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+
+
+
+                            <h3>Detalhes Da Rota</h3>
+                            <form style="width: 100%;" action="/rotas" method="post">
+
+                            
+                                <div style="display: grid;
+                                grid-template-columns: 60% 40%;
+                                align-items: end;">
+
+                                    <div class="form-group" style="width: 95%;">
+                                        <label style="margin-bottom: 1px;" for="nome">Nome Responsavel :</label>
+                                        <input type="text" class="form-control" id="nome" name="nome"
+                                            required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label style="margin-bottom: 1px;" for="veiculo">Veiculo:</label>
+                                        <input type="text" class="form-control" id="veiculo" name="veiculo" required>
+                                    </div>
+
+                                    <div class="form-group" style="width: 95%;">
+                                        <label style="margin-bottom: 1px;" for="placa">Placa:</label>
+                                        <input type="text" class="form-control" id="placa" name="placa" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label style="margin-bottom: 1px;" for="horario">Horário:</label>
+                                        <input type="text" class="form-control" id="horario" name="horario" required>
+                                    </div>
+
+
+                                    <div class="form-group" style="width: 95%;">
+
+                                        <label style="margin-bottom: 1px;" for="whatsapp">WhatsApp:</label>
+                                        <input type="text" class="form-control" id="whatsapp" name="whatsapp" required>
+                                    </div>
+
+                                </div>
+
+                                <div style="display: flex; width: 100%; margin-top: 43px;">
+                                    <button style="width: 100%;" type="submit" class="btn btn-dark">Cadastrar</button>
+                                </div>
+
+                            </form>
+
+
+
+
+                
+
+                            <script>
+                        
+                                
+                                
+                            </script>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table style="margin-top: 25px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">Código</th>
+                            <th>Nome Motorista</th>
+                            <th>Veiculo</th>                            
+                            <th>Placa</th>
+                            <th>Horário</th>
+                            <th>Whatsapp</th>
+
+
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rota in rotas %}
+                        <tr>
+                            <td>{{rota.id_rota}}</td>
+                            <td>{{rota.nome}}</td>
+                            <td>{{rota.veiculo}}</td>
+                            <td>{{rota.placa}}</td>
+                            <td>{{rota.horario}}</td>
+                            <td>{{rota.whatsapp}}</td>                            
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+{% endblock %}
