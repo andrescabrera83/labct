@@ -19,8 +19,10 @@ metadata = MetaData(
 
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('FLASK_SECRET_KEY', Config.SECRET_KEY)
+
 app.config.from_object(Config)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:mY_password4321@localhost/labct'
+app.secret_key = 'GnqROcKzl3'
   # Set session expiration to 62 days
 db = SQLAlchemy(app, metadata=metadata)
 ma = Marshmallow(app)

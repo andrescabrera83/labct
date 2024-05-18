@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Producção{% endblock %}
+{% block title %}Produção{% endblock %}
 
 {% block content %}
 
@@ -172,7 +172,7 @@
 
     <div class="container">
         <div class="tabela">
-            <h3 style="margin-bottom: 25px;"> Produção </h3>
+            <h3 style="margin-bottom: 25px;">Planejamento de Produção </h3>
             <button id="expandBtn" class="btn-cadastrar"> + Fazer Novo Pedido De Produção</button>
             <div id="tableContainer" class="hidden">
 
@@ -183,7 +183,7 @@
 
 
                         <div style="min-width: fit-content; display: flex; flex-direction: column;">
-                            <label style="margin-right: 12px; font-size: large;" for="receitas"> Selecione Uma Receita:
+                            <label style="margin-right: 12px; font-size: large;" for="receitas"> Selecione uma Receita:
                             </label>
                             <select name="receitas" id="receitas-select" style="padding: 8px 15px; /* Add padding to the select input */
                             font-size: 16px; /* Set font size */
@@ -192,9 +192,10 @@
                             background-color: #f7f7f7; /* Set background color */
                             color: #333; /* Set text color */
                             cursor: pointer; /* Change cursor on hover */">
-                              
-                                {% for receita in receitas %}
+
                                 <option value="" selected disabled>Selecionar Receita:</option>
+                                {% for receita in receitas %}
+
                                 <option value="{{ receita.id_rct }}">{{ receita.nome_rct }}</option>
                                 {% endfor %}
                             </select>
@@ -204,6 +205,8 @@
                             style="display: flex; flex-direction: column; width: 90%;  gap: 15px; margin-left: 21px; border-left: 1px solid #aeaeae; padding-inline: 25px;">
                             <div style="display: none;">
                                 <h1 id="rctId" class="receitaId"></h1>
+                                <h1 id="FilId"></h1>
+                                <h1 id="quantidade"></h1>
                             </div>
 
 
@@ -211,16 +214,32 @@
 
                                 <div>
                                     <h2 class="receitaName"></h2>
-                                    <h3 style="font-size: large; text-align: center; text-decoration: underline;" class="receitaRendimento"></h3>
+                                    <h3 style="font-size: large; text-align: center; text-decoration: underline;"
+                                        class="receitaRendimento"></h3>
                                 </div>
-                                
 
-                                <div id="multContainer" style="display: none;  flex-direction: column; margin-left: 21px;">
+
+                                <div id="multContainer"
+                                    style="display: none;  flex-direction: column; margin-left: 21px;">
                                     <label style="font-size: large;" for="multiplicador">Qtde Receita/Produção:</label>
                                     <input name="multiplicador" type="number" value="1" min="0" id="mult-Select"
-                                    style="height: max-content;">
+                                        style="height: max-content;">
                                     <button style="margin-top: 12px;" onclick="showReceitaInfo()"
                                         class="btn-ferramenta">Atualizar Quantidade</button>
+                                </div>
+
+                                <div id="multContainer2"
+                                    style="display: none;  flex-direction: column; margin-left: 41px;">
+                                    <label style="font-size: large;" for="filial_pdc">Selecionar Filial:</label>
+                                    <select class="form-control" id="filial_pdc" name="filial_pdc" required>
+
+                                        <option value="" selected disabled>Selecionar Filial:</option>
+                                        {% for filial in filiais %}
+
+                                        <option value="{{ filial.id_fil }}">{{ filial.loja_fil }}</option>
+                                        {% endfor %}
+                                    </select>
+
                                 </div>
 
                             </div>
@@ -228,52 +247,66 @@
                             <div style="display: flex; flex-direction: row; gap: 22px;">
 
                                 <div style="display: none; flex-direction: column; margin-top: 8px; border-left: 1px solid #aeaeae; padding-left: 25px; width: 75%;"
-                                id="rctInfoContainer">
+                                    id="rctInfoContainer">
 
 
-                                <h4>Ingredientes:</h4>
-                                <table id="receitampsTable">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Nome</th>
-                                            <th >Quantidade/Receita</th>
-                                            <th>Quantidade/Total</th>
-                                            <th>Unidade</th>
-                                            <th>Estoque</th>
-                                            
+                                    <h4>Ingredientes:</h4>
+                                    <table id="receitampsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Nome</th>
+                                                <th>Quantidade/Receita</th>
+                                                <th>Quantidade/Total</th>
+                                                <th>Unidade</th>
+                                                <th>Estoque</th>
 
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
 
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+
+
+                                </div>
+
+                                <div style="display: none; flex-direction: column; margin-top: 8px; border-left: 1px solid #aeaeae; padding-left: 15px; width: 25%;"
+                                    id="estoqueInfoContainer">
+
+
+                                    <h4>Estoque:</h4>
+                                    <table id="estoqueTable" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th>Nome</th>
+                                                <th>Quantidade</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+
+
+                                </div>
 
                             </div>
 
-                            <div style="display: none; flex-direction: column; margin-top: 8px; border-left: 1px solid #aeaeae; padding-left: 15px; width: 25%;"
-                                id="estoqueInfoContainer">
+
+                            <script>
+                                // Get the select element
+                                const selectElement = document.getElementById('filial_pdc');
+                                // Get the h1 element
+                                const h1Element = document.getElementById('FilId');
+
+                                // Add event listener for change event
+                                selectElement.addEventListener('change', function () {
+                                    // Log the selected value to the console
+                                    console.log('Selected value:', this.value);
+                                    // Update the h1 element with the selected value
+                                    h1Element.textContent = this.value;
+                                });
+                            </script>
 
 
-                                <h4>Estoque:</h4>
-                                <table id="estoqueTable" style="width: 100%;">
-                                    <thead>
-                                        <tr>
-                                            <th>Nome</th>
-                                            <th>Quantidade</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-
-
-                            </div>
-
-                            </div>
-
-
-
-                            
 
                             <script>
                                 function showReceitaInfo() {
@@ -281,6 +314,8 @@
 
                                     var multSelect = document.getElementById("mult-Select");
                                     var multValue = multSelect.value;
+
+
 
                                     console.log(multValue);
 
@@ -292,12 +327,14 @@
                                     var infoContainer = document.getElementById("rctInfoContainer");
                                     var estoqueContainer = document.getElementById("estoqueInfoContainer");
                                     var multContainer = document.getElementById("multContainer");
+                                    var multContainer2 = document.getElementById("multContainer2");
 
                                     var fullContainer = document.querySelector(".wholeContainer");
 
                                     infoContainer.style.display = "flex";
                                     estoqueContainer.style.display = "flex";
                                     multContainer.style.display = "flex";
+                                    multContainer2.style.display = "flex";
 
                                     setTimeout(function () {
                                         var tableHeight = fullContainer.scrollHeight;
@@ -327,13 +364,21 @@
                                             return response.json();
                                         })
                                         .then(data => {
+
                                             var receitaName = document.querySelector("h2.receitaName");
                                             var receitaRendimento = document.querySelector("h3.receitaRendimento");
                                             var nomeReceita = data.nome;
                                             var rendimentoReceita = data.rendimento;
+
                                             receitaRendimento.innerHTML = "Rendimento: " + rendimentoReceita + " Unidades"; // Display recipe yield
                                             receitaName.innerHTML = ">> " + nomeReceita; // Display recipe name
                                             console.log(nomeReceita);
+
+                                            var quantidadeProduc = rendimentoReceita * multValue;
+                                            // Get the h1 element
+                                            const h1ElementD = document.getElementById('quantidade')
+                                            h1ElementD.textContent = quantidadeProduc;
+                                            console.log(h1ElementD)
 
 
 
@@ -366,22 +411,22 @@
                                                 var iconHtml = "";
                                                 var iconColor = ""; // Add a variable to hold the color of the icon
 
-                                                
+
 
                                                 // If correspondingEstoque exists and its quantidade_estq is greater than receitamp.quantidade
                                                 if (correspondingEstoque && correspondingEstoque.quantidade_estq > receitamp.quantidade * multValue) {
                                                     // Set the iconHtml to display the "ok" icon
                                                     iconHtml = "<i class='fas fa-check-circle'></i>"; // Adjust this to your icon's class or image
                                                     iconColor = "green"; // Set color to green
-                                                     // Enable the button
-                                                    
+                                                    // Enable the button
+
 
                                                 } else {
                                                     // Set the iconHtml to display the "x" icon
                                                     iconHtml = "<i class='fas fa-times-circle'></i>"; // Adjust this to your icon's class or image
                                                     iconColor = "red"; // Set color to red
                                                     containsFalse = true; // Disable the button
-                                                    
+
 
                                                 }
                                                 var multipliedValue = (receitamp.quantidade * multValue).toFixed(3);
@@ -399,13 +444,13 @@
                                                 receitampsTableBody.innerHTML += row;
                                             });
 
-                                           
+
                                             if (containsFalse) {
                                                 button.disabled = true;
                                             } else {
                                                 button.disabled = false;
                                             }
-                                           
+
 
                                             // Populate the estoque table
                                             var estoqueTableBody = document.querySelector("#estoqueTable tbody");
@@ -443,14 +488,18 @@
                     <div
                         style="display: flex; width: 100%;  justify-content: end; border-top: 1px solid #aeaeae; margin-top: 35px;">
                         <button style="width: 160px; margin-top: 18px; display: none;" class="btn btn-dark" disabled
-                            id="fazerPedido">Fazer Pedido</button>
+                            id="fazerPedido">Confirmar Pedido</button>
 
                         <script>
                             function sendValuesToBackend() {
 
                                 var rctId = document.getElementById("rctId").textContent;
+                                var filial = document.getElementById("FilId").textContent;
+                                var quantidade = document.getElementById('quantidade').textContent;
 
+                                console.log(quantidade)
                                 console.log(rctId);
+                                console.log(filial)
 
                                 // Prepare an array to store the data for each dynamically created row
                                 var rowData = [];
@@ -482,6 +531,8 @@
                                 // Prepare the data to send in the request body
                                 var data = {
                                     rct_id: rctId,
+                                    quantidade: quantidade,
+                                    filial: filial,
                                     rows: rowData
                                 };
 
@@ -526,23 +577,31 @@
             </div>
 
             <hr>
-           
+
+
+
 
             <div class="listaPedidos" style="margin-top: 12px;">
-                <h4> Pedidos De Produção Pendentes</h4>
-                <table id="myTable" class="fold-table parent-table">
+                <h4> Pedidos Pendentes</h4>
+                <table class="fold-table parent-table" id="myTable">
                     <thead>
                         <tr>
-                            <th style="width: 5%;">código</th>
+                            <th style="width: 5%;">Código</th>
                             <th>Data</th>
-                            <th>Estado</th>
+                            <th>Filial</th>
+                            <th>Receita/Produto</th>
+                            <th>Depart.</th>
+                            <th>Classif.</th>
+                            <th>Ped.Mín.</th>
+                            <th>Estoque</th>
+                            <th>Situação</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="tbody-parent">
                         {% if not producPendente %}
                         <tr class="semCompras">
-                            <td colspan="3">
-                                <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">Sem Pedidos De
+                            <td colspan="10">
+                                <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">Sem Pedidos de
                                     Produção
                                     Pendentes</h3>
                             </td>
@@ -551,25 +610,41 @@
                         {% for produc in producPendente %}
                         <tr class="view">
                             <td>{{ produc.id_pdc }}</td>
-                            <td>{{ produc.data_pdc | datetimeformat2 }}</td>
+                            <td>{{ produc.data_pdc}}</td>
+                            <td>{{ produc.nomefilial_pdc}}</td>
+                            <td>{{ produc.nome_rct}}</td>
+                            <td>{{ produc.departamento_rct}}</td>
+                            <td>{{ produc.class_rct}}</td>
+                            <td>{{ produc.pedidomin_rct}}</td>
+                            <td>r</td>
                             <td style="background-color: #f0f945; color: red; text-decoration: underline; width: 12%;">
                                 {{ produc.estado_pdc }}</td>
                         </tr>
 
                         <tr class="fold">
-                            <td colspan="3">
-                                <div class="fold-content" style="display: flex; justify-content: start; flex-direction: column;">
+                            <td colspan="10">
+                                <div class="fold-content"
+                                    style="display: flex; justify-content: start; flex-direction: column;">
 
-                                    <h4 style="text-align: start; font-weight: 300;">>> Ingredientes da Receita: <span style="text-decoration: underline; font-weight: 500;">{{produc.nome_rct}}</span>  </h4>
+                                    <h2>
+                                        Pedido de Produção {{produc.data_pdc}}
+                                    </h2>
+                                    <br>
+
+                                    <h4 style="text-align: start; font-weight: 300;" class="target-component">>>
+                                        Ingredientes da Receita: <span
+                                            style="text-decoration: underline; font-weight: 500;">{{produc.nome_rct}}</span>
+                                    </h4>
 
                                     <form id="myForm" action="/fechar_pdc" method="POST">
 
-                                        <table id="tabelaProducPendente_{{ produc.id_pdc }}" style="margin-top: 12px;">
+                                        <table id="tabelaProducPendente_{{ produc.id_pdc }}" style="margin-top: 12px;"
+                                            class="inside-table">
                                             <thead>
                                                 <tr>
 
                                                     <th style="width: 5%;">Código</th>
-                                                    <th style="width: 5%;">Código Da Receita</th>
+                                                    <th style="width: 5%;">Código da Receita</th>
                                                     <th>Matéria Prima</th>
                                                     <th>Quantidade</th>
                                                     <th>Unidade</th>
@@ -605,7 +680,7 @@
                                                 margin-inline: 3px;
                                                 height: 35px !important;">
                                             <button type="submit" id="submitButton_{{ produc.id_pdc }}"
-                                                class="btn btn-dark"> Fechar Pedido De Produção</button>
+                                                class="btn btn-dark"> Fechar Pedido de Produção</button>
                                         </div>
 
                                     </form>
@@ -618,40 +693,31 @@
                     </tbody>
                 </table>
 
-                <script>
-                    //Script that reverses the table order
-                    // Get the table body element
-                    const tbody = document.querySelector("#myTable tbody");
-                
-                    // Convert the NodeList of rows to an array and reverse the order
-                    const rowsArray = Array.from(tbody.rows).reverse();
-                
-                    // Clear the existing rows in the table body
-                    tbody.innerHTML = '';
-                
-                    // Append the reversed rows to the table body
-                    rowsArray.forEach(row => {
-                        tbody.appendChild(row);
-                    });
-                </script>
+
 
             </div>
 
             <div class="listaPedidos" style="margin-top: 44px;">
-                <h4> Pedidos De Produção Fechados</h4>
+                <h4> Pedidos Fechados na Fábrica</h4>
                 <table>
                     <thead>
                         <tr>
-                            <th style="width: 5%;">código</th>
-                            <th>Data</th>
-                            <th style="width: 12%;">Estado</th>
+                            <th style="width: 5%;">Código</th>
+                            <th>Data/Solicitada</th>
+                            <th>Receita/Produto</th>
+                            <th>Qtde Prod</th>
+                            <th>Filial</th>
+                            <th>Produzido dia</th>
+
+
+                            <th style="width: 12%;">Situação</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% if not producFechado %}
                         <tr class="semCompras">
-                            <td colspan="3">
-                                <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">Sem Pedidos De
+                            <td colspan="10">
+                                <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">Sem Pedidos de
                                     Produção
                                     Fechados</h3>
                             </td>
@@ -660,7 +726,11 @@
                         {% for produc in producFechado %}
                         <tr>
                             <td>{{ produc.id_pdc }}</td>
-                            <td>{{ produc.data_pdc | datetimeformat2 }}</td>
+                            <td>{{ produc.data_pdc}}</td>
+                            <td>{{ produc.nome_rct}}</td>
+                            <td>{{ produc.quantidade_pdc}}</td>
+                            <td>{{ produc.nomefilial_pdc }}</td>
+                            <td>{{ produc.fechadoem_pdc }}</td>
                             <td>{{ produc.estado_pdc }}</td>
                         </tr>
                         {% endfor %}
@@ -707,20 +777,17 @@
         });
     </script>
 
+
     <script>
+
+
+
         $(function () {
             $(".fold-table tr.view").on("click", function () {
-                // Close all other open rows
-                $(".fold-table tr.view").not(this).removeClass("open");
-                $(".fold-table tr.fold.open").not($(this).next(".fold")).removeClass("open");
-
-                // Toggle the class for the clicked row and its corresponding fold
-                $(this).toggleClass("open");
-                $(this).next(".fold").toggleClass("open");
-
+                $(this).toggleClass("open").next(".fold").toggleClass("open");
                 // Get the target component relative to the clicked row
                 const targetElement = $(this).next(".fold").find(".target-component");
-
+                console.log(targetElement);
                 // Scroll to the target component
                 scrollToComponent(targetElement);
             });
@@ -738,6 +805,9 @@
                 behavior: 'smooth' // Optional: Use smooth scrolling
             });
         }
+
+
+
     </script>
 
 </body>

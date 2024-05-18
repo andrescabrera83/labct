@@ -152,6 +152,11 @@
                   <textarea id="descricao_rct" class="form-control" name="descricao_rct" rows="2"></textarea>
                 </div>
 
+                <div class="form-group" style="margin-bottom: 32px;">
+                  <label for="pedidomin_rct">Pedido Mínimo:</label><br>
+                  <input type="number" step="1" id="pedidomin_rct" class="form-control" name="pedidomin_rct" >
+                </div>
+
                 <hr>
 
                 <h5 style="margin-bottom: 19px;">Lista de Ingredientes:</h5>
@@ -191,7 +196,7 @@
                   </div>
 
                   <div class="form-group" style="width: 100%;">
-                    <label for="validade_rct">Validade Em Dias:</label><br>
+                    <label for="validade_rct">Validade/Dias:</label><br>
                     <input type="number" min="0" class="form-control" id="validade_rct" name="validade_rct" required>
                   </div>
 
@@ -247,7 +252,7 @@
                                   </div>
 
                                   <div class="form-group">
-                                    <label for="tipo_rctmp_${ingredientCount}">Matéria Prima:</label>
+                                    <label for="tipo_rctmp_${ingredientCount}">Tipo:</label>
                                     <select class="form-control" id="tipo_rctmp_${ingredientCount}" name="tipo_rctmp_${ingredientCount}" required>
               
                                     <option value="Ingrediente"> Ingrediente </option>
@@ -285,13 +290,15 @@
               <th style="text-align: center;">Descrição</th>
               <th style="text-align: center;">Modo de Preparo</th>
               <th style="text-align: center; width: 10%;">Rendimento/UNID</th>
+              <th style="text-align: center; width: 10%;">Rendimento/KG</th>
+              <th style="text-align: center; width: 10%;">UNID/KG</th>
               <th style="text-align: center;">Ações</th>
             </tr>
           </thead>
           <tbody class="tbody-parent">
             {% if not receitas %}
             <tr class="semCompras">
-              <td colspan="6">
+              <td colspan="8">
                 <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">
                   Sem Receitas Cadastradas</h3>
               </td>
@@ -306,11 +313,14 @@
               <td>{{ rct.descricao_rct }}</td>
               <td>{{ rct.preparo_rct }}</td>
               <td>{{ rct.rendimento_rct }}</td>
+              <td>{{ rct.rendimentokg_rct }}</td>
+              <td>{{rct.unidadeporkg_rct}}</td>
               <td style="width: 5%;">
+
                 <div style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
 
-                  <button type="button" style="margin: 3px; display: none; " class="btn btn-outline-dark btn-sm"
-                    data-toggle="modal" data-target="#editModal{{ rct.id_rct }}">
+                  <button type="button" style="margin: 3px; " class="btn btn-outline-dark btn-sm" data-toggle="modal"
+                    data-target="#editModal{{ rct.id_rct }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
                       class="bi bi-pencil-fill" viewBox="0 0 16 16">
                       <path
@@ -330,8 +340,228 @@
                 </div>
               </td>
             </tr>
-            <!-- Delete Modal -->
-            <div class="modal fade" id="deleteModal{{ rct.id_rct }}" role="dialog" aria-labelledby="deleteModalLabel"
+
+            <!-- Edit Modal -->
+            <div class="modal fade" id="editModal{{ rct.id_rct }}" role="dialog" tabindex="-1"
+              aria-labelledby="editModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Atualizar Receita</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <form action="{{ url_for('editReceita', id=rct.id_rct) }}" method="post">
+                      <div class="form-group">
+                        <label for="edit-nome_rct">Nome da Receita:</label>
+                        <input type="text" class="form-control" id="edit-nome_rct" name="nome_rct"
+                          value="{{ rct.nome_rct }}" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="edit-descricao_rct">Descrição:</label>
+                        <textarea class="form-control" id="edit-descricao_rct" name="descricao_rct" required
+                          rows="2">{{ rct.descricao_rct }}</textarea>
+                      </div>
+                      <div class="form-group">
+                        <label for="edit-pedidomin_rct">Pedido Mínimo:</label>
+                        <input type="number" step="1" class="form-control" id="edit-pedidomin_rct" name="pedidomin_rct" required
+                          value="{{ rct.pedidomin_rct }}">
+                      </div>
+
+
+
+                      <div style="display: grid;
+                  grid-template-columns: 50% 50%;
+                  align-items: end;">
+
+                        <div class="form-group" style="width: 95%;">
+                          <label for="edit-rendimento_rct">Rendimento da Receita em Unidades:</label>
+                          <input type="number" class="form-control" id="edit-rendimento_rct" name="rendimento_rct"
+                            value="{{ rct.rendimento_rct }}" required>
+                        </div>
+
+                        <div class="form-group">
+                          <label for="edit-class_rct">Classificação:</label>
+                          <input type="text" class="form-control" id="edit-class_rct" name="class_rct"
+                            value="{{ rct.class_rct }}" required>
+                        </div>
+
+                      </div>
+
+
+                      <div style="display: grid;
+                                grid-template-columns: 50% 50%;
+                                align-items: end;">
+
+                        <div class="form-group" style="width: 95%;">
+                          <label for="edit-departamento_rct">Departamento:</label><br>
+                          <input type="text" class="form-control" id="edit-departamento_rct" name="departamento_rct"
+                            value="{{ rct.departamento_rct }}" required>
+                        </div>
+
+                        <div class="form-group" style="width: 100%;">
+                          <label for="edit-validade_rct">Validade/Dias:</label><br>
+                          <input type="number" min="0" class="form-control" id="edit-validade_rct" name="validade_rct"
+                            value="{{ rct.validade_rct }}" required>
+                        </div>
+
+                      </div>
+
+
+
+                      <div style="display:flex; width:100%; justify-content:end;">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                      </div>
+
+
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+              <!-- Delete Modal -->
+              <div class="modal fade" id="deleteModal{{ rct.id_rct }}" role="dialog" aria-labelledby="deleteModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered custom-modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <span
+                        style="display: flex; flex-direction: row; align-items: center; justify-content: center; margin-left: 5px;">
+                        <svg style="margin-right: 8px;" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                          fill="currentColor" class="bi bi-exclamation-triangle" viewBox="0 0 16 16">
+                          <path
+                            d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z" />
+                          <path
+                            d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z" />
+                        </svg>
+                        <h5 class="modal-title" id="deleteModalLabel">Apagar Receita</h5>
+                      </span>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p style="font-size: large;">Tem certeza que deseja apagar a Receita? <span
+                          style="font-weight: 500; text-decoration: underline;">{{ rct.nome_rct }}</span>?</p>
+                      <form action="{{ url_for('deleteReceita', id= rct.id_rct) }}" method="post">
+                        <div style="display: flex; width: 100%; justify-content: end;">
+                          <button type="submit" class="btn btn-danger">Apagar</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+
+              <tr class="fold">
+                <td colspan="8">
+                  <div class="fold-content" style="padding: 32px; margin-top: 5px;">
+                    <h4 class="target-component">{{ rct.nome_rct }} </h4>
+                    <p>{{ rct.descricao_rct }}</p>
+                    <hr>
+
+
+                    <h5>Ingredientes da Receita:</h5>
+                    <table class="inside-table" style="margin-top: 20px !important;">
+                      <thead>
+                        <tr>
+                          <th style="width: 5%; text-align: center;">Id Da MP</th>
+                          <th style="text-align: center;">Matéria Prima</th>
+                          <th style="text-align: center;">Quantidade</th>
+                          <th style="text-align: center;">Unidade</th>
+                          <th style="text-align: center;">Leitura</th>
+                          <th style="text-align: center;">Ação</th>
+
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for rctmp in receitasmp %}
+                        {% if rctmp.tipo_rctmp == 'Ingrediente' and rctmp.id_rct == rct.id_rct%}
+                        <tr>
+
+                          <td>{{rctmp.id_mp}}</td>
+                          <td>{{rctmp.nome_mp}}</td>
+                          <td>{{rctmp.quantidade}}</td>
+                          <td>{{rctmp.unidade}}</td>
+
+                          <td>{{rctmp.quantidade }} {{rctmp.unidade}} de {{rctmp.nome_mp}}
+                          </td>
+                          <td style="width: 5%;">
+                            <div
+                              style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
+
+                              <button type="button" style="margin: 3px; " class="btn btn-outline-dark btn-sm"
+                                data-toggle="modal" data-target="#editModalR{{ rctmp.id_rctmp }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                                  class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                                  <path
+                                    d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
+                                </svg>
+                              </button>
+
+                              <button type="button" style="margin: 3px; " class="btn btn-danger btn-sm" data-toggle="modal"
+                    data-target="#deleteModalR{{ rctmp.id_rctmp }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                      class="bi bi-trash-fill" viewBox="0 0 16 16">
+                      <path
+                        d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
+                    </svg>
+                  </button>
+
+                              
+
+                            </div>
+                          </td>
+                        </tr>
+
+
+                        <!-- Edit Modal -->
+                        <div class="modal fade" id="editModalR{{ rctmp.id_rctmp }}" role="dialog" tabindex="-1"
+                          aria-labelledby="editModalLabel" aria-hidden="true">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="editModalLabel">Atualizar Receita</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                              </div>
+                              <div class="modal-body">
+                                <form action="{{ url_for('editReceitaIngrediente', id=rctmp.id_rctmp) }}" method="post">
+
+
+                                  <div style="display: flex; width: 100%; justify-content: center;">
+                                    <div class="form-group" style="width: 30%;">
+                                      <label for="edit-quantidade_rct">Quantidade do Ingrediente
+                                        {{rctmp.nome_mp}}:</label>
+                                      <input type="number" step="0.001" class="form-control" id="edit-quantidade_rct"
+                                        name="quantidade_rct" value="{{rctmp.quantidade }}" required>
+                                    </div>
+                                  </div>
+
+
+
+                                  <div style="display:flex; width:100%; justify-content:center;">
+                                    <button type="submit" class="btn btn-primary">Salvar</button>
+                                  </div>
+
+
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+
+                        <!-- Delete Modal -->
+              <div class="modal fade" id="deleteModalR{{ rctmp.id_rctmp }}" role="dialog" aria-labelledby="deleteModalLabel"
               aria-hidden="true">
               <div class="modal-dialog modal-dialog-centered custom-modal-dialog" role="document">
                 <div class="modal-content">
@@ -345,16 +575,16 @@
                         <path
                           d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z" />
                       </svg>
-                      <h5 class="modal-title" id="deleteModalLabel">Apagar Receita</h5>
+                      <h5 class="modal-title" id="deleteModalLabel">Apagar Ingrediente</h5>
                     </span>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
                   </div>
                   <div class="modal-body">
-                    <p style="font-size: large;">Tem certeza que deseja apagar a Receita? <span
-                        style="font-weight: 500; text-decoration: underline;">{{ rct.nome_rct }}</span>?</p>
-                    <form action="{{ url_for('deleteReceita', id= rct.id_rct) }}" method="post">
+                    <p style="font-size: large;">Tem certeza que deseja apagar o Ingrediente, <span
+                        style="font-weight: 500; text-decoration: underline;">{{ rctmp.nome_mp }}</span>?</p>
+                    <form action="{{ url_for('deleteReceitaIngrediente', id= rctmp.id_rctmp) }}" method="post">
                       <div style="display: flex; width: 100%; justify-content: end;">
                         <button type="submit" class="btn btn-danger">Apagar</button>
                       </div>
@@ -363,85 +593,61 @@
                 </div>
               </div>
             </div>
-            <tr class="fold">
-              <td colspan="7">
-                <div class="fold-content" style="padding: 32px; margin-top: 5px;">
-                  <h4 class="target-component">{{ rct.nome_rct }} </h4>
-                  <p>{{ rct.descricao_rct }}</p>
-                  <hr>
 
 
-                  <h5>Ingredientes da Receita:</h5>
-                  <table class="inside-table" style="margin-top: 20px !important;">
-                    <thead>
-                      <tr>
-                        <th style="width: 5%; text-align: center;">Id Da MP</th>
-                        <th style="text-align: center;">Matéria Prima</th>
-                        <th style="text-align: center;">Quantidade</th>
-                        <th style="text-align: center;">Unidade</th>
-                        <th style="text-align: center;">Leitura</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for rctmp in receitasmp %}
-                      {% if rctmp.tipo_rctmp == 'Ingrediente'%}
-                      <tr>
-
-                        <td>{{rctmp.id_mp}}</td>
-                        <td>{{rctmp.nome_mp}}</td>
-                        <td>{{rctmp.quantidade}}</td>
-                        <td>{{rctmp.unidade}}</td>
-
-                        <td>{{rctmp.quantidade }} {{rctmp.unidade}} de {{rctmp.nome_mp}}
-                        </td>
-                      </tr>
-                      {% endif %}
-                      {% endfor %}
-
-                    </tbody>
-                  </table>
-
-                  <br>
 
 
-                  <h5>Embalagems da Receita:</h5>
 
-                  <table class="inside-table" style="margin-top: 20px !important;">
-                    <thead>
-                      <tr>
-                        <th style="width: 5%; text-align: center;">Id Da MP</th>
-                        <th style="text-align: center;">Embalagem</th>
-                        <th style="text-align: center;">Quantidade</th>
-                        <th style="text-align: center;">Unidade</th>
+                          {% endif %}
+                          {% endfor %}
 
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for rctmp in receitasmp %}
-                      {% if rctmp.id_rct == rct.id_rct and rctmp.tipo_rctmp == 'Embalagem' %}
-                      <tr>
+                      </tbody>
+                    </table>
 
-                        <td>{{rctmp.id_mp}}</td>
-                        <td>{{rctmp.nome_mp}}</td>
-                        <td>{{rctmp.quantidade}}</td>
-                        <td>{{rctmp.unidade}}</td>
+                    <br>
 
-                      </tr>
-                      {% endif %}
-                      {% endfor %}
 
-                    </tbody>
-                  </table>
+                    <h5>Embalagens da Receita:</h5>
 
-                  <hr>
-                  <h5>Modo de Preparo:</h5>
-                  <p>{{ rct.preparo_rct }}</p>
-                  <hr>
-                </div>
+                    <table class="inside-table" style="margin-top: 20px !important;">
+                      <thead>
+                        <tr>
+                          <th style="width: 5%; text-align: center;">Id Da MP</th>
+                          <th style="text-align: center;">Embalagem</th>
+                          <th style="text-align: center;">Quantidade</th>
+                          <th style="text-align: center;">Unidade</th>
 
-              </td>
-            </tr>
-            {% endfor %}
+                        </tr>
+                      </thead>
+                      <tbody>
+                       
+                        {% for rctmp in receitasmp %}
+                        {% if rctmp.id_rct == rct.id_rct and rctmp.tipo_rctmp == 'Embalagem' %}
+                        
+                        <tr>
+
+                          <td>{{rctmp.id_mp}}</td>
+                          <td>{{rctmp.nome_mp}}</td>
+                          <td>{{rctmp.quantidade}}</td>
+                          <td>{{rctmp.unidade}}</td>
+
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+              
+
+                      </tbody>
+                    </table>
+
+                    <hr>
+                    <h5>Modo de Preparo:</h5>
+                    <p>{{ rct.preparo_rct }}</p>
+                    <hr>
+                  </div>
+
+                </td>
+              </tr>
+              {% endfor %}
 
           </tbody>
         </table>
@@ -459,7 +665,7 @@
         $(this).toggleClass("open").next(".fold").toggleClass("open");
         // Get the target component relative to the clicked row
         const targetElement = $(this).next(".fold").find(".target-component");
-
+        console.log(targetElement);
         // Scroll to the target component
         scrollToComponent(targetElement);
       });

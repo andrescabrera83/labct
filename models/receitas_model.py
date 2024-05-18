@@ -14,8 +14,11 @@ class Receitas(db.Model):
     departamento_rct = db.Column(db.String(45))
     validade_rct = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    rendimentokg_rct = db.Column(db.Numeric(10, 3))
+    unidadeporkg_rct = db.Column(db.Integer)
+    pedidomin_rct = db.Column(db.Integer)
 
     usuarios = db.relationship("Usuarios", back_populates="receitas")
     receitasmateriasprimas = db.relationship("ReceitaMateriasPrimas", back_populates="receitas")
-    producdados = db.relationship("ProducDados", back_populates="receitas")
+    #producdados = db.relationship("ProducDados", back_populates="receitas")
     

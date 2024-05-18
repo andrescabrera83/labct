@@ -1,0 +1,613 @@
+Error: Bad object name 'app'
+
+Usage:
+
+    waitress-serve [OPTS] MODULE:OBJECT
+
+Standard options:
+
+    --help
+        Show this information.
+
+    --call
+        Call the given object to get the WSGI application.
+
+    --host=ADDR
+        Hostname or IP address on which to listen, default is '0.0.0.0',
+        which means "all IP addresses on this host".
+
+        Note: May not be used together with --listen
+
+    --port=PORT
+        TCP port on which to listen, default is '8080'
+
+        Note: May not be used together with --listen
+
+    --listen=ip:port
+        Tell waitress to listen on an ip port combination.
+
+        Example:
+
+            --listen=127.0.0.1:8080
+            --listen=[::1]:8080
+            --listen=*:8080
+
+        This option may be used multiple times to listen on multiple sockets.
+        A wildcard for the hostname is also supported and will bind to both
+        IPv4/IPv6 depending on whether they are enabled or disabled.
+
+    --[no-]ipv4
+        Toggle on/off IPv4 support.
+
+        Example:
+
+            --no-ipv4
+
+        This will disable IPv4 socket support. This affects wildcard matching
+        when generating the list of sockets.
+
+    --[no-]ipv6
+        Toggle on/off IPv6 support.
+
+        Example:
+
+            --no-ipv6
+
+        This will turn on IPv6 socket support. This affects wildcard matching
+        when generating a list of sockets.
+
+    --unix-socket=PATH
+        Path of Unix socket. If a socket path is specified, a Unix domain
+        socket is made instead of the usual inet domain socket.
+
+        Not available on Windows.
+
+    --unix-socket-perms=PERMS
+        Octal permissions to use for the Unix domain socket, default is
+        '600'.
+
+    --url-scheme=STR
+        Default wsgi.url_scheme value, default is 'http'.
+
+    --url-prefix=STR
+        The ``SCRIPT_NAME`` WSGI environment value.  Setting this to anything
+        except the empty string will cause the WSGI ``SCRIPT_NAME`` value to be
+        the value passed minus any trailing slashes you add, and it will cause
+        the ``PATH_INFO`` of any request which is prefixed with this value to
+        be stripped of the prefix.  Default is the empty string.
+
+    --ident=STR
+        Server identity used in the 'Server' header in responses. Default
+        is 'waitress'.
+
+Tuning options:
+
+    --threads=INT
+        Number of threads used to process application logic, default is 4.
+
+    --backlog=INT
+        Connection backlog for the server. Default is 1024.
+
+    --recv-bytes=INT
+        Number of bytes to request when calling socket.recv(). Default is
+        8192.
+
+    --send-bytes=INT
+        Number of bytes to send to socket.send(). Default is 18000.
+        Multiples of 9000 should avoid partly-filled TCP packets.
+
+    --outbuf-overflow=INT
+        A temporary file should be created if the pending output is larger
+        than this. Default is 1048576 (1MB).
+
+    --outbuf-high-watermark=INT
+        The app_iter will pause when pending output is larger than this value
+        and will resume once enough data is written to the socket to fall below
+        this threshold. Default is 16777216 (16MB).
+
+    --inbuf-overflow=INT
+        A temporary file should be created if the pending input is larger
+        than this. Default is 524288 (512KB).
+
+    --connection-limit=INT
+        Stop creating new channels if too many are already active.
+        Default is 100.
+
+    --cleanup-interval=INT
+        Minimum seconds between cleaning up inactive channels. Default
+        is 30. See '--channel-timeout'.
+
+    --channel-timeout=INT
+        Maximum number of seconds to leave inactive connections open.
+        Default is 120. 'Inactive' is defined as 'has received no data
+        from the client and has sent no data to the client'.
+
+    --[no-]log-socket-errors
+        Toggle whether premature client disconnect tracebacks ought to be
+        logged. On by default.
+
+    --max-request-header-size=INT
+        Maximum size of all request headers combined. Default is 262144
+        (256KB).
+
+    --max-request-body-size=INT
+        Maximum size of request body. Default is 1073741824 (1GB).
+
+    --[no-]expose-tracebacks
+        Toggle whether to expose tracebacks of unhandled exceptions to the
+        client. Off by default.
+
+    --asyncore-loop-timeout=INT
+        The timeout value in seconds passed to asyncore.loop(). Default is 1.
+
+    --asyncore-use-poll
+        The use_poll argument passed to ``asyncore.loop()``. Helps overcome
+        open file descriptors limit. Default is False.
+
+    --channel-request-lookahead=INT
+        Allows channels to stay readable and buffer more requests up to the
+        given maximum even if a request is already being processed. This allows
+        detecting if a client closed the connection while its request is being
+        processed. Default is 0.
+
+
+There was an exception (AttributeError) importing your module.
+
+It had these arguments: 
+1. type object 'Config' has no attribute 'SECRET_KEY'
+
+Error: Bad object name 'app'
+
+Usage:
+
+    waitress-serve [OPTS] MODULE:OBJECT
+
+Standard options:
+
+    --help
+        Show this information.
+
+    --call
+        Call the given object to get the WSGI application.
+
+    --host=ADDR
+        Hostname or IP address on which to listen, default is '0.0.0.0',
+        which means "all IP addresses on this host".
+
+        Note: May not be used together with --listen
+
+    --port=PORT
+        TCP port on which to listen, default is '8080'
+
+        Note: May not be used together with --listen
+
+    --listen=ip:port
+        Tell waitress to listen on an ip port combination.
+
+        Example:
+
+            --listen=127.0.0.1:8080
+            --listen=[::1]:8080
+            --listen=*:8080
+
+        This option may be used multiple times to listen on multiple sockets.
+        A wildcard for the hostname is also supported and will bind to both
+        IPv4/IPv6 depending on whether they are enabled or disabled.
+
+    --[no-]ipv4
+        Toggle on/off IPv4 support.
+
+        Example:
+
+            --no-ipv4
+
+        This will disable IPv4 socket support. This affects wildcard matching
+        when generating the list of sockets.
+
+    --[no-]ipv6
+        Toggle on/off IPv6 support.
+
+        Example:
+
+            --no-ipv6
+
+        This will turn on IPv6 socket support. This affects wildcard matching
+        when generating a list of sockets.
+
+    --unix-socket=PATH
+        Path of Unix socket. If a socket path is specified, a Unix domain
+        socket is made instead of the usual inet domain socket.
+
+        Not available on Windows.
+
+    --unix-socket-perms=PERMS
+        Octal permissions to use for the Unix domain socket, default is
+        '600'.
+
+    --url-scheme=STR
+        Default wsgi.url_scheme value, default is 'http'.
+
+    --url-prefix=STR
+        The ``SCRIPT_NAME`` WSGI environment value.  Setting this to anything
+        except the empty string will cause the WSGI ``SCRIPT_NAME`` value to be
+        the value passed minus any trailing slashes you add, and it will cause
+        the ``PATH_INFO`` of any request which is prefixed with this value to
+        be stripped of the prefix.  Default is the empty string.
+
+    --ident=STR
+        Server identity used in the 'Server' header in responses. Default
+        is 'waitress'.
+
+Tuning options:
+
+    --threads=INT
+        Number of threads used to process application logic, default is 4.
+
+    --backlog=INT
+        Connection backlog for the server. Default is 1024.
+
+    --recv-bytes=INT
+        Number of bytes to request when calling socket.recv(). Default is
+        8192.
+
+    --send-bytes=INT
+        Number of bytes to send to socket.send(). Default is 18000.
+        Multiples of 9000 should avoid partly-filled TCP packets.
+
+    --outbuf-overflow=INT
+        A temporary file should be created if the pending output is larger
+        than this. Default is 1048576 (1MB).
+
+    --outbuf-high-watermark=INT
+        The app_iter will pause when pending output is larger than this value
+        and will resume once enough data is written to the socket to fall below
+        this threshold. Default is 16777216 (16MB).
+
+    --inbuf-overflow=INT
+        A temporary file should be created if the pending input is larger
+        than this. Default is 524288 (512KB).
+
+    --connection-limit=INT
+        Stop creating new channels if too many are already active.
+        Default is 100.
+
+    --cleanup-interval=INT
+        Minimum seconds between cleaning up inactive channels. Default
+        is 30. See '--channel-timeout'.
+
+    --channel-timeout=INT
+        Maximum number of seconds to leave inactive connections open.
+        Default is 120. 'Inactive' is defined as 'has received no data
+        from the client and has sent no data to the client'.
+
+    --[no-]log-socket-errors
+        Toggle whether premature client disconnect tracebacks ought to be
+        logged. On by default.
+
+    --max-request-header-size=INT
+        Maximum size of all request headers combined. Default is 262144
+        (256KB).
+
+    --max-request-body-size=INT
+        Maximum size of request body. Default is 1073741824 (1GB).
+
+    --[no-]expose-tracebacks
+        Toggle whether to expose tracebacks of unhandled exceptions to the
+        client. Off by default.
+
+    --asyncore-loop-timeout=INT
+        The timeout value in seconds passed to asyncore.loop(). Default is 1.
+
+    --asyncore-use-poll
+        The use_poll argument passed to ``asyncore.loop()``. Helps overcome
+        open file descriptors limit. Default is False.
+
+    --channel-request-lookahead=INT
+        Allows channels to stay readable and buffer more requests up to the
+        given maximum even if a request is already being processed. This allows
+        detecting if a client closed the connection while its request is being
+        processed. Default is 0.
+
+
+There was an exception (AttributeError) importing your module.
+
+It had these arguments: 
+1. type object 'Config' has no attribute 'SECRET_KEY'
+
+Error: Bad object name 'app'
+
+Usage:
+
+    waitress-serve [OPTS] MODULE:OBJECT
+
+Standard options:
+
+    --help
+        Show this information.
+
+    --call
+        Call the given object to get the WSGI application.
+
+    --host=ADDR
+        Hostname or IP address on which to listen, default is '0.0.0.0',
+        which means "all IP addresses on this host".
+
+        Note: May not be used together with --listen
+
+    --port=PORT
+        TCP port on which to listen, default is '8080'
+
+        Note: May not be used together with --listen
+
+    --listen=ip:port
+        Tell waitress to listen on an ip port combination.
+
+        Example:
+
+            --listen=127.0.0.1:8080
+            --listen=[::1]:8080
+            --listen=*:8080
+
+        This option may be used multiple times to listen on multiple sockets.
+        A wildcard for the hostname is also supported and will bind to both
+        IPv4/IPv6 depending on whether they are enabled or disabled.
+
+    --[no-]ipv4
+        Toggle on/off IPv4 support.
+
+        Example:
+
+            --no-ipv4
+
+        This will disable IPv4 socket support. This affects wildcard matching
+        when generating the list of sockets.
+
+    --[no-]ipv6
+        Toggle on/off IPv6 support.
+
+        Example:
+
+            --no-ipv6
+
+        This will turn on IPv6 socket support. This affects wildcard matching
+        when generating a list of sockets.
+
+    --unix-socket=PATH
+        Path of Unix socket. If a socket path is specified, a Unix domain
+        socket is made instead of the usual inet domain socket.
+
+        Not available on Windows.
+
+    --unix-socket-perms=PERMS
+        Octal permissions to use for the Unix domain socket, default is
+        '600'.
+
+    --url-scheme=STR
+        Default wsgi.url_scheme value, default is 'http'.
+
+    --url-prefix=STR
+        The ``SCRIPT_NAME`` WSGI environment value.  Setting this to anything
+        except the empty string will cause the WSGI ``SCRIPT_NAME`` value to be
+        the value passed minus any trailing slashes you add, and it will cause
+        the ``PATH_INFO`` of any request which is prefixed with this value to
+        be stripped of the prefix.  Default is the empty string.
+
+    --ident=STR
+        Server identity used in the 'Server' header in responses. Default
+        is 'waitress'.
+
+Tuning options:
+
+    --threads=INT
+        Number of threads used to process application logic, default is 4.
+
+    --backlog=INT
+        Connection backlog for the server. Default is 1024.
+
+    --recv-bytes=INT
+        Number of bytes to request when calling socket.recv(). Default is
+        8192.
+
+    --send-bytes=INT
+        Number of bytes to send to socket.send(). Default is 18000.
+        Multiples of 9000 should avoid partly-filled TCP packets.
+
+    --outbuf-overflow=INT
+        A temporary file should be created if the pending output is larger
+        than this. Default is 1048576 (1MB).
+
+    --outbuf-high-watermark=INT
+        The app_iter will pause when pending output is larger than this value
+        and will resume once enough data is written to the socket to fall below
+        this threshold. Default is 16777216 (16MB).
+
+    --inbuf-overflow=INT
+        A temporary file should be created if the pending input is larger
+        than this. Default is 524288 (512KB).
+
+    --connection-limit=INT
+        Stop creating new channels if too many are already active.
+        Default is 100.
+
+    --cleanup-interval=INT
+        Minimum seconds between cleaning up inactive channels. Default
+        is 30. See '--channel-timeout'.
+
+    --channel-timeout=INT
+        Maximum number of seconds to leave inactive connections open.
+        Default is 120. 'Inactive' is defined as 'has received no data
+        from the client and has sent no data to the client'.
+
+    --[no-]log-socket-errors
+        Toggle whether premature client disconnect tracebacks ought to be
+        logged. On by default.
+
+    --max-request-header-size=INT
+        Maximum size of all request headers combined. Default is 262144
+        (256KB).
+
+    --max-request-body-size=INT
+        Maximum size of request body. Default is 1073741824 (1GB).
+
+    --[no-]expose-tracebacks
+        Toggle whether to expose tracebacks of unhandled exceptions to the
+        client. Off by default.
+
+    --asyncore-loop-timeout=INT
+        The timeout value in seconds passed to asyncore.loop(). Default is 1.
+
+    --asyncore-use-poll
+        The use_poll argument passed to ``asyncore.loop()``. Helps overcome
+        open file descriptors limit. Default is False.
+
+    --channel-request-lookahead=INT
+        Allows channels to stay readable and buffer more requests up to the
+        given maximum even if a request is already being processed. This allows
+        detecting if a client closed the connection while its request is being
+        processed. Default is 0.
+
+
+There was an exception (AttributeError) importing your module.
+
+It had these arguments: 
+1. type object 'Config' has no attribute 'SECRET_KEY'
+
+Traceback (most recent call last):
+  File "/home/rdpuser/labct/labct/venv/bin/waitress-serve", line 8, in <module>
+    sys.exit(run())
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/waitress/runner.py", line 298, in run
+    _serve(app, **kw)
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/waitress/__init__.py", line 13, in serve
+    server = _server(app, **kw)
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/waitress/server.py", line 78, in create_server
+    last_serv = TcpWSGIServer(
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/waitress/server.py", line 243, in __init__
+    self.bind_server_socket()
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/waitress/server.py", line 364, in bind_server_socket
+    self.bind(sockaddr)
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/waitress/wasyncore.py", line 395, in bind
+    return self.socket.bind(addr)
+OSError: [Errno 98] Address already in use
+INFO:waitress:Serving on http://93.127.210.253:5000
+ERROR:db:Exception on /inventario [GET]
+Traceback (most recent call last):
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/flask/app.py", line 1463, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/flask/app.py", line 872, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/flask/app.py", line 870, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/flask/app.py", line 855, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/rdpuser/labct/labct/app.py", line 818, in inventario
+    estoque = Estoque.query.filter_by(user_id=current_user.id).all()
+AttributeError: 'AnonymousUserMixin' object has no attribute 'id'
+ERROR:db:Exception on /inventario [GET]
+Traceback (most recent call last):
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/flask/app.py", line 1463, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/flask/app.py", line 872, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/flask/app.py", line 870, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/flask/app.py", line 855, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/rdpuser/labct/labct/app.py", line 818, in inventario
+    estoque = Estoque.query.filter_by(user_id=current_user.id).all()
+AttributeError: 'AnonymousUserMixin' object has no attribute 'id'
+ERROR:db:Exception on /receitas [POST]
+Traceback (most recent call last):
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/mysql/connector/connection_cext.py", line 661, in cmd_query
+    self._cmysql.query(
+_mysql_connector.MySQLInterfaceError: Duplicate entry '4-2' for key 'receitamateriasprimas.PRIMARY'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1960, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/mysql/connector/cursor_cext.py", line 374, in execute
+    result = self._cnx.cmd_query(
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/mysql/connector/opentelemetry/context_propagation.py", line 74, in wrapper
+    return method(cnx, *args, **kwargs)
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/mysql/connector/connection_cext.py", line 669, in cmd_query
+    raise get_mysql_exception(
+mysql.connector.errors.IntegrityError: 1062 (23000): Duplicate entry '4-2' for key 'receitamateriasprimas.PRIMARY'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/flask/app.py", line 1463, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/flask/app.py", line 872, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/flask/app.py", line 870, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/flask/app.py", line 855, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+  File "/home/rdpuser/labct/labct/app.py", line 1335, in receitas
+    db.session.commit()
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/orm/scoping.py", line 597, in commit
+    return self._proxied.commit()
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 1972, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 1257, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 1232, in _prepare_impl
+    self.session.flush()
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 4296, in flush
+    self._flush(objects)
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 4431, in _flush
+    with util.safe_reraise():
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 4392, in _flush
+    flush_context.execute()
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/orm/persistence.py", line 1048, in _emit_insert_statements
+    result = connection.execute(
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1408, in execute
+    return meth(
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/sql/elements.py", line 513, in _execute_on_connection
+    return connection._execute_clauseelement(
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1630, in _execute_clauseelement
+    ret = self._execute_context(
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1839, in _execute_context
+    return self._exec_single_context(
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1979, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 2335, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1960, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/mysql/connector/cursor_cext.py", line 374, in execute
+    result = self._cnx.cmd_query(
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/mysql/connector/opentelemetry/context_propagation.py", line 74, in wrapper
+    return method(cnx, *args, **kwargs)
+  File "/home/rdpuser/labct/labct/venv/lib/python3.10/site-packages/mysql/connector/connection_cext.py", line 669, in cmd_query
+    raise get_mysql_exception(
+sqlalchemy.exc.IntegrityError: (mysql.connector.errors.IntegrityError) 1062 (23000): Duplicate entry '4-2' for key 'receitamateriasprimas.PRIMARY'
+[SQL: INSERT INTO receitamateriasprimas (id_rct, id_mp, nome_mp, quantidade, unidade, tipo_rctmp, user_id) VALUES (%(id_rct)s, %(id_mp)s, %(nome_mp)s, %(quantidade)s, %(unidade)s, %(tipo_rctmp)s, %(user_id)s)]
+[parameters: {'id_rct': 4, 'id_mp': '2', 'nome_mp': 'Farinha de trigo', 'quantidade': '100', 'unidade': 'KG', 'tipo_rctmp': 'Ingrediente', 'user_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+INFO:waitress:Serving on http://93.127.210.253:5000
+INFO:waitress:Serving on http://93.127.210.253:5000
+INFO:waitress:Serving on http://93.127.210.253:5000
+INFO:waitress:Serving on http://93.127.210.253:5000

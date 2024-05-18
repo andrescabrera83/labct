@@ -15,6 +15,6 @@ class ProducDados(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
 
     usuarios = db.relationship("Usuarios", back_populates="producdados")
-    receitas = db.relationship("Receitas", back_populates="producdados")
-    materias_primas = db.relationship("MateriasPrimas", back_populates="producdados")
+    #receitas = db.relationship("Receitas", back_populates="producdados")
+    #materias_primas = db.relationship("MateriasPrimas", back_populates="producdados")
     produc = db.relationship("Produc", back_populates="producdados")

@@ -33,16 +33,15 @@
         background-color: #575757 !important;
         border-radius: 8px !important;
     }
+
 </style>
+
 
 
 <div class="menu">
 
     {% if role == 'master' %}
-    <button onclick="window.location.href='{{ url_for('usuarios') }}'" {% if request.path==url_for('usuarios')
-        %}class="active" {% endif %}>Usuarios</button>
-    <button onclick="window.location.href='{{ url_for('fabricas') }}'" {% if request.path==url_for('fabricas')
-        %}class="active" {% endif %}>Fabricas</button>
+
     <button onclick="window.location.href='{{ url_for('filiais') }}'" {% if request.path==url_for('filiais')
         %}class="active" {% endif %}>Filiais</button>
     <button onclick="window.location.href='{{ url_for('fornecedores') }}'" {% if request.path==url_for('fornecedores')
@@ -80,4 +79,4 @@
     
 
 
-</div>
+</div> 

@@ -14,7 +14,7 @@ from datetime import timedelta
 from babel.dates import format_date
 from flask import abort  # Import abort function from Flask to handle HTTP errors
 from sqlalchemy.exc import IntegrityError
-
+import math
 from sqlalchemy import func
 
 
@@ -45,7 +45,6 @@ from db import db, ma, app
 
 from flask_login import UserMixin,current_user, login_required, LoginManager, login_user
 pymysql.install_as_MySQLdb()
-
 
 
 # Initialize Flask-Login
@@ -176,11 +175,18 @@ class ReceitasSchema(ma.SQLAlchemySchema):
     descricao_rct = ma.auto_field()
     preparo_rct = ma.auto_field()
     rendimento_rct = ma.auto_field()
+    rendimentokg_rct = ma.auto_field()
+    class_rct = ma.auto_field()
+    departamento_rct = ma.auto_field()
+    validade_rct = ma.auto_field()
+    unidadeporkg_rct = ma.auto_field()
+    pedidomin_rct = ma.auto_field()
 
 class ReceitasMateriasPrimasSchema(ma.SQLAlchemySchema):
     class Meta:
         model = ReceitaMateriasPrimas
 
+    id_rctmp = ma.auto_field()
     id_rct = ma.auto_field()
     id_mp = ma.auto_field()
     nome_mp = ma.auto_field()
@@ -196,6 +202,13 @@ class ProducSchema(ma.SQLAlchemySchema):
     data_pdc = ma.auto_field()
     estado_pdc = ma.auto_field()
     nome_rct = ma.auto_field()
+    filial_pdc = ma.auto_field()
+    nomefilial_pdc = ma.auto_field()
+    departamento_rct = ma.auto_field()
+    class_rct = ma.auto_field()
+    pedidomin_rct = ma.auto_field()
+    fechadoem_pdc = ma.auto_field()
+    quantidade_pdc = ma.auto_field()
     
 class ProducDadosSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -1284,18 +1297,23 @@ def receitas():
         class_rct = request.form.get('class_rct')
         departamento_rct = request.form.get('departamento_rct')
         validade_rct = request.form.get('validade_rct')
+        pedidomin_rct = request.form.get('pedidomin_rct')
         
-
         
+        rendimentokg_rct = 0.0 #initial empty value
+        unidadeporkg_rct = 0.0
 
         receitas = Receitas(
             nome_rct=nome_rct,
             descricao_rct=descricao_rct,
             preparo_rct=preparo_rct,
             rendimento_rct=rendimento_rct,
+            rendimentokg_rct=rendimentokg_rct,
             class_rct=class_rct,
             departamento_rct=departamento_rct,
+            pedidomin_rct=pedidomin_rct,
             validade_rct=validade_rct,
+            unidadeporkg_rct=unidadeporkg_rct,
             user_id=current_user.id
         )
 
@@ -1303,17 +1321,19 @@ def receitas():
         db.session.commit()
 
         id_rct = receitas.id_rct
-
+        
+        
         # Handle ingredients insertion
         ingredient_count = int(request.form.get('ingredient_count'))
+        
+        # rendimentototal = sum(float(request.form.get(f'quantidade_{i}')) for i in range(ingredient_count))
+        rendimentototal = sum(float(request.form.get(f'quantidade_{i}')) for i in range(ingredient_count) if request.form.get(f'tipo_rctmp_{i}') == 'Ingrediente')
 
         for i in range(ingredient_count):
             id_mp = request.form.get(f'id_mp_{i}')
             quantidade = request.form.get(f'quantidade_{i}')
             tipo = request.form.get(f'tipo_rctmp_{i}')
-            
-
-            #print(quantidade)
+        
 
              # Fetch the nome_mp corresponding to the id_mp from the MP table
             materiaprima = MateriasPrimas.query.filter_by(id_mp=id_mp).first()
@@ -1330,9 +1350,21 @@ def receitas():
                 unidade=unidade_mp,
                 user_id=current_user.id
             )
+            
+            #Update receitas with new total rendimento value
+            unidadedividido =  receitas.rendimento_rct / rendimentototal
+            
+            # Round unidadedividido to the nearest higher integer
+            unidadedividido_rounded = math.ceil(unidadedividido)
+            
+            receitas.unidadeporkg_rct = unidadedividido_rounded
+            
+            receitas.rendimentokg_rct = rendimentototal
         
             db.session.add(receita_mp)
             db.session.commit()
+            
+            
         
         return redirect(url_for('receitas')) 
     
@@ -1351,7 +1383,42 @@ def receitas():
     materiasprimas=serialized_data_mp, 
     receitas=serialized_data_rct,
     receitasmp=serialized_data_rctmp)
+    
 
+@app.route('/edit-receita/<int:id>', methods=['POST'])
+def editReceita(id):
+    if request.method == 'POST':
+        receita = Receitas.query.get_or_404(id)
+        receita.nome_rct = request.form.get('nome_rct')
+        receita.descricao_rct = request.form.get('descricao_rct')
+        receita.rendimento_rct = request.form.get('rendimento_rct')
+        receita.class_rct = request.form.get('class_rct')
+        receita.departamento_rct = request.form.get('departamento_rct')
+        receita.validade_rct = request.form.get('validade_rct')
+        receita.pedidomin_rct = request.form.get('pedidomin_rct')
+
+        db.session.commit()
+        return redirect(url_for('receitas', id=id))
+
+
+@app.route('/edit-receita-ingrediente/<int:id>', methods=['POST'])
+def editReceitaIngrediente(id):
+    if request.method == 'POST':
+        receitaIngrediente = ReceitaMateriasPrimas.query.get_or_404(id)
+        receitaIngrediente.quantidade = request.form.get('quantidade_rct')
+       
+
+        db.session.commit()
+        return redirect(url_for('receitas', id=id))
+    
+
+@app.route('/delete-receita-ingrediente/<int:id>', methods=['POST'])
+def deleteReceitaIngrediente(id):
+    ReceitaMateriasPrimas.query.filter_by(id_rctmp=id).delete()
+       
+
+    db.session.commit()
+    return redirect(url_for('receitas', id=id))
 
     
 #DELETE
@@ -1363,7 +1430,7 @@ def deleteReceita(id):
     
     try:
         # Delete child records from ReceitaMateriasPrimas table
-        ReceitaMateriasPrimas.query.filter_by(id_rct=id).delete()
+        ReceitaMateriasPrimas.query.filter_by(id_rctmp=id).delete()
         
         # Delete the parent record from Receitas table
         db.session.delete(receitas)
@@ -1382,6 +1449,10 @@ def produccao():
     receitas = Receitas.query.filter_by(user_id=current_user.id).all()
     receitas_schema = ReceitasSchema(many=True)
     serialized_data_rct = receitas_schema.dump(receitas)
+    
+    filiais = Filiais.query.filter_by(user_id=current_user.id).all()
+    filiais_schema = FiliaisSchema(many=True)
+    serialized_data_filiais = filiais_schema.dump(filiais)
 
     produc = Produc.query.filter_by(user_id=current_user.id).all()
     produc_schema = ProducSchema(many=True)
@@ -1400,7 +1471,8 @@ def produccao():
                            receitas=serialized_data_rct,
                            producPendente=serialized_data_produc_pendente,
                            producFechado=serialized_data_produc_fechado,
-                           producDados=serialized_data_produc_dados)
+                           producDados=serialized_data_produc_dados,
+                           filiais=serialized_data_filiais)
 
 
 @app.route('/salvar_pdc', methods=['POST'])
@@ -1413,14 +1485,30 @@ def salvar_pdc():
     # Access the rows data sent from the frontend
     rct_id = request_data.get('rct_id')
     rows = request_data.get('rows', [])
+    filial = request_data.get('filial')
+    quantidade = request_data.get('quantidade')
 
     receitas = Receitas.query.filter_by(id_rct=rct_id).first()
     nome_rct = receitas.nome_rct
+    departamento_rct = receitas.departamento_rct
+    class_rct = receitas.class_rct
+    pedidominimo_rct = receitas.pedidomin_rct
+    
+    filiais = Filiais.query.filter_by(id_fil=filial).first()
+    nomefilial = filiais.loja_fil
+    
+    print(' #########################',nomefilial)
 
     produccao = Produc(
         data_pdc=current_time,
         estado_pdc='Pendente',
         nome_rct=nome_rct,
+        filial_pdc=filial,
+        nomefilial_pdc=nomefilial,
+        departamento_rct=departamento_rct,
+        class_rct=class_rct,
+        pedidomin_rct=pedidominimo_rct,
+        quantidade_pdc=quantidade,
         user_id=current_user.id
         )
     db.session.add(produccao)
@@ -1459,6 +1547,8 @@ def salvar_pdc():
     
 @app.route('/fechar_pdc', methods=['POST'])
 def fechar_pdc():
+    
+    current_time = datetime.now()
 
     selected_items = request.form.getlist('nome_mp[]')
     selected_id = request.form.getlist('id_pdc[]')
@@ -1471,6 +1561,7 @@ def fechar_pdc():
 
         produc = Produc.query.get_or_404(id_pdc)
         produc.estado_pdc = 'Fechado'
+        produc.fechadoem_pdc = current_time
         
 
         producd = ProducDados.query.filter_by(nome_mp=mp, id_pdc=id_pdc).first()
@@ -1554,8 +1645,8 @@ def get_recipe_info():
         return jsonify({}), 404
     
 
-
+#host='93.127.210.253'
 
 if __name__ == '__main__':
 
-    app.run()
+    app.run(host='93.127.210.253')

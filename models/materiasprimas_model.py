@@ -12,7 +12,7 @@ class MateriasPrimas(db.Model):
     pesototal_mp = db.Column(db.Numeric(10, 3))
     custo_mp = db.Column(db.Numeric(10, 2))
     custoemkg_mp = db.Column(db.Numeric(10, 2))
-    departamento_mp = db.Column(db.Enum('Carnes', 'Farinhas', 'Hortifruti', 'Mercearia', 'Misturas', 'Ovos', 'Queijos'))
+    departamento_mp = db.Column(db.Enum('Carnes', 'Farinhas', 'Hortifruti', 'Mercearia', 'Misturas', 'Ovos', 'Queijos', 'EMBALAGEM'))
     pedidomin_mp = db.Column(db.Numeric(10,3))
     gastomedio_mp = db.Column(db.Numeric(10, 3))
     gms_mp = db.Column(db.Numeric(10, 3))
@@ -22,7 +22,7 @@ class MateriasPrimas(db.Model):
     usuarios = db.relationship("Usuarios", back_populates="materias_primas")
     inventariodados = db.relationship("InventarioDados", back_populates="materias_primas")
     receitasmateriasprimas = db.relationship("ReceitaMateriasPrimas", back_populates="materias_primas")
-    producdados = db.relationship("ProducDados", back_populates="materias_primas")
+    #producdados = db.relationship("ProducDados", back_populates="materias_primas")
 
     def __init__(self, nome_mp, unidade_mp, pesounitario_mp, pesototal_mp, custo_mp, custoemkg_mp, departamento_mp, pedidomin_mp, gastomedio_mp, gms_mp, user_id):
         self.nome_mp = nome_mp
