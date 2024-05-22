@@ -1,4 +1,4 @@
-from db import db
+from db import db, ma
 
 class Filiais(db.Model):
     __tablename__ = "filiais"
@@ -14,4 +14,16 @@ class Filiais(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
 
     usuarios = db.relationship("Usuarios", back_populates="filiais")
+    
+    
+class FiliaisSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Filiais
+    
+    id_fil = ma.auto_field()
+    loja_fil = ma.auto_field()
+    endereco_fil = ma.auto_field()
+    bairro_fil = ma.auto_field()
+    cidade_fil = ma.auto_field()
+    codigorota_fil = ma.auto_field()
      

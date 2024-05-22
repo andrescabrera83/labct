@@ -1,4 +1,4 @@
-from db import db
+from db import db, ma
 
 
 class MateriasPrimas(db.Model):
@@ -36,3 +36,20 @@ class MateriasPrimas(db.Model):
         self.gastomedio_mp = gastomedio_mp
         self.gms_mp = gms_mp
         self.user_id = user_id
+        
+        
+class MateriasPrimasSchema(ma.SQLAlchemySchema):
+    
+    class Meta:
+        model = MateriasPrimas
+    id_mp = ma.auto_field()
+    nome_mp = ma.auto_field()
+    unidade_mp = ma.auto_field()
+    pesounitario_mp = ma.auto_field()
+    pesototal_mp = ma.auto_field()
+    custo_mp = ma.auto_field()
+    custoemkg_mp = ma.auto_field()
+    departamento_mp = ma.auto_field()
+    pedidomin_mp = ma.auto_field()
+    gastomedio_mp = ma.auto_field()
+    gms_mp = ma.auto_field()

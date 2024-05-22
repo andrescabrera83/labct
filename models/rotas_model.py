@@ -1,4 +1,4 @@
-from db import db
+from db import db, ma
 from flask_login import UserMixin
 
 #TODO - Rotas #################################################################################################
@@ -16,3 +16,18 @@ class Rotas(UserMixin,db.Model):
     whatsapp = db.Column(db.String(50), nullable=False)
 
     #filiais = db.relationship('Filiais', back_populates="rotas", lazy=True)
+    
+    
+class RotasSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Rotas
+    
+    id_rota = ma.auto_field()
+    nome = ma.auto_field()
+    veiculo = ma.auto_field()
+    placa = ma.auto_field()
+    horario = ma.auto_field()
+   # filiais = ma.auto_field()
+    whatsapp = ma.auto_field()
+    
+        

@@ -1,6 +1,6 @@
 # COMPRASDADOS #################################################################################################
 
-from db import db
+from db import db, ma
 from datetime import datetime, timezone
 from sqlalchemy import ForeignKey
 
@@ -25,3 +25,21 @@ class ComprasDados(db.Model):
 
     usuarios = db.relationship("Usuarios", back_populates="comprasdados")
     compras = db.relationship("Compras", back_populates="comprasdados")
+
+
+
+class ComprasDadosSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = ComprasDados
+        
+    id_comprasd = ma.auto_field()
+    id_compras = ma.auto_field()
+    nome_mp = ma.auto_field()
+    unidade_mp = ma.auto_field()
+    pedido_comprasd = ma.auto_field()
+    fornecedor_comprasd = ma.auto_field()
+    valorpedido_comprasd = ma.auto_field()
+    departamento_comprasd = ma.auto_field()
+    previsao_comprasd = ma.auto_field()
+    vencimento_comprasd = ma.auto_field()
+    fechado_comprasd = ma.auto_field()

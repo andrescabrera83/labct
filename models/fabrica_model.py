@@ -1,4 +1,4 @@
-from db import db
+from db import db, ma
 from datetime import datetime, timezone
 from sqlalchemy import func
 
@@ -20,3 +20,23 @@ class Fabrica(db.Model):
     status_fab = db.Column(db.Integer, default=1, nullable=True)
     cadastrado_em_fab = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
     atualizado_em_fab = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    
+
+class FabricaSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Fabrica
+        
+    id_fab = ma.auto_field()
+    nome_fab = ma.auto_field()
+    endereco_fab = ma.auto_field()
+    bairro_fab = ma.auto_field()
+    cidade_fab = ma.auto_field()
+    estado_fab = ma.auto_field()
+    telefone_fab = ma.auto_field()
+    email_fab = ma.auto_field()
+    responsavel_fab = ma.auto_field()
+    wpp_fab = ma.auto_field()
+    cnpj_fab = ma.auto_field()
+    status_fab = ma.auto_field()
+    cadastrado_em_fab = ma.auto_field()
+    atualizado_em_fab = ma.auto_field()

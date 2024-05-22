@@ -23,15 +23,15 @@ from decimal import Decimal
 #from models.materiasprimas import MateriasPrimas
 
 
-from models.estoque_model import Estoque
-from models.materiasprimas_model import MateriasPrimas  
-from models.fornecedores_model import Fornecedores
-from models.historico_model import Historico
-from models.inventario_model import Inventario
-from models.inventariodados_model import InventarioDados
-from models.compras_model import Compras
-from models.comprasdados_model import ComprasDados
-from models.usuarios_model import Usuarios
+from models.estoque_model import Estoque, EstoqueSchema
+from models.materiasprimas_model import MateriasPrimas, MateriasPrimasSchema
+from models.fornecedores_model import Fornecedores, FornecedorSchema
+from models.historico_model import Historico, HistoricoSchema
+from models.inventario_model import Inventario, InventarioSchema
+from models.inventariodados_model import InventarioDados, InventarioDadosSchema
+from models.compras_model import Compras, ComprasSchema
+from models.comprasdados_model import ComprasDados, ComprasDadosSchema
+from models.usuarios_model import Usuarios, UsuariosSchema
 from models.config_model import Config
 from models.receitas_model import Receitas
 from models.receitasmateriaprimas_model import ReceitaMateriasPrimas
@@ -42,6 +42,13 @@ from models.filiais_model import Filiais
 from models.rotas_model import Rotas
 from models.planomestre_model import PlanoMestre
 from models.planomestrefiliais_model import PlanoMestreFiliais
+from models.receitas_model import Receitas, ReceitasSchema
+from models.receitasmateriaprimas_model import ReceitaMateriasPrimas, ReceitasMateriasPrimasSchema
+from models.produc_model import Produc, ProducSchema
+from models.producdados_model import ProducDados, ProducDadosSchema
+from models.fabrica_model import Fabrica, FabricaSchema
+from models.filiais_model import Filiais, FiliaisSchema
+from models.rotas_model import Rotas, RotasSchema
 from db import db, ma, app
 
 
@@ -174,7 +181,6 @@ class ReceitasSchema(ma.SQLAlchemySchema):
 
     id_rct = ma.auto_field()
     nome_rct = ma.auto_field()
-    cod_rct = ma.auto_field()
     descricao_rct = ma.auto_field()
     preparo_rct = ma.auto_field()
     rendimento_rct = ma.auto_field()
@@ -184,7 +190,6 @@ class ReceitasSchema(ma.SQLAlchemySchema):
     validade_rct = ma.auto_field()
     unidadeporkg_rct = ma.auto_field()
     pedidomin_rct = ma.auto_field()
-    contador_rct = ma.auto_field()
 
 class ReceitasMateriasPrimasSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -268,32 +273,6 @@ class RotasSchema(ma.SQLAlchemySchema):
     horario = ma.auto_field()
    # filiais = ma.auto_field()
     whatsapp = ma.auto_field()
-    
-class PlanoMestreSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = PlanoMestre
-    
-    id_pm = ma.auto_field()
-    codigo_rct = ma.auto_field()
-    nome_rct = ma.auto_field()
-    class_rct = ma.auto_field()
-    departamento_rct = ma.auto_field()
-    estoque_pm = ma.auto_field()
-    pedidototal_pm = ma.auto_field()
-    pedidokgtotal_pm = ma.auto_field()
-    rctnecessaria_pm = ma.auto_field()
-    data_pm = ma.auto_field()
-    
-class PlanoMestreFiliaisSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = PlanoMestreFiliais
-    
-    id_pmf = ma.auto_field()
-    id_pm = ma.auto_field()
-    filial_pdc = ma.auto_field()
-    nomefilial_pdc = ma.auto_field()
-    
-    quantidade_pdc = ma.auto_field()
     
         
 
