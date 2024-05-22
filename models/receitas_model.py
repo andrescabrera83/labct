@@ -7,6 +7,7 @@ class Receitas(db.Model):
 
     id_rct = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nome_rct = db.Column(db.String(75))
+    cod_rct = db.Column(db.String(10))
     descricao_rct = db.Column(db.Text)
     preparo_rct = db.Column(db.Text)
     rendimento_rct = db.Column(db.Integer)
@@ -17,6 +18,8 @@ class Receitas(db.Model):
     rendimentokg_rct = db.Column(db.Numeric(10, 3))
     unidadeporkg_rct = db.Column(db.Integer)
     pedidomin_rct = db.Column(db.Integer)
+    
+    contador_rct = db.Column(db.Integer)
 
     usuarios = db.relationship("Usuarios", back_populates="receitas")
     receitasmateriasprimas = db.relationship("ReceitaMateriasPrimas", back_populates="receitas")

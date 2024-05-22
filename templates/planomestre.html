@@ -16,6 +16,7 @@
                    
 
                     {%for rct in receitas %}
+                    {% if rct.contador_rct > 0 %}
 
                     <div style="border: 1px solid black; 
                     border-radius:12px;
@@ -42,7 +43,7 @@
                     
                 </div>
 
-
+                {% endif %}
                     {% endfor %}
 
 

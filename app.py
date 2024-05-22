@@ -40,6 +40,8 @@ from models.producdados_model import ProducDados
 from models.fabrica_model import Fabrica
 from models.filiais_model import Filiais
 from models.rotas_model import Rotas
+from models.planomestre_model import PlanoMestre
+from models.planomestrefiliais_model import PlanoMestreFiliais
 from db import db, ma, app
 
 
@@ -172,6 +174,7 @@ class ReceitasSchema(ma.SQLAlchemySchema):
 
     id_rct = ma.auto_field()
     nome_rct = ma.auto_field()
+    cod_rct = ma.auto_field()
     descricao_rct = ma.auto_field()
     preparo_rct = ma.auto_field()
     rendimento_rct = ma.auto_field()
@@ -181,6 +184,7 @@ class ReceitasSchema(ma.SQLAlchemySchema):
     validade_rct = ma.auto_field()
     unidadeporkg_rct = ma.auto_field()
     pedidomin_rct = ma.auto_field()
+    contador_rct = ma.auto_field()
 
 class ReceitasMateriasPrimasSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -264,6 +268,32 @@ class RotasSchema(ma.SQLAlchemySchema):
     horario = ma.auto_field()
    # filiais = ma.auto_field()
     whatsapp = ma.auto_field()
+    
+class PlanoMestreSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = PlanoMestre
+    
+    id_pm = ma.auto_field()
+    codigo_rct = ma.auto_field()
+    nome_rct = ma.auto_field()
+    class_rct = ma.auto_field()
+    departamento_rct = ma.auto_field()
+    estoque_pm = ma.auto_field()
+    pedidototal_pm = ma.auto_field()
+    pedidokgtotal_pm = ma.auto_field()
+    rctnecessaria_pm = ma.auto_field()
+    data_pm = ma.auto_field()
+    
+class PlanoMestreFiliaisSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = PlanoMestreFiliais
+    
+    id_pmf = ma.auto_field()
+    id_pm = ma.auto_field()
+    filial_pdc = ma.auto_field()
+    nomefilial_pdc = ma.auto_field()
+    
+    quantidade_pdc = ma.auto_field()
     
         
 
@@ -1296,6 +1326,7 @@ def receitas():
         departamento_rct = request.form.get('departamento_rct')
         validade_rct = request.form.get('validade_rct')
         pedidomin_rct = request.form.get('pedidomin_rct')
+        cod_rct = request.form.get('cod_rct')
         
         
         rendimentokg_rct = 0.0 #initial empty value
@@ -1303,6 +1334,7 @@ def receitas():
 
         receitas = Receitas(
             nome_rct=nome_rct,
+            cod_rct=cod_rct,
             descricao_rct=descricao_rct,
             preparo_rct=preparo_rct,
             rendimento_rct=rendimento_rct,
@@ -1312,7 +1344,8 @@ def receitas():
             pedidomin_rct=pedidomin_rct,
             validade_rct=validade_rct,
             unidadeporkg_rct=unidadeporkg_rct,
-            user_id=current_user.id
+            user_id=current_user.id,
+            contador_rct=0
         )
 
         db.session.add(receitas)
@@ -1492,8 +1525,19 @@ def salvar_pdc():
     class_rct = receitas.class_rct
     pedidominimo_rct = receitas.pedidomin_rct
     
+    # Increment contador_rct by 1
+    receitas.contador_rct = int(receitas.contador_rct) + 1
+    
+    
+    
     filiais = Filiais.query.filter_by(id_fil=filial).first()
     nomefilial = filiais.loja_fil
+    
+    
+  
+    
+    
+
     
     print(' #########################',nomefilial)
 
@@ -1511,6 +1555,8 @@ def salvar_pdc():
         )
     db.session.add(produccao)
     db.session.commit()
+    
+  
     
 
      # Process the received data as needed
