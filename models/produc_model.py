@@ -23,18 +23,4 @@ class Produc(db.Model):
     usuarios = db.relationship("Usuarios", back_populates="produc")
     producdados = db.relationship("ProducDados", back_populates="produc")
     
-class ProducSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = Produc
 
-    id_pdc = ma.auto_field()
-    data_pdc = ma.auto_field()
-    estado_pdc = ma.auto_field()
-    nome_rct = ma.auto_field()
-    filial_pdc = ma.auto_field()
-    nomefilial_pdc = ma.auto_field()
-    departamento_rct = ma.auto_field()
-    class_rct = ma.auto_field()
-    pedidomin_rct = ma.auto_field()
-    fechadoem_pdc = ma.auto_field()
-    quantidade_pdc = ma.auto_field()

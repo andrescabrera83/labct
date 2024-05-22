@@ -22,14 +22,3 @@ class ProducDados(db.Model):
 
 
     
-class ProducDadosSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = ProducDados
-
-    id_pdcd = ma.auto_field()
-    id_pdc = ma.auto_field()
-    id_rct = ma.auto_field()
-    id_mp = ma.auto_field()
-    nome_mp = ma.auto_field()
-    quantidade_pdcd = ma.auto_field()
-    unidade_pdcd = ma.auto_field()

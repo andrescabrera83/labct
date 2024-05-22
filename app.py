@@ -23,15 +23,15 @@ from decimal import Decimal
 #from models.materiasprimas import MateriasPrimas
 
 
-from models.estoque_model import Estoque, EstoqueSchema
-from models.materiasprimas_model import MateriasPrimas, MateriasPrimasSchema
-from models.fornecedores_model import Fornecedores, FornecedorSchema
-from models.historico_model import Historico, HistoricoSchema
-from models.inventario_model import Inventario, InventarioSchema
-from models.inventariodados_model import InventarioDados, InventarioDadosSchema
-from models.compras_model import Compras, ComprasSchema
-from models.comprasdados_model import ComprasDados, ComprasDadosSchema
-from models.usuarios_model import Usuarios, UsuariosSchema
+from models.estoque_model import Estoque
+from models.materiasprimas_model import MateriasPrimas
+from models.fornecedores_model import Fornecedores
+from models.historico_model import Historico
+from models.inventario_model import Inventario
+from models.inventariodados_model import InventarioDados
+from models.compras_model import Compras
+from models.comprasdados_model import ComprasDados
+from models.usuarios_model import Usuarios
 from models.config_model import Config
 from models.receitas_model import Receitas
 from models.receitasmateriaprimas_model import ReceitaMateriasPrimas
@@ -40,6 +40,10 @@ from models.producdados_model import ProducDados
 from models.fabrica_model import Fabrica
 from models.filiais_model import Filiais
 from models.rotas_model import Rotas
+from models.planomestre_model import PlanoMestre
+from models.planomestrefiliais_model import PlanoMestreFiliais
+
+
 from db import db, ma, app
 
 
@@ -56,7 +60,235 @@ login_manager.init_app(app)
     
 with app.app_context():
     db.create_all()
+## MODELS AND SCHEMAS ###########################################################################################################################
+
+class UsuariosSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Usuarios
+        
+    id = ma.auto_field()
+    username = ma.auto_field()
+    password = ma.auto_field()
+    role = ma.auto_field()
+    nomecompleto = ma.auto_field()
+    funcao = ma.auto_field()
+    whatsapp = ma.auto_field()
+    cpf = ma.auto_field()
+    email = ma.auto_field()
+
+class FornecedorSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Fornecedores
+
+    id_fornecedor = ma.auto_field()
+    nome_fornecedor = ma.auto_field()
+    tempo_entrega = ma.auto_field()
+    prazo_pagamento = ma.auto_field()
+    dia_pedido = ma.auto_field()
+    nome_vendedor = ma.auto_field()
+    contato_tel = ma.auto_field()
+    email_vendedor = ma.auto_field()
+
+class MateriasPrimasSchema(ma.SQLAlchemySchema):
     
+    class Meta:
+        model = MateriasPrimas
+    id_mp = ma.auto_field()
+    nome_mp = ma.auto_field()
+    unidade_mp = ma.auto_field()
+    pesounitario_mp = ma.auto_field()
+    pesototal_mp = ma.auto_field()
+    custo_mp = ma.auto_field()
+    custoemkg_mp = ma.auto_field()
+    departamento_mp = ma.auto_field()
+    pedidomin_mp = ma.auto_field()
+    gastomedio_mp = ma.auto_field()
+    gms_mp = ma.auto_field()
+
+class EstoqueSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Estoque
+        
+    id_estq = ma.auto_field()
+    id_mp = ma.auto_field()
+    nome_mp = ma.auto_field()
+    unidade_mp = ma.auto_field()
+    quantidade_estq = ma.auto_field()
+    gms_mp = ma.auto_field()
+    pedidomin_mp = ma.auto_field()
+
+class HistoricoSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Historico
+        
+    id_hst = ma.auto_field() 
+    date_change = ma.auto_field()
+    id_mp = ma.auto_field()
+    nome_mp = ma.auto_field()
+    ultimaquantidade_hst = ma.auto_field()
+    novaquantidade_hst = ma.auto_field()
+    difference_hst = ma.auto_field()
+    modo_hst = ma.auto_field()
+
+class InventarioSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Inventario
+        
+    id_invt = ma.auto_field()
+    estado_invt = ma.auto_field()
+    data_invt = ma.auto_field()
+ 
+class InventarioDadosSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = InventarioDados
+        
+    id_invtdados = ma.auto_field()
+    id_invt = ma.auto_field()
+    data_invt = ma.auto_field()
+    id_mp = ma.auto_field()
+    nome_mp = ma.auto_field()
+    unidade_mp = ma.auto_field()
+    quantidade_invtdados = ma.auto_field()   
+    quantidade_estq = ma.auto_field()   
+
+class ComprasSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Compras
+        
+    id_compras = ma.auto_field()
+    estado_compras = ma.auto_field()
+    data_compras = ma.auto_field()   
+
+class ComprasDadosSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = ComprasDados
+        
+    id_comprasd = ma.auto_field()
+    id_compras = ma.auto_field()
+    nome_mp = ma.auto_field()
+    unidade_mp = ma.auto_field()
+    pedido_comprasd = ma.auto_field()
+    fornecedor_comprasd = ma.auto_field()
+    valorpedido_comprasd = ma.auto_field()
+    departamento_comprasd = ma.auto_field()
+    previsao_comprasd = ma.auto_field()
+    vencimento_comprasd = ma.auto_field()
+    fechado_comprasd = ma.auto_field()
+
+class ReceitasSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Receitas
+
+    id_rct = ma.auto_field()
+    nome_rct = ma.auto_field()
+    descricao_rct = ma.auto_field()
+    preparo_rct = ma.auto_field()
+    rendimento_rct = ma.auto_field()
+    rendimentokg_rct = ma.auto_field()
+    class_rct = ma.auto_field()
+    departamento_rct = ma.auto_field()
+    validade_rct = ma.auto_field()
+    unidadeporkg_rct = ma.auto_field()
+    pedidomin_rct = ma.auto_field()
+
+class ReceitasMateriasPrimasSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = ReceitaMateriasPrimas
+
+    id_rctmp = ma.auto_field()
+    id_rct = ma.auto_field()
+    id_mp = ma.auto_field()
+    nome_mp = ma.auto_field()
+    quantidade = ma.auto_field()
+    tipo_rctmp = ma.auto_field()
+    unidade = ma.auto_field()
+
+class ProducSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Produc
+
+    id_pdc = ma.auto_field()
+    data_pdc = ma.auto_field()
+    estado_pdc = ma.auto_field()
+    nome_rct = ma.auto_field()
+    filial_pdc = ma.auto_field()
+    nomefilial_pdc = ma.auto_field()
+    departamento_rct = ma.auto_field()
+    class_rct = ma.auto_field()
+    pedidomin_rct = ma.auto_field()
+    fechadoem_pdc = ma.auto_field()
+    quantidade_pdc = ma.auto_field()
+    
+class ProducDadosSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = ProducDados
+
+    id_pdcd = ma.auto_field()
+    id_pdc = ma.auto_field()
+    id_rct = ma.auto_field()
+    id_mp = ma.auto_field()
+    nome_mp = ma.auto_field()
+    quantidade_pdcd = ma.auto_field()
+    unidade_pdcd = ma.auto_field()
+    
+class FabricaSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Fabrica
+        
+    id_fab = ma.auto_field()
+    nome_fab = ma.auto_field()
+    endereco_fab = ma.auto_field()
+    bairro_fab = ma.auto_field()
+    cidade_fab = ma.auto_field()
+    estado_fab = ma.auto_field()
+    telefone_fab = ma.auto_field()
+    email_fab = ma.auto_field()
+    responsavel_fab = ma.auto_field()
+    wpp_fab = ma.auto_field()
+    cnpj_fab = ma.auto_field()
+    status_fab = ma.auto_field()
+    cadastrado_em_fab = ma.auto_field()
+    atualizado_em_fab = ma.auto_field()
+    
+class FiliaisSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Filiais
+    
+    id_fil = ma.auto_field()
+    loja_fil = ma.auto_field()
+    endereco_fil = ma.auto_field()
+    bairro_fil = ma.auto_field()
+    cidade_fil = ma.auto_field()
+    codigorota_fil = ma.auto_field()
+    
+    
+class RotasSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Rotas
+    
+    id_rota = ma.auto_field()
+    nome = ma.auto_field()
+    veiculo = ma.auto_field()
+    placa = ma.auto_field()
+    horario = ma.auto_field()
+   # filiais = ma.auto_field()
+    whatsapp = ma.auto_field()
+    
+
+class PlanoMestreSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = PlanoMestre
+        
+    id_pm = ma.auto_field()
+    codigo_rct = ma.auto_field()
+    nome_rct = ma.auto_field()
+    class_rct = ma.auto_field()
+    departamento_rct = ma.auto_field()
+    data_pm = ma.auto_field()
+    estoque_pm = ma.auto_field() 
+    pedidototal_pm = ma.auto_field()
+    pedidokgtotal_pm = ma.auto_field()
+    rctnecessaria_pm = ma.auto_field()
 
 # FUNCOES DO GIRO MEDIO ########################################################################################################
 
