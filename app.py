@@ -428,8 +428,6 @@ def global_context():
         if user:
             role = user.role
 
-
-
             # Return the variables to be available globally
             return {
                 'username': username_in_session,
@@ -1644,9 +1642,32 @@ def get_recipe_info():
         # If the recipe is not found, return an empty response or an error message
         return jsonify({}), 404
     
+@app.route('/planomestre')
+def planomestre():
+    
+    receitas = Receitas.query.filter_by(user_id=current_user.id).all()
+    receitas_schema = ReceitasSchema(many=True)
+    serialized_data_rct = receitas_schema.dump(receitas)
+    
+    produc = Produc.query.filter_by(user_id=current_user.id).all()
+    produc_schema = ProducSchema(many=True)
+
+    producdados = ProducDados.query.filter_by(user_id=current_user.id).all()
+    producdados_schema = ProducDadosSchema(many=True)
+
+    produc_pendente = [pdc for pdc in produc if pdc.estado_pdc == "Pendente"]
+    produc_fechado = [pdc for pdc in produc if pdc.estado_pdc == "Fechado"]
+
+    serialized_data_produc_pendente = produc_schema.dump(produc_pendente)
+    serialized_data_produc_fechado = produc_schema.dump(produc_fechado)
+    serialized_data_produc_dados = producdados_schema.dump(producdados)
+    return render_template('planomestre.html', 
+                           producPendente=serialized_data_produc_pendente,
+                           receitas=serialized_data_rct)
+
 
 #host='93.127.210.253'
 
 if __name__ == '__main__':
 
-    app.run(host='93.127.210.253')
+    app.run(debug=True)

@@ -8,3 +8,4 @@ class Config:
     PERMANENT_SESSION_LIFETIME = timedelta(days=62)
     SECRET_KEY = 'GnqROcKzl3'
     DEBUG = True
+    TEMPLATES_AUTO_RELOAD = False

@@ -34,7 +34,7 @@
 <style>
     html,
     body {
-        min-height: 100% !important;
+        height: 100% ;
     }
 
     .mainContainer {
@@ -44,89 +44,16 @@
     }
 
 
-
-    nav {
-        width: 100%;
-        height: 65px;
-        background: rgb(0,0,0);
-        background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(22,22,22,1) 34%, rgba(99,99,99,1) 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        border-bottom: 2px solid rgb(0, 0, 0);
-
-        position: relative;
-        /* Ensure the child element stays on top of the overlay */
-       
-        /* Make the child element appear above the overlay */
-
-    }
-
-    .parent{
-        padding-top: 30px;
-
-    }
-
-    .nav-cont {
-        width: 100%;
-        display: flex;
-        justify-content: start;
-        /* Aligns items with space between them */
-
-    }
-
-
-
-    .user-icon {
-        margin-left: auto;
-
-        height: 100%;
-        width: 35px;
-        border-radius: 50%;
-    }
-
-    /* Style for the Font Awesome icon */
-    .fa-circle-user {
-        margin-bottom: 15px;
-        color: rgb(143, 143, 143);
-        font-size: 29px;
-        /* Adjust the icon size */
-        transition: color 0.3s ease;
-        /* Add a smooth transition effect */
-    }
-
-    /* Hover style for the Font Awesome icon */
-    .fa-circle-user:hover {
-        color: rgb(115, 115, 115);
-        /* Change the color on hover */
-        cursor: pointer;
-    }
-
-    @media screen and (max-width: 600px) {}
+ 
 </style>
+
+
 
 <body class="mainContainer" style="background-image: url('{{ url_for('static', filename='img/img3.jpg') }}'); ">
 
-    <nav style="padding-right: 25px;">
+    
 
-        <div style="max-width: fit-content; max-height: 50px" >
-            <img src="{{ url_for('static', filename='img/mini-logo.png') }}" alt="My Image" style="color: white; max-height: 55px;  margin-left: 18px">
-
-        </div>
-
-        {% include 'navigationlink.html' %}
-
-        <div>
-            <!-- <a style="color: white;"  href="/logout">Sair</a> -->
-            <a style="color: white;"  href="/perfil">Perfil</a>
-        </div>
-
-        
-
-
-    </nav>
-
+    {% include 'navigationlink.html' %}
     <div class="parent">
         {% block content %}{% endblock %}
     </div>

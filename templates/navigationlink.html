@@ -1,81 +1,136 @@
 <!-- Navigation Links -->
 <style>
-    .menu {
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        gap: 30px;
-        align-items: start;
-        justify-content: center;
-    }
-
-    .menu button {
-        background-color: transparent;
-        color: white;
-        border: none;
-        font-family: "DM Sans", sans-serif;
-        font-optical-sizing: auto;
-        font-weight: 300;
-        font-style: normal;
-        padding: 10px 17px;
-        font-size: 15px;
-    }
-
   
-
-    .menu button:hover {
-        background-color: #575757;
-        border-radius: 8px;
-        cursor: pointer;
-    }
-
-    .active{
-        background-color: #575757 !important;
-        border-radius: 8px !important;
-    }
-
 </style>
 
 
 
 <div class="menu">
 
-    {% if role == 'master' %}
+    {% if role == 'admin' %}
 
-    <button onclick="window.location.href='{{ url_for('filiais') }}'" {% if request.path==url_for('filiais')
-        %}class="active" {% endif %}>Filiais</button>
-    <button onclick="window.location.href='{{ url_for('fornecedores') }}'" {% if request.path==url_for('fornecedores')
-        %}class="active" {% endif %}>Fornecedores</button>
-    <button onclick="window.location.href='{{ url_for('materiasPrimas') }}'" {% if
-        request.path==url_for('materiasPrimas') %}class="active" {% endif %}>Materias Primas</button>
-    <button onclick="window.location.href='{{ url_for('inventario') }}'" {% if request.path==url_for('inventario')
-        %}class="active" {% endif %}>Inventário</button>
-    <button onclick="window.location.href='{{ url_for('compras') }}'" {% if request.path==url_for('compras')
-        %}class="active" {% endif %}>Compras</button>
-    <button onclick="window.location.href='{{ url_for('historico') }}'" {% if request.path==url_for('historico')
-        %}class="active" {% endif %}>Histórico</button>
-    <button onclick="window.location.href='{{ url_for('receitas') }}'" {% if request.path==url_for('receitas')
-        %}class="active" {% endif %}>Receitas</button>
-    <button onclick="window.location.href='{{ url_for('produccao') }}'" {% if request.path==url_for('produccao')
-        %}class="active" {% endif %}>Planejamento de Produção</button>
+    <nav class="navbar">
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a  href="/filiais">Filiais</a>
+            </li>
+            <li class="nav-item">
+                <a href="/planomestre">Plano Mestre</a>
+            </li>
+            <li class="nav-item">
+                <a href="#">Materias Primas</a>
+                <div class="submenu">
+                    <a href="#">Fornecedores</a>
+                    <a href="#">Materias Primas</a>
+                    
+                    
+                    
+                   
+                </div>
+            </li>
+            <li class="nav-item">
+                <a href="#">Contact</a>
+            </li>
+            <li class="nav-item">
+                <a href="#">Materias Primas</a>
+            </li>
+        </ul>
+    </nav>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var navItems = document.querySelectorAll('.nav-item');
+            console.log(navItems)
         
-{% elif role == 'admin' %} 
+            navItems.forEach(function(item) {
+                item.addEventListener('mouseenter', function() {
+                    var submenu = item.querySelector('.submenu');
+                    if (submenu) {
+                        submenu.style.display = 'block';
+                    }
+                });
+        
+                item.addEventListener('mouseleave', function() {
+                    var submenu = item.querySelector('.submenu');
+                    if (submenu) {
+                        submenu.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+        
+{% elif role == 'master' %} 
 
-    <button onclick="window.location.href='{{ url_for('fornecedores') }}'" {% if request.path==url_for('fornecedores')
-        %}class="active" {% endif %}>Fornecedores</button>
-    <button onclick="window.location.href='{{ url_for('materiasPrimas') }}'" {% if
-        request.path==url_for('materiasPrimas') %}class="active" {% endif %}>Materias Primas</button>
-    <button onclick="window.location.href='{{ url_for('inventario') }}'" {% if request.path==url_for('inventario')
-        %}class="active" {% endif %}>Inventário</button>
-    <button onclick="window.location.href='{{ url_for('compras') }}'" {% if request.path==url_for('compras')
-        %}class="active" {% endif %}>Compras</button>
-    <button onclick="window.location.href='{{ url_for('historico') }}'" {% if request.path==url_for('historico')
-        %}class="active" {% endif %}>Histórico</button>
-    <button onclick="window.location.href='{{ url_for('receitas') }}'" {% if request.path==url_for('receitas')
-        %}class="active" {% endif %}>Receitas</button>
-    <button onclick="window.location.href='{{ url_for('produccao') }}'" {% if request.path==url_for('produccao')
-        %}class="active" {% endif %}>Planejamento de Produção</button>
-    {% endif %}
+<nav class="navbar">
+    <ul class="nav-menu">
+        <li class="nav-item">
+            <a  href="/filiais">Filiais</a>
+        </li>
+
+        <li class="nav-item">
+            <a href="#">Materias Primas</a>
+            <div class="submenu">
+                <a href="/fornecedores">Fornecedores</a>
+                <a href="/materiasprimas">Materias Primas</a>        
+               
+            </div>
+        </li>
+
+        <li class="nav-item">
+            <a  href="/inventario">Inventário</a>
+        </li>
+
+        <li class="nav-item">
+            <a  href="/compras">Compras</a>
+        </li>
+
+        <li class="nav-item">
+            <a  href="/historico">Histórico</a>
+        </li>
+
+        <li class="nav-item">
+            <a  href="/receitas">Receitas</a>
+        </li>
+
+
+        <li class="nav-item">
+            <a  href="/produccao">Produção</a>
+        </li>
+
+        <li class="nav-item">
+            <a  href="/planomestre">Plano Mestre</a>
+        </li>
+
+
+    
+    </ul>
+</nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var navItems = document.querySelectorAll('.nav-item');
+        console.log(navItems)
+    
+        navItems.forEach(function(item) {
+            item.addEventListener('mouseenter', function() {
+                var submenu = item.querySelector('.submenu');
+                if (submenu) {
+                    submenu.style.display = 'block';
+                }
+            });
+    
+            item.addEventListener('mouseleave', function() {
+                var submenu = item.querySelector('.submenu');
+                if (submenu) {
+                    submenu.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+
+{%endif%}
     
 
 

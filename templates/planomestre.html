@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Filial{% endblock %}
+
+{% block content %}
+
+<body>
+    <div class="container">
+        <div class="tabela">
+            <div class="header">
+
+                <div style="display:flex; flex-direction: column; width:100%">
+                    <h3>Plano Mestre</h3>
+
+                    
+
+                   
+
+                    {%for rct in receitas %}
+
+                    <div style="border: 1px solid black; 
+                    border-radius:12px;
+                    padding: 18px">
+
+                    <h5>{{rct.nome_rct}}</h5>
+                    <h5>{{rct.id_rct}}</h5>
+                    <h5>{{rct.class_rct}}</h5>
+                    <h5>{{rct.departamento_rct}}</h5>
+
+                    {% for produc in producPendente %}
+
+                    {% if produc.nome_rct == rct.nome_rct %}
+                    <div
+                        style="width: 100%; padding: 25px; margin-block: 12px; background-color: rgb(188, 188, 188); border-radius: 12px">
+                        <h5>{{ produc.nomefilial_pdc }}</h5>
+                        <h5>{{ produc.quantidade_pdc }}</h5>
+
+                    </div>
+                    {% endif %}
+
+                    {% endfor %}
+
+                    
+                </div>
+
+
+                    {% endfor %}
+
+
+
+
+
+
+                    <!-- <button style="margin-left: 12px;" onclick="window.location.href='{{ url_for('rotas') }}'"  class="btn-cadastrar">+ Rotas</button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+{% endblock %}
