@@ -1,4 +1,4 @@
-from db import db
+from db import db,ma
 from flask_login import UserMixin
 
 # USERS #################################################################################################
@@ -31,3 +31,18 @@ class Usuarios(UserMixin,db.Model):
     produc = db.relationship('Produc', back_populates="usuarios", lazy=True)
     producdados = db.relationship('ProducDados', back_populates="usuarios", lazy=True)
     filiais = db.relationship('Filiais', back_populates="usuarios", lazy=True)
+    
+
+class UsuariosSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Usuarios
+        
+    id = ma.auto_field()
+    username = ma.auto_field()
+    password = ma.auto_field()
+    role = ma.auto_field()
+    nomecompleto = ma.auto_field()
+    funcao = ma.auto_field()
+    whatsapp = ma.auto_field()
+    cpf = ma.auto_field()
+    email = ma.auto_field()

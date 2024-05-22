@@ -1,5 +1,5 @@
 ####################################################################################
-from db import db
+from db import db, ma
 
 class ReceitaMateriasPrimas(db.Model):
     __tablename__ = "receitamateriasprimas"
@@ -19,3 +19,15 @@ class ReceitaMateriasPrimas(db.Model):
     usuarios = db.relationship("Usuarios", back_populates="receitasmateriasprimas")
     materias_primas = db.relationship("MateriasPrimas", back_populates="receitasmateriasprimas")
     receitas = db.relationship("Receitas", back_populates="receitasmateriasprimas")
+
+class ReceitasMateriasPrimasSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = ReceitaMateriasPrimas
+
+    id_rctmp = ma.auto_field()
+    id_rct = ma.auto_field()
+    id_mp = ma.auto_field()
+    nome_mp = ma.auto_field()
+    quantidade = ma.auto_field()
+    tipo_rctmp = ma.auto_field()
+    unidade = ma.auto_field()

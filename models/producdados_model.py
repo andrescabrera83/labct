@@ -1,4 +1,4 @@
-from db import db
+from db import db, ma
 
 
 class ProducDados(db.Model):
@@ -18,3 +18,18 @@ class ProducDados(db.Model):
     #receitas = db.relationship("Receitas", back_populates="producdados")
     #materias_primas = db.relationship("MateriasPrimas", back_populates="producdados")
     produc = db.relationship("Produc", back_populates="producdados")
+    
+
+
+    
+class ProducDadosSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = ProducDados
+
+    id_pdcd = ma.auto_field()
+    id_pdc = ma.auto_field()
+    id_rct = ma.auto_field()
+    id_mp = ma.auto_field()
+    nome_mp = ma.auto_field()
+    quantidade_pdcd = ma.auto_field()
+    unidade_pdcd = ma.auto_field()

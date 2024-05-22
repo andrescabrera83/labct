@@ -1,5 +1,5 @@
 # INVENTARIO ###################################################################################
-from db import db
+from db import db, ma
 from datetime import datetime, timezone
 
 class Inventario(db.Model):
@@ -14,3 +14,12 @@ class Inventario(db.Model):
 
     usuarios = db.relationship("Usuarios", back_populates="inventario")
     inventariosdados = db.relationship("InventarioDados", back_populates="inventario")
+    
+
+class InventarioSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Inventario
+        
+    id_invt = ma.auto_field()
+    estado_invt = ma.auto_field()
+    data_invt = ma.auto_field()
