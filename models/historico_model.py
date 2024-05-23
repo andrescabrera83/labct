@@ -23,15 +23,3 @@ class Historico(db.Model):
     usuarios = db.relationship("Usuarios", back_populates="historico")
     
 
-class HistoricoSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = Historico
-        
-    id_hst = ma.auto_field() 
-    date_change = ma.auto_field()
-    id_mp = ma.auto_field()
-    nome_mp = ma.auto_field()
-    ultimaquantidade_hst = ma.auto_field()
-    novaquantidade_hst = ma.auto_field()
-    difference_hst = ma.auto_field()
-    modo_hst = ma.auto_field()

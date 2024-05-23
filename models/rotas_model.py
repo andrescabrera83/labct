@@ -18,16 +18,5 @@ class Rotas(UserMixin,db.Model):
     #filiais = db.relationship('Filiais', back_populates="rotas", lazy=True)
     
     
-class RotasSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = Rotas
-    
-    id_rota = ma.auto_field()
-    nome = ma.auto_field()
-    veiculo = ma.auto_field()
-    placa = ma.auto_field()
-    horario = ma.auto_field()
-   # filiais = ma.auto_field()
-    whatsapp = ma.auto_field()
-    
+
         

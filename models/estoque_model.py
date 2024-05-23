@@ -1,4 +1,4 @@
-from db import db, ma
+from db import db
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey, func
 
@@ -37,14 +37,3 @@ class Estoque(db.Model):
         
 
 
-class EstoqueSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = Estoque
-        
-    id_estq = ma.auto_field()
-    id_mp = ma.auto_field()
-    nome_mp = ma.auto_field()
-    unidade_mp = ma.auto_field()
-    quantidade_estq = ma.auto_field()
-    gms_mp = ma.auto_field()
-    pedidomin_mp = ma.auto_field()

@@ -19,15 +19,3 @@ class Fornecedores(db.Model):
     usuarios = db.relationship("Usuarios", back_populates="fornecedores")
     
     
-class FornecedorSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = Fornecedores
-
-    id_fornecedor = ma.auto_field()
-    nome_fornecedor = ma.auto_field()
-    tempo_entrega = ma.auto_field()
-    prazo_pagamento = ma.auto_field()
-    dia_pedido = ma.auto_field()
-    nome_vendedor = ma.auto_field()
-    contato_tel = ma.auto_field()
-    email_vendedor = ma.auto_field()

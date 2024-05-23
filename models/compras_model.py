@@ -17,10 +17,3 @@ class Compras(db.Model):
     usuarios = db.relationship("Usuarios", back_populates="compras")
     comprasdados = db.relationship("ComprasDados", back_populates="compras")
     
-class ComprasSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = Compras
-        
-    id_compras = ma.auto_field()
-    estado_compras = ma.auto_field()
-    data_compras = ma.auto_field()   

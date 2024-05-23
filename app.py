@@ -21,10 +21,11 @@ from sqlalchemy import func
 from decimal import Decimal
 
 #from models.materiasprimas import MateriasPrimas
+from db import db, ma, app
 
-
-from models.estoque_model import Estoque
 from models.materiasprimas_model import MateriasPrimas
+from models.estoque_model import Estoque
+
 from models.fornecedores_model import Fornecedores
 from models.historico_model import Historico
 from models.inventario_model import Inventario
@@ -44,7 +45,7 @@ from models.planomestre_model import PlanoMestre
 from models.planomestrefiliais_model import PlanoMestreFiliais
 
 
-from db import db, ma, app
+
 
 
 from flask_login import UserMixin,current_user, login_required, LoginManager, login_user

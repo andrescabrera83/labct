@@ -23,15 +23,4 @@ class InventarioDados(db.Model):
     
 
  
-class InventarioDadosSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = InventarioDados
-        
-    id_invtdados = ma.auto_field()
-    id_invt = ma.auto_field()
-    data_invt = ma.auto_field()
-    id_mp = ma.auto_field()
-    nome_mp = ma.auto_field()
-    unidade_mp = ma.auto_field()
-    quantidade_invtdados = ma.auto_field()   
-    quantidade_estq = ma.auto_field()   
+

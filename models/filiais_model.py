@@ -15,15 +15,3 @@ class Filiais(db.Model):
 
     usuarios = db.relationship("Usuarios", back_populates="filiais")
     
-    
-class FiliaisSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = Filiais
-    
-    id_fil = ma.auto_field()
-    loja_fil = ma.auto_field()
-    endereco_fil = ma.auto_field()
-    bairro_fil = ma.auto_field()
-    cidade_fil = ma.auto_field()
-    codigorota_fil = ma.auto_field()
-     
