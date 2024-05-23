@@ -192,6 +192,7 @@ class ReceitasSchema(ma.SQLAlchemySchema):
     unidadeporkg_rct = ma.auto_field()
     pedidomin_rct = ma.auto_field()
     contador_rct = ma.auto_field()
+    estoque_rct = ma.auto_field()
 
 class ReceitasMateriasPrimasSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -1636,6 +1637,9 @@ def fechar_pdc():
         
         estoque = Estoque.query.filter_by(nome_mp=mp).first()
         estoquequantidade = estoque.quantidade_estq
+        
+        receita = Receitas.query.filter_by(nome_rct=produc.nome_rct).first()
+        receita.estoque_rct = int(receita.estoque_rct) + produc.quantidade_pdc
 
 
         pedidoFloat = Decimal(producd.quantidade_pdcd)
@@ -1711,7 +1715,11 @@ def get_recipe_info():
     else:
         # If the recipe is not found, return an empty response or an error message
         return jsonify({}), 404
-    
+
+
+from collections import defaultdict  
+
+
 @app.route('/planomestre')
 def planomestre():
     
@@ -1722,18 +1730,34 @@ def planomestre():
     produc = Produc.query.filter_by(user_id=current_user.id).all()
     produc_schema = ProducSchema(many=True)
 
-    producdados = ProducDados.query.filter_by(user_id=current_user.id).all()
-    producdados_schema = ProducDadosSchema(many=True)
-
     produc_pendente = [pdc for pdc in produc if pdc.estado_pdc == "Pendente"]
-    produc_fechado = [pdc for pdc in produc if pdc.estado_pdc == "Fechado"]
+
 
     serialized_data_produc_pendente = produc_schema.dump(produc_pendente)
-    serialized_data_produc_fechado = produc_schema.dump(produc_fechado)
-    serialized_data_produc_dados = producdados_schema.dump(producdados)
+    
+    receita_value = serialized_data_rct[0]['estoque_rct'] if serialized_data_rct else 0
+    
+    
+    aggregated_data = defaultdict(int)
+    
+    
+    for produc in serialized_data_produc_pendente:
+        loja = produc['nomefilial_pdc']
+        quantidade = produc['quantidade_pdc']
+        aggregated_data[loja] += quantidade
+
+    # Convert aggregated data to a list of dictionaries
+      # Calculate the total value by subtracting receita_value from quantidade
+    processed_data = []
+    for loja, quantidade in aggregated_data.items():
+        total = quantidade - receita_value
+        processed_data.append({'loja': loja, 'quantidade': quantidade, 'total': total})
+    
+    
     return render_template('planomestre.html', 
                            producPendente=serialized_data_produc_pendente,
-                           receitas=serialized_data_rct)
+                           receitas=serialized_data_rct,
+                           processedData=processed_data)
 
 
 #host='93.127.210.253'

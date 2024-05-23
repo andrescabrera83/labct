@@ -11,34 +11,98 @@
                 <div style="display:flex; flex-direction: column; width:100%">
                     <h3>Plano Mestre</h3>
 
-                    
+                    <p style="font-size: large;">Lista De Producoes Pendentes</p>
 
-                   
+                    
 
                     {%for rct in receitas %}
                     {% if rct.contador_rct > 0 %}
 
                     <div style="border: 1px solid black; 
                     border-radius:12px;
-                    padding: 18px">
+                    padding: 18px;
+                    display:flex;
+                    flex-direction:column; margin-block: 15px;
+                    ">
 
-                    <h5>{{rct.nome_rct}}</h5>
-                    <h5>{{rct.id_rct}}</h5>
-                    <h5>{{rct.class_rct}}</h5>
-                    <h5>{{rct.departamento_rct}}</h5>
+                    <div style="width: 100%;  display:flex; justify-content:space-between;">
+                        <div>
+                            
+                            <h3>
+                                <h5 style="font-weight: 600; font-size: 34px">{{rct.nome_rct}}</h5>
+                            </h3>
 
-                    {% for produc in producPendente %}
+                        </div>
 
-                    {% if produc.nome_rct == rct.nome_rct %}
-                    <div
-                        style="width: 100%; padding: 25px; margin-block: 12px; background-color: rgb(188, 188, 188); border-radius: 12px">
-                        <h5>{{ produc.nomefilial_pdc }}</h5>
-                        <h5>{{ produc.quantidade_pdc }}</h5>
+                        <div style="display: flex; flex-direction:column; align-items:end;">
+                            <h4>
+                                Codigo:
+                            </h4>
+                            <h5 style="font-weight: 300;">{{rct.id_rct}}</h5>
+                        </div>
+                        
 
                     </div>
-                    {% endif %}
 
-                    {% endfor %}
+                    <div style="width: 100%; display:flex; justify-content:space-between;">
+
+                        <div style="display: flex; justify-content:start">
+                            <div style="margin-right: 35px;">
+                                <h4>
+                                    Classificacao:
+                                </h4>
+                                <h3>
+                                    <h5 style="font-weight: 300;">{{rct.class_rct}}</h5>
+                                </h3>
+    
+                            </div>
+    
+                            <div style="display: flex; flex-direction:column; ">
+                                <h4>
+                                    Departamento:
+                                </h4>
+                                <h5 style="font-weight: 300;">{{rct.departamento_rct}}</h5>
+                            </div>
+
+                        </div>
+
+                        
+
+                        <div style="display: flex; flex-direction:column; align-items:end;">
+                            <h4>
+                                Estoque Industria:
+                            </h4>
+                            <h5 style="font-weight: 300;">{{rct.estoque_rct}}</h5>
+                        </div>
+                        
+
+                    </div>
+
+                    <div style="border-bottom: 1px solid black; margin-block: 7px;"></div>
+
+                    <h4>Pedidos></h4>
+
+                    <br>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>loja</th>
+                                <th>quantidade</th>
+                                <th>pedido total em un</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in processedData %}
+                            <tr>
+                                <td>{{ item.loja }}</td>
+                                <td>{{ item.quantidade }}</td>
+                                <td>{{ item.total }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                   
 
                     
                 </div>

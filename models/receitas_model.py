@@ -19,6 +19,8 @@ class Receitas(db.Model):
     unidadeporkg_rct = db.Column(db.Integer)
     pedidomin_rct = db.Column(db.Integer)
     
+    estoque_rct = db.Column(db.Integer)
+    
     contador_rct = db.Column(db.Integer)
 
     usuarios = db.relationship("Usuarios", back_populates="receitas")
