@@ -191,6 +191,7 @@ class ReceitasSchema(ma.SQLAlchemySchema):
     validade_rct = ma.auto_field()
     unidadeporkg_rct = ma.auto_field()
     pedidomin_rct = ma.auto_field()
+    contador_rct = ma.auto_field()
 
 class ReceitasMateriasPrimasSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -1512,17 +1513,48 @@ def salvar_pdc():
     departamento_rct = receitas.departamento_rct
     class_rct = receitas.class_rct
     pedidominimo_rct = receitas.pedidomin_rct
+    codigo_rct = receitas.cod_rct
+    
     
     # Increment contador_rct by 1
     receitas.contador_rct = int(receitas.contador_rct) + 1
     
+    #logic insert 
+    
+   
     
     
     filiais = Filiais.query.filter_by(id_fil=filial).first()
     nomefilial = filiais.loja_fil
     
+    planomestre = PlanoMestre(
+        codigo_rct=codigo_rct,
+        nome_rct=nome_rct,
+        class_rct=class_rct,
+        departamento_rct=departamento_rct,
+        data_pm=current_time,
+        
+        estoque_pm=0,
+        
+        pedidototal_pm=0,
+        pedidokgtotal_pm=0.000,
+        
+        rctnecessaria_pm=0
+        
+    )
     
-  
+    db.session.add(planomestre)
+    db.session.commit()
+    
+    planomestref = PlanoMestreFiliais(
+        id_pm=planomestre.id_pm,
+        filial_pdc=filial,
+        nomefilial_pdc=nomefilial,
+        quantidade_pdc=quantidade
+    )
+    
+    db.session.add(planomestref)
+    db.session.commit()
     
     
 
@@ -1570,6 +1602,10 @@ def salvar_pdc():
         db.session.add(producdados)
     
         db.session.commit()
+        
+        
+        
+        
       
     # Assuming 'produccao_url' is the URL to which you want to redirect
     produccao_url = url_for('produccao')
