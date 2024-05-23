@@ -1335,7 +1335,8 @@ def receitas():
             validade_rct=validade_rct,
             unidadeporkg_rct=unidadeporkg_rct,
             user_id=current_user.id,
-            contador_rct=0
+            contador_rct=0,
+            estoque_rct=0
         )
 
         db.session.add(receitas)
@@ -1723,41 +1724,90 @@ from collections import defaultdict
 @app.route('/planomestre')
 def planomestre():
     
-    receitas = Receitas.query.filter_by(user_id=current_user.id).all()
-    receitas_schema = ReceitasSchema(many=True)
-    serialized_data_rct = receitas_schema.dump(receitas)
+    ## DATABASE COLLECTION
     
     produc = Produc.query.filter_by(user_id=current_user.id).all()
     produc_schema = ProducSchema(many=True)
 
     produc_pendente = [pdc for pdc in produc if pdc.estado_pdc == "Pendente"]
-
-
     serialized_data_produc_pendente = produc_schema.dump(produc_pendente)
     
-    receita_value = serialized_data_rct[0]['estoque_rct'] if serialized_data_rct else 0
+    receitas = Receitas.query.filter_by(user_id=current_user.id).all()
+    receitas_schema = ReceitasSchema(many=True)
+    serialized_data_rct = receitas_schema.dump(receitas)
+    
+    filiais = Filiais.query.filter_by(user_id=current_user.id).all()
     
     
-    aggregated_data = defaultdict(int)
     
     
-    for produc in serialized_data_produc_pendente:
-        loja = produc['nomefilial_pdc']
-        quantidade = produc['quantidade_pdc']
-        aggregated_data[loja] += quantidade
-
-    # Convert aggregated data to a list of dictionaries
-      # Calculate the total value by subtracting receita_value from quantidade
-    processed_data = []
-    for loja, quantidade in aggregated_data.items():
-        total = quantidade - receita_value
-        processed_data.append({'loja': loja, 'quantidade': quantidade, 'total': total})
+   
+    
+    ## DICTIONARIO PLANO MESTRE
+    
+    planomestre = {}
+    
+    for rct in receitas:
+        if rct.contador_rct > 0:
+            
+            planomestre[rct.id_rct] = {
+                'detalhes':{
+                    'nome_rct':rct.nome_rct,
+                    'cod_rct':rct.nome_rct,
+                    'rendimento_rct':rct.rendimento_rct,
+                    'class_rct':rct.class_rct,
+                    'departamento_rct':rct.departamento_rct,
+                    'rendimentokg_rct':rct.rendimentokg_rct,
+                    'unidadeporkg_rct':rct.unidadeporkg_rct,
+                    'contador_rct':rct.cotador_rct
+                    
+                },
+                
+                'pedidos': {},
+                'totales': {}
+                
+            }
+            
+            pedido_total_por_loja = 0
+            
+            for f in filiais:
+                for pdc in produc:
+                    if pdc.filial_pdc == f.id_fil:
+                        pedido_total_por_loja += pdc.quantidade_pdc
+                        
+                        
+                        
+                
+                
+                
+                
+                
+            
+            
+            
+            
+            
+            
+            
+        
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     return render_template('planomestre.html', 
                            producPendente=serialized_data_produc_pendente,
                            receitas=serialized_data_rct,
-                           processedData=processed_data)
+                          )
 
 
 #host='93.127.210.253'
