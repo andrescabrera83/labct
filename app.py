@@ -1641,6 +1641,7 @@ def fechar_pdc():
         
         receita = Receitas.query.filter_by(nome_rct=produc.nome_rct).first()
         receita.estoque_rct = int(receita.estoque_rct) + produc.quantidade_pdc
+        receita.contador_rct = int(receita.contador_rct) - 1
 
 
         pedidoFloat = Decimal(producd.quantidade_pdcd)
@@ -1748,65 +1749,78 @@ def planomestre():
     planomestre = {}
     
     for rct in receitas:
-        if rct.contador_rct > 0:
+        
+        try:
+            contador_rct = int(rct.contador_rct)  # Convert to integer
+        except ValueError:
+            continue  # Skip this recipe if conversion fails
+    
+        if contador_rct > 0:
             
             planomestre[rct.id_rct] = {
                 'detalhes':{
                     'nome_rct':rct.nome_rct,
-                    'cod_rct':rct.nome_rct,
+                    'id_rct':rct.id_rct,
                     'rendimento_rct':rct.rendimento_rct,
                     'class_rct':rct.class_rct,
                     'departamento_rct':rct.departamento_rct,
                     'rendimentokg_rct':rct.rendimentokg_rct,
                     'unidadeporkg_rct':rct.unidadeporkg_rct,
-                    'contador_rct':rct.cotador_rct
+                    'contador_rct':rct.contador_rct,
+                    'estoque_rct':rct.estoque_rct
                     
                 },
                 
                 'pedidos': {},
-                'totales': {}
+                'totales': {
+                    'pedido_total_em_un':0,
+                    'pedido_em_kg_total':0.0,
+                    'num_receitas_necessaria':0.0
+                    
+                }
                 
             }
             
-            pedido_total_por_loja = 0
+            total_total = 0
             
             for f in filiais:
+                pedido_total_por_loja = 0
+                
+                planomestre[rct.id_rct]['pedidos'][f.loja_fil] = {}
+                
                 for pdc in produc:
-                    if pdc.filial_pdc == f.id_fil:
-                        pedido_total_por_loja += pdc.quantidade_pdc
+                    if pdc.estado_pdc == "Pendente":
+                        if pdc.nomefilial_pdc == f.loja_fil:
                         
-                        
-                        
+                            pedido_total_por_loja += pdc.quantidade_pdc
+                    
+                
+                total_total += pedido_total_por_loja
+                
+                print(total_total)
+
+                
+                planomestre[rct.id_rct]['pedidos'][f.loja_fil] = {
+                'pedido_total': pedido_total_por_loja
+                }
+                
+                pedido_total_em_un = total_total - rct.estoque_rct
+                pedido_em_kg_total = round(pedido_total_em_un / rct.rendimentokg_rct, 3)
+                num_receitas_necessaria = round(pedido_total_em_un / rct.unidadeporkg_rct, 3)
                 
                 
+                # fill the dictionarie totales with corresponding values
+                planomestre[rct.id_rct]['totales']['pedido_total_em_un'] = pedido_total_em_un
+                planomestre[rct.id_rct]['totales']['pedido_em_kg_total'] = pedido_em_kg_total
+                planomestre[rct.id_rct]['totales']['num_receitas_necessaria'] = num_receitas_necessaria
                 
                 
-                
-            
-            
-            
-            
-            
-            
-            
-        
-        
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     return render_template('planomestre.html', 
                            producPendente=serialized_data_produc_pendente,
                            receitas=serialized_data_rct,
+                           planomestre=planomestre
                           )
 
 

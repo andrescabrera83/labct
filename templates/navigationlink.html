@@ -64,6 +64,10 @@
 {% elif role == 'master' %} 
 
 <nav class="navbar">
+    <div style="display: flex; align-items:center; width:auto;">
+        <img src="{{ url_for('static', filename='img/mini-logo.png') }}" alt="My Image" style="color: white; max-height: 40px;  margin-left: 18px">
+
+    </div>
     <ul class="nav-menu">
         <li class="nav-item">
             <a  href="/filiais">Filiais</a>
@@ -100,10 +104,37 @@
             <a  href="/planomestre">Plano Mestre</a>
         </li>
 
+        
+
 
     
     </ul>
+    <a style="padding-block: 5px; padding-inline: 14px; font-size:13px; 
+     color: white;
+    border-radius:8px; border: 1px solid white;" href="/logout">Sair</a>
 </nav>
+
+
+<script>
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('mouseenter', event => {
+            const submenu = event.currentTarget.querySelector('.submenu');
+            const rect = submenu.getBoundingClientRect();
+
+            if (rect.right > window.innerWidth) {
+                submenu.style.left = `-${rect.right - window.innerWidth}px`;
+            } else {
+                submenu.style.left = '0';
+            }
+        });
+
+        item.addEventListener('mouseleave', event => {
+            const submenu = event.currentTarget.querySelector('.submenu');
+            submenu.style.left = '0';
+        });
+    });
+</script>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

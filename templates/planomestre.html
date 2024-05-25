@@ -3,6 +3,92 @@
 
 {% block content %}
 
+<style>
+    table {
+        width: 100%;
+    }
+
+
+    table th,
+    table td {
+        padding: 0.4em;
+    }
+
+    table.fold-table>tbody>tr.view td,
+    table.fold-table>tbody>tr.view th {
+        cursor: default;
+
+
+    }
+
+    table.fold-table>tbody>tr.view td:first-child,
+    table.fold-table>tbody>tr.view th:first-child {
+        position: relative;
+        padding-left: 20px;
+    }
+
+    table.fold-table>tbody>tr.view td:first-child:before,
+    table.fold-table>tbody>tr.view th:first-child:before {
+        position: absolute;
+        top: 50%;
+        left: 20px;
+        width: 9px;
+        height: 16px;
+        margin-top: -8px;
+        font: 16px fontawesome;
+        color: #999;
+        content: "▼";
+
+        transition: all 0.3s ease;
+    }
+
+    table.fold-table>tbody>tr.view:hover {
+        background: #eeeeee;
+        text-decoration: underline;
+    }
+
+    table.fold-table>tbody>tr.view.open {
+
+        background: rgb(255, 230, 129);
+        color: rgb(0, 0, 0);
+
+        font-weight: 600;
+        text-decoration: underline;
+    }
+
+
+
+    table.fold-table>tbody>tr.view.open td:first-child:before,
+    table.fold-table>tbody>tr.view.open th:first-child:before {
+        transform-origin: right;
+        transform: rotate(180deg);
+        color: #000000;
+
+
+    }
+
+    table.fold-table>tbody>tr.fold {
+        display: none;
+    }
+
+    table.fold-table>tbody>tr.fold.open {
+        display: table-row;
+        background: rgb(255, 255, 255);
+    }
+
+    table.fold-table>tbody>tr.fold.open:hover {
+        background-color: rgb(255, 255, 255);
+        text-decoration: none;
+    }
+
+
+    .fold-content {
+        padding-block: 18px;
+        padding-inline: 18px;
+
+    }
+</style>
+
 <body>
     <div class="container">
         <div class="tabela">
@@ -13,102 +99,260 @@
 
                     <p style="font-size: large;">Lista De Producoes Pendentes</p>
 
-                    
 
-                    {%for rct in receitas %}
-                    {% if rct.contador_rct > 0 %}
 
-                    <div style="border: 1px solid black; 
-                    border-radius:12px;
-                    padding: 18px;
-                    display:flex;
-                    flex-direction:column; margin-block: 15px;
-                    ">
 
-                    <div style="width: 100%;  display:flex; justify-content:space-between;">
-                        <div>
-                            
-                            <h3>
-                                <h5 style="font-weight: 600; font-size: 34px">{{rct.nome_rct}}</h5>
-                            </h3>
+
+                    <!-- <div style="display:grid; grid-template-columns: 50% 50%; gap:20px; width:100%">
+
+                        {%for recipe_id, recipe_data in planomestre.items() %}
+
+                        <div style="border: 1px solid black; 
+                        border-radius:12px;
+                        padding: 18px;
+                        display:flex;
+                        flex-direction:column; margin-block: 15px;
+                        width:100%;
+                        ">
+
+                            <div style="width: 100%;  display:flex; justify-content:space-between;">
+                                <div>
+
+                                    <h3>
+                                        <h5 style="font-weight: 600; font-size: 34px">{{
+                                            recipe_data['detalhes']['nome_rct'] }}</h5>
+                                    </h3>
+
+                                </div>
+
+                                <div style="display: flex; flex-direction:column; align-items:end;">
+                                    <h4>
+                                        Codigo:
+                                    </h4>
+                                    <h5 style="font-weight: 300;">{{ recipe_data['detalhes']['id_rct'] }}</h5>
+                                </div>
+
+
+                            </div>
+
+                            <div style="width: 100%; display:flex; justify-content:space-between;">
+
+                                <div style="display: flex; justify-content:start">
+                                    <div style="margin-right: 35px;">
+                                        <h4>
+                                            Classificacao:
+                                        </h4>
+                                        <h3>
+                                            <h5 style="font-weight: 300;">{{ recipe_data['detalhes']['class_rct'] }}
+                                            </h5>
+                                        </h3>
+
+                                    </div>
+
+                                    <div style="display: flex; flex-direction:column; ">
+                                        <h4>
+                                            Departamento:
+                                        </h4>
+                                        <h5 style="font-weight: 300;">{{ recipe_data['detalhes']['departamento_rct'] }}
+                                        </h5>
+                                    </div>
+
+                                </div>
+
+
+
+                                <div style="display: flex; flex-direction:column; align-items:end;">
+                                    <h4 style="text-align: end;">
+                                        Estoque Industria:
+                                    </h4>
+                                    <h5 style="font-weight: 300;">{{ recipe_data['detalhes']['estoque_rct'] }}</h5>
+                                </div>
+
+
+                            </div>
+
+                            <div style="border-bottom: 1px solid black; margin-block: 7px;"></div>
+
+                            <h4>Pedidos></h4>
+
+                            <br>
+
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th style="width: 25%;">loja</th>
+                                        <th>quantidade</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for store, pedido_data in recipe_data['pedidos'].items() %}
+
+                                    <tr>
+                                        <td>{{ store }}</td>
+                                        <td>{{ pedido_data['pedido_total'] }}</td>
+
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+
+                            <br>
+
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Pedido Total Em Uni
+                                        </th>
+                                        <th>
+                                            Pedido em kg total
+                                        </th>
+                                        <th>
+                                            Num de receitas necessarias
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            {{ recipe_data['totales']['pedido_total_em_un'] }}
+                                        </td>
+                                        <td>
+                                            {{ recipe_data['totales']['pedido_em_kg_total'] }}
+                                        </td>
+                                        <td>
+                                            {{ recipe_data['totales']['num_receitas_necessaria'] }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+
 
                         </div>
 
-                        <div style="display: flex; flex-direction:column; align-items:end;">
-                            <h4>
-                                Codigo:
-                            </h4>
-                            <h5 style="font-weight: 300;">{{rct.id_rct}}</h5>
-                        </div>
-                        
+
+                        {% endfor %}
+                    </div> -->
+
+
+                    <div class="listaPedidos" style="margin-top: 12px;">
+                        <h4> Pedidos Pendentes</h4>
+                        <table class="fold-table parent-table" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%;">Código</th>
+                                    <th>Produto/Receita</th>
+                                    <th>Classificacao</th>
+                                    <th>Departamento</th>
+                                    <th>
+                                        Estoque Industria
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="tbody-parent">
+
+                                {% if not planomestre.items() %}
+                                <tr class="semCompras">
+                                    <td colspan="10">
+                                        <h3 style="font-weight: 300; color: lightgray; margin-block: 28px;">Sem Pedidos
+                                            de
+                                            Produção
+                                            Pendentes</h3>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {%for recipe_id, recipe_data in planomestre.items() %}
+                                <tr class="view">
+                                    <td>{{ recipe_data['detalhes']['id_rct'] }}</td>
+                                    <td>{{ recipe_data['detalhes']['nome_rct'] }}</td>
+                                    <td>{{ recipe_data['detalhes']['class_rct'] }}</td>
+                                    <td>{{ recipe_data['detalhes']['departamento_rct'] }}</td>
+                                    <td>{{ recipe_data['detalhes']['estoque_rct'] }}</td>
+
+                                </tr>
+
+                                <tr class="fold">
+                                    <td colspan="10">
+                                        <div class="fold-content"
+                                            style="display: flex; justify-content: start; flex-direction: column;">
+
+
+
+                                            <div>
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width: 25%;">
+                                                                Lojas/Filiais
+                                                            </th>
+                                                            <th>
+                                                                Quantidade
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for store, pedido_data in recipe_data['pedidos'].items() %}
+
+                                                        <tr>
+                                                            <td>{{ store }}</td>
+                                                            <td>{{ pedido_data['pedido_total'] }}</td>
+
+                                                        </tr>
+                                                        {% endfor %}
+
+                                                    </tbody>
+                                                </table>
+
+                                                <br>
+
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>
+                                                                Pedido Total Em Uni
+                                                            </th>
+                                                            <th>
+                                                                Pedido em kg total
+                                                            </th>
+                                                            <th>
+                                                                Num de receitas necessarias
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>
+                                                                {{ recipe_data['totales']['pedido_total_em_un'] }}
+                                                            </td>
+                                                            <td>
+                                                                {{ recipe_data['totales']['pedido_em_kg_total'] }}
+                                                            </td>
+                                                            <td>
+                                                                {{ recipe_data['totales']['num_receitas_necessaria'] }}
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+
 
                     </div>
 
-                    <div style="width: 100%; display:flex; justify-content:space-between;">
 
-                        <div style="display: flex; justify-content:start">
-                            <div style="margin-right: 35px;">
-                                <h4>
-                                    Classificacao:
-                                </h4>
-                                <h3>
-                                    <h5 style="font-weight: 300;">{{rct.class_rct}}</h5>
-                                </h3>
-    
-                            </div>
-    
-                            <div style="display: flex; flex-direction:column; ">
-                                <h4>
-                                    Departamento:
-                                </h4>
-                                <h5 style="font-weight: 300;">{{rct.departamento_rct}}</h5>
-                            </div>
 
-                        </div>
 
-                        
 
-                        <div style="display: flex; flex-direction:column; align-items:end;">
-                            <h4>
-                                Estoque Industria:
-                            </h4>
-                            <h5 style="font-weight: 300;">{{rct.estoque_rct}}</h5>
-                        </div>
-                        
-
-                    </div>
-
-                    <div style="border-bottom: 1px solid black; margin-block: 7px;"></div>
-
-                    <h4>Pedidos></h4>
-
-                    <br>
-                    
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>loja</th>
-                                <th>quantidade</th>
-                                <th>pedido total em un</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
-                            <tr>
-                                <td>loja</td>
-                                <td>quantidade</td>
-                                <td>##</td>
-                            </tr>
-                           
-                        </tbody>
-                    </table>
-                   
-
-                    
-                </div>
-
-                {% endif %}
-                    {% endfor %}
 
 
 
@@ -121,6 +365,38 @@
         </div>
     </div>
 </body>
+
+<script>
+
+
+
+    $(function () {
+        $(".fold-table tr.view").on("click", function () {
+            $(this).toggleClass("open").next(".fold").toggleClass("open");
+            // Get the target component relative to the clicked row
+            const targetElement = $(this).next(".fold").find(".target-component");
+            console.log(targetElement);
+            // Scroll to the target component
+            scrollToComponent(targetElement);
+        });
+    });
+
+    function scrollToComponent(targetElement) {
+        // Calculate the target scroll position
+        // Adjust this value to set the space at the top
+        const offset = 40;
+        const targetScrollPosition = targetElement.offset().top - offset;
+
+        // Scroll to the target position
+        window.scrollTo({
+            top: targetScrollPosition,
+            behavior: 'smooth' // Optional: Use smooth scrolling
+        });
+    }
+
+
+
+</script>
 
 
 {% endblock %}
