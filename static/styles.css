@@ -29,6 +29,13 @@ body {
     gap: 30px;
     align-items: center;
     justify-content: center;
+    
+    
+    
+}
+
+.menu::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome, Safari, and Opera */
 }
 
 .menu button {
@@ -66,6 +73,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    
+    
     
 }
 
@@ -120,15 +129,7 @@ body {
     white-space: nowrap;
 }
 
-.submenu::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: -1;
-}
+
 
 
 
